@@ -18,8 +18,8 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 
 -- Insert demo users (passwords are 'demo123' hashed with bcrypt)
 INSERT INTO users (username, email, password, full_name, role, is_active) VALUES
-('student_demo', 'student_demo@eduverse.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdCvWfBGNLdGOCa', 'Student Demo User', 'student', true),
-('teacher_demo', 'teacher_demo@eduverse.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdCvWfBGNLdGOCa', 'Teacher Demo User', 'teacher', true),
-('admin_demo', 'admin_demo@eduverse.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdCvWfBGNLdGOCa', 'Admin Demo User', 'admin', true),
-('parent_demo', 'parent_demo@eduverse.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdCvWfBGNLdGOCa', 'Parent Demo User', 'parent', true)
+('student_demo', 'student_demo@eduverse.com', '$2a$10$OIcOebX9sd.frP181qbAF.K9fTsRIy38afFen.1JehBiR9V1ppM.W', 'Student Demo User', 'student', true),
+('teacher_demo', 'teacher_demo@eduverse.com', '$2a$10$OIcOebX9sd.frP181qbAF.K9fTsRIy38afFen.1JehBiR9V1ppM.W', 'Teacher Demo User', 'teacher', true),
+('admin_demo', 'admin_demo@eduverse.com', '$2a$10$OIcOebX9sd.frP181qbAF.K9fTsRIy38afFen.1JehBiR9V1ppM.W', 'Admin Demo User', 'admin', true),
+('parent_demo', 'parent_demo@eduverse.com', '$2a$10$OIcOebX9sd.frP181qbAF.K9fTsRIy38afFen.1JehBiR9V1ppM.W', 'Parent Demo User', 'parent', true)
 ON CONFLICT (username) DO NOTHING;

@@ -99,6 +99,16 @@ const navigationConfig: Record<string, NavigationItem[]> = {
       badge: 4
     },
     {
+      id: 'courses',
+      label: 'My Courses',
+      href: '/teacher/courses',
+      icon: BookOpen,
+      submenu: [
+        { id: 'create-course', label: 'Create Course', href: '/teacher/courses/create', icon: PlusCircle },
+        { id: 'lessons', label: 'Lessons & Materials', href: '/teacher/lessons', icon: FileText }
+      ]
+    },
+    {
       id: 'students',
       label: 'Students',
       href: '/teacher/students',
@@ -163,7 +173,12 @@ const navigationConfig: Record<string, NavigationItem[]> = {
       id: 'content',
       label: 'Content Management',
       href: '/dashboard/admin/content',
-      icon: Database
+      icon: Database,
+      submenu: [
+        { id: 'courses', label: 'Courses', href: '/admin/courses', icon: BookOpen },
+        { id: 'create-course', label: 'Create Course', href: '/admin/courses/create', icon: PlusCircle },
+        { id: 'lessons', label: 'Lessons & Materials', href: '/admin/lessons', icon: FileText }
+      ]
     },
     {
       id: 'settings',

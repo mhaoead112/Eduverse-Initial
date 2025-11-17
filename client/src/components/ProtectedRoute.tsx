@@ -19,10 +19,15 @@ export function ProtectedRoute({
   redirectTo = "/",
   requireAuth = true 
 }: ProtectedRouteProps) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
+    if (isLoading) {
+      // Don't do anything while loading
+      return;
+    }
+
     if (requireAuth && !isAuthenticated) {
       // Redirect to login if authentication is required but user is not authenticated
       setLocation("/");
@@ -44,10 +49,10 @@ export function ProtectedRoute({
         return;
       }
     }
-  }, [isAuthenticated, user, allowedRoles, setLocation, requireAuth]);
+  }, [isLoading, isAuthenticated, user, allowedRoles, setLocation, requireAuth]);
 
   // Show loading state while checking authentication
-  if (requireAuth && isAuthenticated === undefined) {
+  if (requireAuth && isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Card className="w-96">
@@ -105,11 +110,11 @@ export function ProtectedRoute({
 
 // Component for pages that should only be accessible to non-authenticated users
 export function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (!isLoading && isAuthenticated && user) {
       // Redirect authenticated users to their appropriate dashboard
       const roleDashboards: Record<UserRole, string> = {
         'student': '/student',
@@ -120,7 +125,11 @@ export function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
       
       setLocation(roleDashboards[user.role as UserRole] || '/home');
     }
-  }, [isAuthenticated, user, setLocation]);
+  }, [isLoading, isAuthenticated, user, setLocation]);
+
+  if (isLoading) {
+    return null; // Show nothing while loading
+  }
 
   if (isAuthenticated && user) {
     return null; // Component will unmount due to redirect
