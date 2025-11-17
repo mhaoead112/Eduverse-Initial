@@ -13,7 +13,8 @@ import {
   insertPollVoteSchema, insertRaiseHandRequestSchema, insertFileAttachmentSchema,
   insertClassSchema, insertClassEnrollmentSchema, insertAssignmentSchema,
   insertNewsArticleSchema, insertEventSchema, insertEventRegistrationSchema,
-  insertNewsCommentSchema, insertStaffProfileSchema, insertStaffAchievementSchema
+  insertNewsCommentSchema, insertStaffProfileSchema, insertStaffAchievementSchema,
+  insertCourseSchema, insertEnrollmentSchema
 } from "@shared/schema";
 import { isEducationalQuestion, answerEducationalQuestion, isDemoMode, type ChatResponse } from "./services/openai";
 import { GroupChatWebSocketService } from "./websocket";
@@ -1371,6 +1372,313 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(mockUpdatedClass);
     } catch (error) {
       res.status(400).json({ message: "Invalid class data", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // === COURSE MANAGEMENT ENDPOINTS ===
+
+  // Get all courses (public endpoint - anyone can see published courses)
+  app.get("/api/courses", async (req, res) => {
+    try {
+      const courses = await storage.getCourses?.() || [];
+      res.json(courses);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch courses", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Get courses for authenticated user (their own courses if teacher, or enrolled courses if student)
+  app.get("/api/courses/user", authMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      // In a real implementation, this would filter based on user role and ID
+      // For now, return empty array - to be implemented with actual storage
+      res.json([]);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user courses", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Get specific course
+  app.get("/api/courses/:id", async (req, res) => {
+    try {
+      // In a real implementation, fetch from database
+      // For now, return error
+      res.status(404).json({ message: "Course not found" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch course", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Create a new course (teachers and admins only)
+  app.post("/api/courses", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
+    try {
+      // Validate request body
+      const validatedData = insertCourseSchema.parse({
+        ...req.body,
+        teacherId: req.userId  // Set teacherId to authenticated user
+      });
+
+      // In a real implementation, save to database
+      // For now, return mock response
+      const newCourse = {
+        id: Math.random().toString(36).substring(2, 15),
+        title: validatedData.title,
+        description: validatedData.description,
+        teacherId: req.userId,
+        isPublished: validatedData.isPublished || false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      res.status(201).json({
+        message: "Course created successfully",
+        course: newCourse
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.flatten().fieldErrors 
+        });
+      }
+      
+      console.error("Course creation error:", error);
+      res.status(400).json({ 
+        message: "Failed to create course", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Update course (teacher/admin who owns the course)
+  app.put("/api/courses/:id", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
+    try {
+      const validatedData = insertCourseSchema.partial().parse(req.body);
+
+      // In a real implementation:
+      // 1. Check if course exists
+      // 2. Check if user owns the course or is admin
+      // 3. Update in database
+
+      // For now, return mock response
+      res.json({
+        message: "Course updated successfully",
+        course: {
+          id: req.params.id,
+          ...validatedData,
+          teacherId: req.userId,
+          updatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.flatten().fieldErrors 
+        });
+      }
+
+      res.status(400).json({ 
+        message: "Failed to update course", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Delete course (teacher/admin who owns the course)
+  app.delete("/api/courses/:id", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
+    try {
+      // In a real implementation:
+      // 1. Check if course exists
+      // 2. Check if user owns the course or is admin
+      // 3. Delete from database and related enrollments
+
+      res.json({ 
+        message: "Course deleted successfully",
+        courseId: req.params.id 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to delete course", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Enroll student in course
+  app.post("/api/courses/:courseId/enroll", authMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      // In a real implementation:
+      // 1. Check if course exists
+      // 2. Check if student isn't already enrolled
+      // 3. Create enrollment record
+
+      const enrollment = {
+        id: Math.random().toString(36).substring(2, 15),
+        studentId: req.userId,
+        courseId: req.params.courseId,
+        enrolledAt: new Date().toISOString()
+      };
+
+      res.status(201).json({
+        message: "Successfully enrolled in course",
+        enrollment
+      });
+    } catch (error) {
+      res.status(400).json({ 
+        message: "Failed to enroll in course", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Unenroll student from course
+  app.delete("/api/courses/:courseId/enroll", authMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      // In a real implementation:
+      // 1. Check if enrollment exists
+      // 2. Delete enrollment record
+
+      res.json({ 
+        message: "Successfully unenrolled from course",
+        courseId: req.params.courseId,
+        studentId: req.userId
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to unenroll from course", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Upload lesson document to course
+  app.post("/api/lessons/upload", authMiddleware, requireRole(['teacher', 'admin']), upload.single('file'), async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file provided" });
+      }
+
+      const { courseId, lessonTitle } = req.body;
+
+      // Validate required fields
+      if (!courseId || !lessonTitle) {
+        fs.unlinkSync(req.file.path); // Delete uploaded file on validation error
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: { 
+            courseId: courseId ? undefined : "Course ID is required",
+            lessonTitle: lessonTitle ? undefined : "Lesson title is required"
+          } 
+        });
+      }
+
+      // Validate lesson title length
+      if (lessonTitle.length < 1 || lessonTitle.length > 255) {
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({ 
+          message: "Lesson title must be between 1 and 255 characters" 
+        });
+      }
+
+      // In production, verify that the teacher owns this course
+      // const course = await db.query.courses.findFirst({ where: eq(courses.id, courseId) });
+      // if (!course || course.teacherId !== req.userId) {
+      //   fs.unlinkSync(req.file.path);
+      //   return res.status(403).json({ message: "You don't have permission to add lessons to this course" });
+      // }
+
+      // Create lesson record
+      const lessonData = {
+        courseId,
+        title: lessonTitle,
+        fileName: req.file.originalname,
+        filePath: req.file.path,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size.toString()
+      };
+
+      // For now, return success response (in production, save to database)
+      const lesson = {
+        id: Math.random().toString(36).substring(2, 15),
+        ...lessonData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      res.status(201).json({
+        message: "Lesson uploaded successfully",
+        lesson
+      });
+    } catch (error) {
+      // Clean up uploaded file on error
+      if (req.file) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (e) {
+          console.error("Error deleting file:", e);
+        }
+      }
+      
+      console.error("Lesson upload error:", error);
+      res.status(500).json({ 
+        message: "Failed to upload lesson", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Get lessons for a course
+  app.get("/api/courses/:courseId/lessons", async (req, res) => {
+    try {
+      const { courseId } = req.params;
+
+      if (!courseId) {
+        return res.status(400).json({ message: "Course ID is required" });
+      }
+
+      // In production, fetch from database
+      // const lessons = await db.query.lessons.findMany({ 
+      //   where: eq(lessons.courseId, courseId),
+      //   orderBy: desc(lessons.createdAt)
+      // });
+
+      res.json({
+        lessons: [],
+        message: "Lessons retrieved successfully"
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to retrieve lessons", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Delete lesson
+  app.delete("/api/lessons/:lessonId", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
+    try {
+      const { lessonId } = req.params;
+
+      if (!lessonId) {
+        return res.status(400).json({ message: "Lesson ID is required" });
+      }
+
+      // In production:
+      // 1. Find the lesson
+      // 2. Verify the user owns the course
+      // 3. Delete the file from disk
+      // 4. Delete the lesson record from database
+
+      res.json({ 
+        message: "Lesson deleted successfully",
+        lessonId 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to delete lesson", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
     }
   });
 
