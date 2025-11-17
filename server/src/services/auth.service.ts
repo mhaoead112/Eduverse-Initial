@@ -93,7 +93,7 @@ export const loginUser = async (credentials: LoginUserDto): Promise<AuthResponse
     // 2. Compare the provided password with the stored hash
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-        throw new Error("Invalid credentials.");
+        throw new Error("Invalid Password");
     }
 
     // 3. If password is correct, create a payload for the JWT

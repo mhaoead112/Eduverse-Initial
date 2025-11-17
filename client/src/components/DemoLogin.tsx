@@ -9,6 +9,7 @@ import { Sparkles, Users, Brain, MessageCircle, Palette, BarChart3 } from "lucid
 
 interface DemoUser {
   username: string;
+  email?: string;
   password: string;
   role: string;
   fullName: string;
@@ -21,6 +22,7 @@ interface DemoUser {
 const demoUsers: DemoUser[] = [
   {
     username: "student_demo",
+    email: "student_demo@eduverse.com",
     password: "demo123",
     role: "student",
     fullName: "Alex Student",
@@ -31,6 +33,7 @@ const demoUsers: DemoUser[] = [
   },
   {
     username: "teacher_demo", 
+    email: "teacher_demo@eduverse.com",
     password: "demo123",
     role: "teacher",
     fullName: "Sarah Teacher",
@@ -62,16 +65,23 @@ const demoUsers: DemoUser[] = [
 ];
 
 export default function DemoLogin() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [loadingUsername, setLoadingUsername] = useState<string | null>(null);
+  const { login, logout } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
   const handleDemoLogin = async (demoUser: DemoUser) => {
-    setIsLoading(true);
+    setLoadingUsername(demoUser.username);
     try {
+      // First logout any existing session
+      logout();
+      
+      // Small delay to ensure logout is processed
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const result = await login({
         username: demoUser.username,
+        email: demoUser.email,
         password: demoUser.password
       });
 
@@ -103,7 +113,7 @@ export default function DemoLogin() {
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      setLoadingUsername(null);
     }
   };
 
@@ -192,11 +202,11 @@ export default function DemoLogin() {
                     
                     <Button 
                       onClick={() => handleDemoLogin(user)}
-                      disabled={isLoading}
+                      disabled={loadingUsername === user.username}
                       className={`w-full bg-gradient-to-r ${user.color} hover:opacity-90 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl`}
                       data-testid={`button-login-${user.role}`}
                     >
-                      {isLoading ? "Logging in..." : `Try as ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}`}
+                      {loadingUsername === user.username ? "Logging in..." : `Try as ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}`}
                     </Button>
                     
                     {/* Credentials display */}

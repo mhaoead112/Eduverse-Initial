@@ -9,6 +9,7 @@ interface AuthState {
 
 interface LoginData {
   username: string;
+  email?: string;
   password: string;
 }
 
@@ -18,6 +19,8 @@ export function useAuth() {
     token: null,
     isAuthenticated: false
   });
+  
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check for stored auth on component mount
@@ -36,13 +39,22 @@ export function useAuth() {
         // Clear invalid stored data
         localStorage.removeItem('eduverse_token');
         localStorage.removeItem('eduverse_user');
+        setAuthState({
+          user: null,
+          token: null,
+          isAuthenticated: false
+        });
       }
     }
+    
+    // Mark loading as complete
+    setIsLoading(false);
   }, []);
 
   const login = async (loginData: LoginData): Promise<{ success: boolean; error?: string }> => {
+    const port ='3001';
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`http://localhost:${port}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,6 +112,7 @@ export function useAuth() {
     user: authState.user,
     token: authState.token,
     isAuthenticated: authState.isAuthenticated,
+    isLoading,
     login,
     logout,
     getAuthHeaders
