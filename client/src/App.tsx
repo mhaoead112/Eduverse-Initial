@@ -43,6 +43,8 @@ import DemoLogin from "@/components/DemoLogin";
 import StudentDashboard from "@/pages/student-dashboard";
 import TeacherDashboardEnhanced from "@/pages/teacher-dashboard-enhanced";
 import AdminDashboard from "@/pages/admin-dashboard";
+import LessonManagement from "@/pages/lesson-management";
+import CreateCoursePage from "@/pages/create-course";
 
 function Router() {
   return (
@@ -83,6 +85,26 @@ function Router() {
               <AdminDashboard />
             </AdminRoute>
           </Route>
+
+          {/* Admin Courses Management - Admin only */}
+          <Route path="/admin/courses">
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          </Route>
+
+          <Route path="/admin/courses/create">
+            <AdminRoute>
+              <CreateCoursePage />
+            </AdminRoute>
+          </Route>
+
+          {/* Admin Lessons Management - Admin only */}
+          <Route path="/admin/lessons">
+            <AdminRoute>
+              <LessonManagement />
+            </AdminRoute>
+          </Route>
           
           {/* Protected teacher sub-routes */}
           <Route path="/teacher/classes">
@@ -120,7 +142,41 @@ function Router() {
               <TeacherProfile />
             </TeacherRoute>
           </Route>
-          
+
+          {/* Teacher Courses - Teacher/Admin only */}
+          <Route path="/teacher/courses">
+            <TeacherRoute>
+              <TeacherClasses />
+            </TeacherRoute>
+          </Route>
+
+          <Route path="/teacher/courses/create">
+            <TeacherRoute>
+              <CreateCoursePage />
+            </TeacherRoute>
+          </Route>
+
+          {/* Teacher Lessons Management - Teacher/Admin only */}
+          <Route path="/teacher/lessons">
+            <TeacherRoute>
+              <LessonManagement />
+            </TeacherRoute>
+          </Route>
+
+          {/* Lesson Management - Teacher/Admin only (legacy route) */}
+          <Route path="/lessons">
+            <MultiRoleRoute roles={['teacher', 'admin']}>
+              <LessonManagement />
+            </MultiRoleRoute>
+          </Route>
+
+          {/* Course Creation - Teacher/Admin only (legacy route) */}
+          <Route path="/courses/create">
+            <MultiRoleRoute roles={['teacher', 'admin']}>
+              <CreateCoursePage />
+            </MultiRoleRoute>
+          </Route>
+
           {/* Now publicly accessible - no login required */}
           <Route path="/ai-chat" component={AiChat} />
           <Route path="/group-chat" component={GroupChat} />
