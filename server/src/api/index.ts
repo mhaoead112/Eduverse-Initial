@@ -10,7 +10,7 @@ export function registerRoutes(app: express.Application) {
   app.use('/api/auth', authRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/ai', aiRoutes);
-  app.use('/api/course', courseRoutes);
+  app.use('/api/courses', courseRoutes);
   app.use('/api/teacher', teacherRoutes);
 
   // 404 handler for API routes

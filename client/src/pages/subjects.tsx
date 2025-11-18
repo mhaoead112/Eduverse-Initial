@@ -8,14 +8,19 @@ import {
   Languages, 
   Palette, 
   Globe, 
-  Laptop, 
-  Activity, 
+  Laptop,
+  BookOpen,
+  Sparkles,
+  Rocket,
+  Target,
+  Star,
+  Trophy,
   Lightbulb,
+  Activity,
   Check,
   Baby,
   School,
   GraduationCap,
-  BookOpen,
   Users,
   Heart,
   Briefcase
@@ -69,7 +74,9 @@ export default function Subjects() {
             {/* Floating Books */}
             <div className="absolute top-10 left-10 text-4xl opacity-20 animate-bounce">📖</div>
             <div className="absolute top-20 right-20 text-3xl opacity-30 animate-pulse">🔬</div>
-            <div className="absolute bottom-20 left-1/4 text-5xl opacity-25" style={{animation: 'float 6s ease-in-out infinite'}}>🎨</div>
+            <div className="absolute bottom-20 left-1/4 opacity-25" style={{animation: 'float 6s ease-in-out infinite'}}>
+              <Palette size={48} className="text-white" />
+            </div>
             <div className="absolute top-1/3 right-1/3 text-3xl opacity-20" style={{animation: 'float 4s ease-in-out infinite reverse'}}>🌍</div>
             <div className="absolute bottom-10 right-10 text-4xl opacity-30 animate-spin" style={{animationDuration: '20s'}}>⚗️</div>
             <div className="absolute top-40 left-1/3 text-2xl opacity-25" style={{animation: 'float 5s ease-in-out infinite'}}>📐</div>
@@ -86,7 +93,7 @@ export default function Subjects() {
                 <div className="flex items-center justify-center gap-6 mb-8">
                   {/* Animated Book Stack */}
                   <div className="relative">
-                    <span className="text-7xl transform hover:scale-110 transition-transform duration-300 filter drop-shadow-2xl">📚</span>
+                    <BookOpen size={64} className="text-yellow-300 transform hover:scale-110 transition-transform duration-300 filter drop-shadow-2xl" />
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-ping"></div>
                   </div>
                   
@@ -96,7 +103,7 @@ export default function Subjects() {
                       Study Materials
                     </h1>
                     <h2 className="text-4xl lg:text-5xl font-light text-white/90 mt-2 tracking-wide">
-                      & Academic Subjects ✨
+                      & Academic Subjects
                     </h2>
                   </div>
                   
@@ -109,12 +116,14 @@ export default function Subjects() {
                 
                 {/* Creative Subtitle */}
                 <div className="relative">
-                  <p className="text-2xl text-white/90 max-w-4xl mx-auto font-light leading-relaxed mb-6">
-                    🚀 <span className="text-yellow-300 font-semibold">Explore</span> comprehensive learning resources organized by grade level
+                  <p className="text-2xl text-white/90 max-w-4xl mx-auto font-light leading-relaxed mb-6 flex items-center justify-center gap-2">
+                    <Rocket size={24} className="text-yellow-300" />
+                    <span className="text-yellow-300 font-semibold">Explore</span> comprehensive learning resources organized by grade level
                   </p>
-                  <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-                    Featuring engaging activities, real-world examples, and 
-                    <span className="text-orange-300 font-medium"> interactive learning experiences</span> 🎯
+                  <p className="text-xl text-purple-200 max-w-3xl mx-auto flex items-center justify-center gap-2">
+                    Featuring engaging activities, real-world examples, and
+                    <span className="text-orange-300 font-medium"> interactive learning experiences</span>
+                    <Target size={20} className="text-orange-300" />
                   </p>
                 </div>
               </div>
@@ -122,25 +131,25 @@ export default function Subjects() {
               {/* Feature Highlights */}
               <div className="grid md:grid-cols-4 gap-6 mt-12">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
-                  <div className="text-4xl mb-3">🎯</div>
+                  <Target size={40} className="mx-auto mb-3 text-yellow-300" />
                   <h3 className="text-white font-semibold mb-2">Age-Appropriate</h3>
                   <p className="text-white/80 text-sm">Content designed for each grade level</p>
                 </div>
                 
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
-                  <div className="text-4xl mb-3">🌟</div>
+                  <Star size={40} className="mx-auto mb-3 text-yellow-300" />
                   <h3 className="text-white font-semibold mb-2">Interactive</h3>
                   <p className="text-white/80 text-sm">Hands-on learning activities</p>
                 </div>
                 
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
-                  <div className="text-4xl mb-3">🏆</div>
+                  <Trophy size={40} className="mx-auto mb-3 text-yellow-300" />
                   <h3 className="text-white font-semibold mb-2">Comprehensive</h3>
                   <p className="text-white/80 text-sm">All core subjects covered</p>
                 </div>
                 
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
-                  <div className="text-4xl mb-3">💡</div>
+                  <Lightbulb size={40} className="mx-auto mb-3 text-yellow-300" />
                   <h3 className="text-white font-semibold mb-2">Real-World</h3>
                   <p className="text-white/80 text-sm">Practical application examples</p>
                 </div>

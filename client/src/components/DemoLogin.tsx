@@ -5,7 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Sparkles, Users, Brain, MessageCircle, Palette, BarChart3 } from "lucide-react";
+import { 
+  Sparkles, 
+  Users, 
+  Brain, 
+  MessageCircle, 
+  Palette, 
+  BarChart3, 
+  GraduationCap, 
+  UserCircle, 
+  Shield, 
+  Home 
+} from "lucide-react";
 
 interface DemoUser {
   username: string;
@@ -235,17 +246,21 @@ export default function DemoLogin() {
               Click any card above to instantly log in and explore that role's features!
             </p>
             <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-600">
-              <div>
-                <strong>🎓 Students:</strong> Chat with AI, join groups, create avatars, track progress
+              <div className="flex items-center gap-2">
+                <GraduationCap size={16} className="text-blue-600" />
+                <strong>Students:</strong> Chat with AI, join groups, create avatars, track progress
               </div>
-              <div>
-                <strong>👨‍🏫 Teachers:</strong> Manage classes, view analytics, moderate groups
+              <div className="flex items-center gap-2">
+                <UserCircle size={16} className="text-blue-600" />
+                <strong>Teachers:</strong> Manage classes, view analytics, moderate groups
               </div>
-              <div>
-                <strong>👨‍💼 Admins:</strong> Full system access and management capabilities
+              <div className="flex items-center gap-2">
+                <Shield size={16} className="text-blue-600" />
+                <strong>Admins:</strong> Full system access and management capabilities
               </div>
-              <div>
-                <strong>👨‍👩‍👧‍👦 Parents:</strong> Monitor progress and communicate with teachers
+              <div className="flex items-center gap-2">
+                <Home size={16} className="text-blue-600" />
+                <strong>Parents:</strong> Monitor progress and communicate with teachers
               </div>
             </div>
           </CardContent>

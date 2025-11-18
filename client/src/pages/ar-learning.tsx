@@ -2,12 +2,24 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Info, Sparkles, RotateCcw } from "lucide-react";
+import { 
+  Eye, 
+  Info, 
+  Sparkles, 
+  RotateCcw, 
+  Star, 
+  Target, 
+  Heart, 
+  TrendingUp, 
+  Flame, 
+  BookOpen 
+} from "lucide-react";
+import { Sun, Moon, Earth, Rocket, Globe, Circle } from "lucide-react";
 
 interface Planet {
   id: string;
   name: string;
-  emoji: string;
+  emoji: JSX.Element; // Updated to accept React elements
   color: string;
   size: number;
   distance: number;
@@ -23,7 +35,7 @@ const planets: Planet[] = [
   {
     id: "sun",
     name: "Sun",
-    emoji: "☀️",
+    emoji: <Sun />, // Replace emoji with Lucide icon
     color: "bg-yellow-400",
     size: 80,
     distance: 0,
@@ -37,7 +49,7 @@ const planets: Planet[] = [
   {
     id: "mercury",
     name: "Mercury",
-    emoji: "🪐",
+    emoji: <Rocket />, // Replace emoji with Lucide icon
     color: "bg-gray-400",
     size: 20,
     distance: 120,
@@ -51,7 +63,7 @@ const planets: Planet[] = [
   {
     id: "venus",
     name: "Venus",
-    emoji: "🌕",
+    emoji: <Moon />, // Replace emoji with Lucide icon
     color: "bg-orange-300",
     size: 25,
     distance: 160,
@@ -65,7 +77,7 @@ const planets: Planet[] = [
   {
     id: "earth",
     name: "Earth",
-    emoji: "🌍",
+    emoji: <Earth />, // Replace emoji with Lucide icon
     color: "bg-blue-400",
     size: 26,
     distance: 200,
@@ -79,7 +91,7 @@ const planets: Planet[] = [
   {
     id: "mars",
     name: "Mars",
-    emoji: "🔴",
+    emoji: <Rocket />, // Replace emoji with Lucide icon
     color: "bg-red-400",
     size: 22,
     distance: 240,
@@ -91,23 +103,9 @@ const planets: Planet[] = [
     }
   },
   {
-    id: "jupiter",
-    name: "Jupiter",
-    emoji: "🪐",
-    color: "bg-orange-500",
-    size: 60,
-    distance: 320,
-    info: {
-      type: "Gas Giant",
-      diameter: "142,984 km",
-      temperature: "-110°C",
-      funFact: "Jupiter is so massive it could contain all other planets combined!"
-    }
-  },
-  {
     id: "saturn",
     name: "Saturn",
-    emoji: "🪐",
+    emoji: <Circle />, // Replaced Ring with Circle icon
     color: "bg-yellow-600",
     size: 50,
     distance: 400,
@@ -148,7 +146,7 @@ export default function ARLearning() {
             </h1>
           </div>
           <p className="text-xl text-gray-300">
-            Tap any planet to discover amazing facts! 🚀✨
+            Tap any planet to discover amazing facts!
           </p>
           
           {/* Controls */}
@@ -282,7 +280,10 @@ export default function ARLearning() {
         {/* AR Learning Examples Section */}
         <div className="mt-12 max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-eduverse-gold mb-4">🌟 AR Learning Examples</h2>
+            <h2 className="text-3xl font-bold text-eduverse-gold mb-4 flex items-center justify-center gap-2">
+              <Star size={32} className="text-eduverse-gold" />
+              AR Learning Examples
+            </h2>
             <p className="text-xl text-gray-300">Discover how AR transforms education across all subjects</p>
           </div>
 
@@ -298,7 +299,10 @@ export default function ARLearning() {
               <CardContent>
                 <p className="text-gray-200 mb-4">Interactive solar system exploration with 3D planet models</p>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">✨ <span>Scale comparisons between planets</span></div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={16} className="text-yellow-400" />
+                    <span>Scale comparisons between planets</span>
+                  </div>
                   <div className="flex items-center gap-2">🌍 <span>Earth-Moon distance visualization</span></div>
                   <div className="flex items-center gap-2">🪐 <span>Saturn's ring composition</span></div>
                   <div className="flex items-center gap-2">☄️ <span>Asteroid belt navigation</span></div>
@@ -319,7 +323,10 @@ export default function ARLearning() {
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">🧪 <span>Water molecule (H₂O) structure</span></div>
                   <div className="flex items-center gap-2">💎 <span>Carbon crystal formations</span></div>
-                  <div className="flex items-center gap-2">🔥 <span>Combustion reaction animations</span></div>
+                  <div className="flex items-center gap-2">
+                    <Flame size={16} className="text-orange-500" />
+                    <span>Combustion reaction animations</span>
+                  </div>
                   <div className="flex items-center gap-2">⚛️ <span>Electron orbital patterns</span></div>
                 </div>
               </CardContent>
@@ -355,7 +362,10 @@ export default function ARLearning() {
               <CardContent>
                 <p className="text-gray-200 mb-4">Inside the human body with 3D anatomy</p>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">❤️ <span>Heart pumping blood circulation</span></div>
+                  <div className="flex items-center gap-2">
+                    <Heart size={16} className="text-red-500" />
+                    <span>Heart pumping blood circulation</span>
+                  </div>
                   <div className="flex items-center gap-2">🧠 <span>Brain neuron firing patterns</span></div>
                   <div className="flex items-center gap-2">🫁 <span>Respiratory system breathing</span></div>
                   <div className="flex items-center gap-2">🦴 <span>Skeletal system movement</span></div>
@@ -394,7 +404,10 @@ export default function ARLearning() {
                 <p className="text-gray-200 mb-4">Visualize complex mathematical concepts</p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">📊 <span>3D geometric shape properties</span></div>
-                  <div className="flex items-center gap-2">📈 <span>Function graphing in 3D space</span></div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={16} className="text-green-500" />
+                    <span>Function graphing in 3D space</span>
+                  </div>
                   <div className="flex items-center gap-2">🔢 <span>Algebra equation solving steps</span></div>
                   <div className="flex items-center gap-2">∞ <span>Calculus limit visualizations</span></div>
                 </div>
@@ -415,7 +428,10 @@ export default function ARLearning() {
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-bold text-eduverse-gold mb-3">🎯 Interactive Features</h4>
+                  <h4 className="font-bold text-eduverse-gold mb-3 flex items-center gap-2">
+                    <Target size={20} />
+                    Interactive Features
+                  </h4>
                   <ul className="space-y-2 text-gray-200">
                     <li className="flex items-center gap-2">👆 <span>Tap to interact with 3D objects</span></li>
                     <li className="flex items-center gap-2">🔄 <span>Rotate and zoom for different angles</span></li>
@@ -425,7 +441,10 @@ export default function ARLearning() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold text-eduverse-gold mb-3">🚀 Example Lesson: Mars Exploration</h4>
+                  <h4 className="font-bold text-eduverse-gold mb-3 flex items-center gap-2">
+                    <Rocket size={20} />
+                    Example Lesson: Mars Exploration
+                  </h4>
                   <div className="space-y-3 text-gray-200">
                     <div className="p-3 bg-black/30 rounded-lg">
                       <strong className="text-red-400">Step 1:</strong> Tap Mars 🔴 to select it

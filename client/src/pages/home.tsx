@@ -1,7 +1,26 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { GraduationCap, Award, Globe, Users, BookOpen } from "lucide-react";
+import { 
+  GraduationCap, 
+  Award, 
+  Globe, 
+  Users, 
+  BookOpen, 
+  Sparkles, 
+  Star, 
+  Gem, 
+  UserCircle, 
+  Rocket, 
+  Palette, 
+  Lightbulb,
+  Calculator,
+  FlaskConical,
+  Languages,
+  Laptop,
+  PersonStanding,
+  Dumbbell
+} from "lucide-react";
 
 export default function Home() {
   return (
@@ -22,26 +41,29 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left animate-fade-in">
               <div className="mb-8">
-                <span className="luxury-text-gradient font-luxury text-xl tracking-wide">
-                  ✨ Excellence in Luxury Education
+                <span className="luxury-text-gradient font-luxury text-xl tracking-wide flex items-center justify-center lg:justify-start gap-2">
+                  <Sparkles size={20} className="text-yellow-500" />
+                  Excellence in Luxury Education
                 </span>
               </div>
               <h1 className="text-6xl lg:text-8xl font-luxury text-gray-800 mb-8 leading-tight">
                 Welcome to <span className="gold-shimmer bg-clip-text text-transparent font-luxury">EduVerse</span>
               </h1>
               <p className="text-2xl text-gray-600 mb-10 leading-relaxed font-elegant">
-                🌟 Empowering global citizens through unparalleled excellence in education, fostering 
+                Empowering global citizens through unparalleled excellence in education, fostering 
                 creativity, critical thinking, and cultural understanding in our prestigious learning community.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                 <Link href="/programs">
-                  <Button className="luxury-button text-white px-12 py-6 rounded-2xl text-lg font-luxury hover:scale-105 transition-all duration-300 shadow-2xl border-2 border-yellow-300/30">
-                    ✨ Explore Our Curriculum
+                  <Button className="luxury-button text-white px-12 py-6 rounded-2xl text-lg font-luxury hover:scale-105 transition-all duration-300 shadow-2xl border-2 border-yellow-300/30 flex items-center gap-2">
+                    <Sparkles size={18} />
+                    Explore Our Curriculum
                   </Button>
                 </Link>
                 <Link href="/contact">
-                  <Button className="premium-glass border-2 border-yellow-400/50 text-yellow-700 hover:bg-yellow-50 px-12 py-6 rounded-2xl text-lg font-luxury hover:scale-105 transition-all duration-300 shadow-xl backdrop-blur-sm">
-                    💎 Schedule a Private Tour
+                  <Button className="premium-glass border-2 border-yellow-400/50 text-yellow-700 hover:bg-yellow-50 px-12 py-6 rounded-2xl text-lg font-luxury hover:scale-105 transition-all duration-300 shadow-xl backdrop-blur-sm flex items-center gap-2">
+                    <Gem size={18} />
+                    Schedule a Private Tour
                   </Button>
                 </Link>
               </div>
@@ -93,14 +115,14 @@ export default function Home() {
             </Card>
             <Card className="luxury-card text-center hover:scale-105 transition-all duration-500 animate-bounce-in border-0">
               <CardContent className="p-8">
-                <div className="text-5xl mb-4">👨‍🏫</div>
+                <UserCircle size={48} className="mx-auto mb-4 text-eduverse-blue" />
                 <div className="text-4xl font-luxury text-yellow-600 mb-3">150+</div>
                 <p className="text-gray-600 font-premium">Expert Teachers</p>
               </CardContent>
             </Card>
             <Card className="luxury-card text-center hover:scale-105 transition-all duration-500 animate-bounce-in border-0">
               <CardContent className="p-8">
-                <div className="text-5xl mb-4">📚</div>
+                <BookOpen size={48} className="mx-auto mb-4 text-eduverse-blue" />
                 <div className="text-4xl font-luxury text-yellow-600 mb-3">25+</div>
                 <p className="text-gray-600 font-premium">Programs</p>
               </CardContent>
@@ -120,8 +142,9 @@ export default function Home() {
         
         <div className="container mx-auto px-6 relative">
           <div className="text-center mb-20 animate-fade-in">
-            <h2 className="text-6xl font-luxury text-gray-800 mb-6">
-              💎 Why Choose <span className="gold-shimmer bg-clip-text text-transparent font-luxury">EduVerse</span>?
+            <h2 className="text-6xl font-luxury text-gray-800 mb-6 flex items-center justify-center gap-3">
+              <Gem size={48} className="text-yellow-500" />
+              Why Choose <span className="gold-shimmer bg-clip-text text-transparent font-luxury">EduVerse</span>?
             </h2>
             <p className="text-2xl text-gray-600 max-w-4xl mx-auto font-elegant leading-relaxed">
               Discover what makes our prestigious educational community exceptional and transformative for discerning families.
@@ -135,7 +158,7 @@ export default function Home() {
                 <div className="w-24 h-24 gold-shimmer rounded-3xl flex items-center justify-center mx-auto mb-8">
                   <Globe className="text-white" size={40} />
                 </div>
-                <h3 className="text-3xl font-luxury text-gray-800 mb-6">🌍 Global Perspective</h3>
+                <h3 className="text-3xl font-luxury text-gray-800 mb-6">Global Perspective</h3>
                 <p className="text-gray-600 leading-relaxed text-lg font-elegant">
                   Students from 45+ countries create a truly diverse learning environment 
                   that prepares graduates for success in our interconnected world.
@@ -148,7 +171,7 @@ export default function Home() {
                 <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-bounce-in">
                   <BookOpen className="text-white" size={36} />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">📚 Rigorous Academics</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Rigorous Academics</h3>
                 <p className="text-eduverse-gray leading-relaxed">
                   IB and IGCSE programs provide world-class education with inquiry-based learning 
                   and critical thinking at the core of our curriculum.
@@ -161,7 +184,7 @@ export default function Home() {
                 <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-bounce-in">
                   <Users className="text-white" size={36} />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">🤝 Supportive Community</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Supportive Community</h3>
                 <p className="text-eduverse-gray leading-relaxed">
                   Small class sizes and dedicated teachers ensure personalized attention 
                   and support for every student's individual learning journey.
@@ -172,8 +195,9 @@ export default function Home() {
           
           <div className="text-center mt-12">
             <Link href="/about">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition-transform px-10 py-4 rounded-xl creative-shadow">
-                ✨ Learn More About Us
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 transition-transform px-10 py-4 rounded-xl creative-shadow flex items-center gap-2 mx-auto">
+                <Sparkles size={18} />
+                Learn More About Us
               </Button>
             </Link>
           </div>
@@ -189,8 +213,9 @@ export default function Home() {
         
         <div className="container mx-auto px-6 relative">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-5xl font-bold text-gray-800 mb-4">
-              📚 Explore Our <span className="text-eduverse-gold font-bold" style={{color: '#D4AF37'}}>Subjects</span>
+            <h2 className="text-5xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-3">
+              <BookOpen size={40} className="text-yellow-600" />
+              Explore Our <span className="text-eduverse-gold font-bold" style={{color: '#D4AF37'}}>Subjects</span>
             </h2>
             <p className="text-xl text-eduverse-gray max-w-3xl mx-auto">
               Comprehensive curriculum designed to inspire curiosity and foster academic excellence across all disciplines.
@@ -200,7 +225,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">🧮</div>
+                <Calculator size={40} className="mx-auto mb-4 text-blue-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Mathematics</h3>
                 <p className="text-sm text-eduverse-gray">Algebra, Geometry, Calculus, Statistics</p>
               </CardContent>
@@ -208,7 +233,7 @@ export default function Home() {
             
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">🔬</div>
+                <FlaskConical size={40} className="mx-auto mb-4 text-green-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Sciences</h3>
                 <p className="text-sm text-eduverse-gray">Physics, Chemistry, Biology, Environmental</p>
               </CardContent>
@@ -216,7 +241,7 @@ export default function Home() {
             
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">🗣️</div>
+                <Languages size={40} className="mx-auto mb-4 text-purple-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Languages</h3>
                 <p className="text-sm text-eduverse-gray">English, Spanish, French, Mandarin</p>
               </CardContent>
@@ -224,7 +249,7 @@ export default function Home() {
             
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-pink-50 to-pink-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">🎨</div>
+                <Palette size={40} className="mx-auto mb-4 text-pink-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Arts</h3>
                 <p className="text-sm text-eduverse-gray">Visual Arts, Music, Drama, Digital Media</p>
               </CardContent>
@@ -234,7 +259,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-orange-50 to-orange-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">🌍</div>
+                <Globe size={40} className="mx-auto mb-4 text-orange-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Social Studies</h3>
                 <p className="text-sm text-eduverse-gray">History, Geography, Economics, Psychology</p>
               </CardContent>
@@ -242,7 +267,7 @@ export default function Home() {
             
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-indigo-50 to-indigo-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">💻</div>
+                <Laptop size={40} className="mx-auto mb-4 text-indigo-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Technology</h3>
                 <p className="text-sm text-eduverse-gray">Computer Science, Robotics, Digital Design</p>
               </CardContent>
@@ -250,7 +275,7 @@ export default function Home() {
             
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">🏃‍♂️</div>
+                <Dumbbell size={40} className="mx-auto mb-4 text-red-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Physical Education</h3>
                 <p className="text-sm text-eduverse-gray">Sports, Health, Wellness, Fitness</p>
               </CardContent>
@@ -258,7 +283,7 @@ export default function Home() {
             
             <Card className="text-center creative-shadow hover:scale-105 transition-all duration-300 bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 animate-slide-up">
               <CardContent className="p-6">
-                <div className="text-4xl mb-4">💡</div>
+                <Lightbulb size={40} className="mx-auto mb-4 text-yellow-600" />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">Life Skills</h3>
                 <p className="text-sm text-eduverse-gray">Critical Thinking, Leadership, Communication</p>
               </CardContent>
@@ -267,8 +292,9 @@ export default function Home() {
           
           <div className="text-center">
             <Link href="/subjects">
-              <Button className="bg-gradient-to-r from-green-500 to-blue-600 text-white hover:scale-105 transition-transform px-12 py-4 rounded-xl creative-shadow">
-                🚀 Explore All Subjects
+              <Button className="bg-gradient-to-r from-green-500 to-blue-600 text-white hover:scale-105 transition-transform px-12 py-4 rounded-xl creative-shadow flex items-center gap-2 mx-auto">
+                <Rocket size={18} />
+                Explore All Subjects
               </Button>
             </Link>
           </div>

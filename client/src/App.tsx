@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -41,15 +41,30 @@ import NotFound from "@/pages/not-found";
 import DemoLogin from "@/components/DemoLogin";
 // Import new dashboard pages
 import StudentDashboard from "@/pages/student-dashboard";
+import StudentCoursesPage from "@/pages/student-courses";
+import StudentProgressPage from "@/pages/student-progress";
 import TeacherDashboardEnhanced from "@/pages/teacher-dashboard-enhanced";
 import AdminDashboard from "@/pages/admin-dashboard";
 import LessonManagement from "@/pages/lesson-management";
 import CreateCoursePage from "@/pages/create-course";
+import StudentCourseLessons from "@/pages/student-course-lessons";
+import StudentAssignments from "@/pages/student-assignments";
+import StudentGrades from "@/pages/student-grades";
+import StudentSchedule from "@/pages/student-schedule";
 
 function Router() {
+  const [location] = useLocation();
+  
+  // Check if current route is a dashboard route
+  const isDashboardRoute = location.startsWith('/student') || 
+                          location.startsWith('/teacher') || 
+                          location.startsWith('/admin') || 
+                          location.startsWith('/parent') ||
+                          location.startsWith('/dashboard');
+  
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
+      {!isDashboardRoute && <Navigation />}
       <main className="flex-1">
         <Switch>
           {/* Demo login route - high priority */}
@@ -71,6 +86,42 @@ function Router() {
           <Route path="/student">
             <StudentRoute>
               <StudentDashboard />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/progress">
+            <StudentRoute>
+              <StudentProgressPage />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/courses">
+            <StudentRoute>
+              <StudentCoursesPage />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/courses/:courseId/lessons">
+            <StudentRoute>
+              <StudentCourseLessons />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/assignments">
+            <StudentRoute>
+              <StudentAssignments />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/grades">
+            <StudentRoute>
+              <StudentGrades />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/schedule">
+            <StudentRoute>
+              <StudentSchedule />
             </StudentRoute>
           </Route>
           
@@ -201,7 +252,7 @@ function Router() {
           <Route component={NotFound} />
         </Switch>
       </main>
-      <Footer />
+      {!isDashboardRoute && <Footer />}
     </div>
   );
 }

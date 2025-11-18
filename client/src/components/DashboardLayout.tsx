@@ -40,46 +40,46 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     {
       id: 'overview',
       label: 'Dashboard',
-      href: '/dashboard/student',
+      href: '/student',
       icon: Home
     },
     {
       id: 'courses',
       label: 'My Courses',
-      href: '/dashboard/student/courses',
+      href: '/student/courses',
       icon: BookOpen,
       badge: 3
     },
     {
       id: 'assignments',
       label: 'Assignments',
-      href: '/dashboard/student/assignments',
+      href: '/student/assignments',
       icon: ClipboardList,
       badge: 5
     },
     {
       id: 'grades',
       label: 'Grades',
-      href: '/dashboard/student/grades',
+      href: '/student/grades',
       icon: BarChart3
     },
     {
       id: 'schedule',
       label: 'Schedule',
-      href: '/dashboard/student/schedule',
+      href: '/student/schedule',
       icon: Calendar
     },
     {
       id: 'groups',
       label: 'Study Groups',
-      href: '/dashboard/student/groups',
+      href: '/student/groups',
       icon: Users,
       badge: 2
     },
     {
       id: 'messages',
       label: 'Messages',
-      href: '/dashboard/student/messages',
+      href: '/student/messages',
       icon: MessageCircle,
       badge: 4
     }
@@ -433,7 +433,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
-        transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
+        transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">

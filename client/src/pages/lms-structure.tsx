@@ -12,7 +12,19 @@ import {
   BookOpen,
   Award,
   Calendar,
-  Users
+  Users,
+  Calculator,
+  FlaskConical,
+  BookText,
+  Landmark,
+  Palette,
+  Star,
+  ThumbsUp,
+  TrendingUpIcon,
+  Dumbbell,
+  Medal,
+  UserCircle,
+  BarChart
 } from "lucide-react";
 
 interface Subject {
@@ -20,7 +32,7 @@ interface Subject {
   grade: number;
   maxGrade: number;
   progress: number;
-  emoji: string;
+  icon: any;
   color: string;
   assignments: number;
   completedAssignments: number;
@@ -38,7 +50,7 @@ interface Student {
 
 const studentData: Student = {
   name: "Ahmad Hassan",
-  avatar: "🎓",
+  avatar: "AH",
   id: "ST2025001",
   overallGrade: 87.5,
   rank: 12,
@@ -49,7 +61,7 @@ const studentData: Student = {
       grade: 92,
       maxGrade: 100,
       progress: 85,
-      emoji: "🧮",
+      icon: Calculator,
       color: "bg-blue-500",
       assignments: 12,
       completedAssignments: 10
@@ -59,7 +71,7 @@ const studentData: Student = {
       grade: 88,
       maxGrade: 100,
       progress: 78,
-      emoji: "🔬", 
+      icon: FlaskConical, 
       color: "bg-green-500",
       assignments: 10,
       completedAssignments: 8
@@ -69,7 +81,7 @@ const studentData: Student = {
       grade: 85,
       maxGrade: 100,
       progress: 90,
-      emoji: "📚",
+      icon: BookText,
       color: "bg-purple-500",
       assignments: 15,
       completedAssignments: 14
@@ -79,7 +91,7 @@ const studentData: Student = {
       grade: 90,
       maxGrade: 100,
       progress: 95,
-      emoji: "🏛️",
+      icon: Landmark,
       color: "bg-orange-500",
       assignments: 8,
       completedAssignments: 8
@@ -89,7 +101,7 @@ const studentData: Student = {
       grade: 86,
       maxGrade: 100,
       progress: 70,
-      emoji: "🎨",
+      icon: Palette,
       color: "bg-pink-500",
       assignments: 6,
       completedAssignments: 4
@@ -98,10 +110,10 @@ const studentData: Student = {
 };
 
 const exampleStudents = [
-  { name: "Sarah Ahmed", grade: 94, avatar: "👩‍🎓", rank: 1 },
-  { name: "Omar Khalil", grade: 91, avatar: "👨‍🎓", rank: 2 },
-  { name: "Layla Hassan", grade: 89, avatar: "👩‍💻", rank: 3 },
-  { name: "Ahmad Hassan", grade: 87.5, avatar: "🎓", rank: 12 }
+  { name: "Sarah Ahmed", grade: 94, avatar: "SA", rank: 1 },
+  { name: "Omar Khalil", grade: 91, avatar: "OK", rank: 2 },
+  { name: "Layla Hassan", grade: 89, avatar: "LH", rank: 3 },
+  { name: "Ahmad Hassan", grade: 87.5, avatar: "AH", rank: 12 }
 ];
 
 export default function LMSStructure() {
@@ -126,10 +138,17 @@ export default function LMSStructure() {
   };
 
   const getPerformanceMessage = (grade: number) => {
-    if (grade >= 90) return "🌟 Outstanding Performance!";
-    if (grade >= 80) return "👍 Great Work!";
-    if (grade >= 70) return "📈 Good Progress!";
-    return "💪 Keep Improving!";
+    if (grade >= 90) return "Outstanding Performance!";
+    if (grade >= 80) return "Great Work!";
+    if (grade >= 70) return "Good Progress!";
+    return "Keep Improving!";
+  };
+
+  const getPerformanceIcon = (grade: number) => {
+    if (grade >= 90) return Star;
+    if (grade >= 80) return ThumbsUp;
+    if (grade >= 70) return TrendingUp;
+    return Dumbbell;
   };
 
   return (
@@ -150,7 +169,7 @@ export default function LMSStructure() {
               </h1>
             </div>
             <p className="text-lg text-white/80 max-w-2xl mx-auto font-elegant drop-shadow-lg">
-              Your personalized learning journey with real-time insights and achievements! 🚀
+              Your personalized learning journey with real-time insights and achievements!
             </p>
           </div>
           
@@ -271,19 +290,21 @@ export default function LMSStructure() {
               Subject Progress
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {selectedStudent.subjects.map((subject) => (
-                <Card key={subject.name} className="luxury-card border-0 shadow-2xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{subject.emoji}</span>
-                        <span className="text-lg">{subject.name}</span>
-                      </div>
-                      <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0">
-                        {subject.grade}%
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
+              {selectedStudent.subjects.map((subject) => {
+                const SubjectIcon = subject.icon;
+                return (
+                  <Card key={subject.name} className="luxury-card border-0 shadow-2xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <SubjectIcon size={24} className="text-eduverse-blue" />
+                          <span className="text-lg">{subject.name}</span>
+                        </div>
+                        <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0">
+                          {subject.grade}%
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Grade Progress Bar */}
                     <div>
@@ -325,7 +346,7 @@ export default function LMSStructure() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              );})}
             </div>
           </div>
 
@@ -340,7 +361,10 @@ export default function LMSStructure() {
               </CardHeader>
               <CardContent>
                 <div className="text-center mb-4">
-                  <div className="text-6xl mb-2">{selectedStudent.overallGrade >= 90 ? "🏆" : selectedStudent.overallGrade >= 80 ? "🥇" : "📈"}</div>
+                  {(() => {
+                    const PerformanceIcon = getPerformanceIcon(selectedStudent.overallGrade);
+                    return <PerformanceIcon size={64} className="mx-auto mb-2 text-yellow-500" />;
+                  })()}
                   <div className="text-lg font-semibold text-gray-800">
                     {getPerformanceMessage(selectedStudent.overallGrade)}
                   </div>
@@ -424,13 +448,17 @@ export default function LMSStructure() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-gray-800 font-luxury">
                 <Award size={24} className="text-yellow-500" />
-                📊 Example: Student Progress Report
+                <BarChart size={20} className="text-eduverse-blue" />
+                Example: Student Progress Report
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-3 gap-6 text-sm">
                 <div>
-                  <h4 className="font-luxury text-gray-800 mb-2">📈 Grades Overview:</h4>
+                  <h4 className="font-luxury text-gray-800 mb-2 flex items-center gap-1">
+                    <TrendingUp size={16} className="text-green-600" />
+                    Grades Overview:
+                  </h4>
                   <ul className="space-y-1 text-gray-700 font-elegant">
                     <li>• Math: 92% (A-)</li>
                     <li>• Science: 88% (B+)</li>  
@@ -439,7 +467,10 @@ export default function LMSStructure() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-luxury text-gray-800 mb-2">🎯 Progress Status:</h4>
+                  <h4 className="font-luxury text-gray-800 mb-2 flex items-center gap-1">
+                    <Target size={16} className="text-blue-600" />
+                    Progress Status:
+                  </h4>
                   <ul className="space-y-1 text-gray-700 font-elegant">
                     <li>• Class Rank: #12 of 150</li>
                     <li>• Assignments: 44/46 completed</li>
@@ -448,7 +479,10 @@ export default function LMSStructure() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-luxury text-gray-800 mb-2">🏆 Achievements:</h4>
+                  <h4 className="font-luxury text-gray-800 mb-2 flex items-center gap-1">
+                    <Trophy size={16} className="text-yellow-600" />
+                    Achievements:
+                  </h4>
                   <ul className="space-y-1 text-gray-700 font-elegant">
                     <li>• Top 10% in Math</li>
                     <li>• Perfect History scores</li>

@@ -122,21 +122,21 @@ function StudentPortalContent({ user, setLocation }: { user: any; setLocation: (
       color: "bg-blue-500 hover:bg-blue-600"
     },
     {
-      title: "💬 Group Chat",
+      title: "Group Chat",
       description: "Join study groups and class discussions",
       href: "/group-chat",
       icon: MessageSquare,
       color: "bg-green-500 hover:bg-green-600"
     },
     {
-      title: "🚀 AR Learning",
+      title: "AR Learning",
       description: "Interactive augmented reality lessons",
       href: "/ar-learning",
       icon: Star,
       color: "bg-purple-500 hover:bg-purple-600"
     },
     {
-      title: "🤖 AI Assistant",
+      title: "AI Assistant",
       description: "Get help with homework and questions",
       href: "/ai-chat",
       icon: BookOpen,
@@ -149,7 +149,7 @@ function StudentPortalContent({ user, setLocation }: { user: any; setLocation: (
       {/* Welcome Section */}
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">
-          Welcome back, {user.fullName}! 🎓
+          Welcome back, {user.fullName}!
         </h2>
         <p className="text-xl text-eduverse-gray">
           Ready to continue your learning journey? Let's make today amazing!
@@ -217,7 +217,7 @@ function StudentPortalContent({ user, setLocation }: { user: any; setLocation: (
           <CardContent>
             <div className="space-y-3">
               <div className="p-3 bg-blue-50 rounded-lg">
-                <div className="font-medium">📚 New Science Lab Equipment</div>
+                <div className="font-medium">New Science Lab Equipment</div>
                 <div className="text-sm text-gray-600 mt-1">
                   Visit the upgraded physics lab this week!
                 </div>
@@ -262,7 +262,7 @@ function TeacherPortalContent({ user, setLocation }: { user: any; setLocation: (
       color: "bg-purple-500 hover:bg-purple-600"
     },
     {
-      title: "💬 Communication",
+      title: "Communication",
       description: "Message students and parents",
       href: "/teacher/communication",
       icon: MessageSquare,
@@ -339,7 +339,7 @@ function ParentPortalContent({ user, setLocation }: { user: any; setLocation: (p
       color: "bg-green-500 hover:bg-green-600"
     },
     {
-      title: "💬 Teacher Communication",
+      title: "Teacher Communication",
       description: "Message teachers and staff",
       href: "/teacher/communication",
       icon: MessageSquare,
@@ -472,7 +472,7 @@ function AdminPortalContent({ user, setLocation }: { user: any; setLocation: (pa
       color: "bg-green-500 hover:bg-green-600"
     },
     {
-      title: "📚 Content Management",
+      title: "Content Management",
       description: "Manage curriculum and resources",
       href: "/teacher/content",
       icon: BookOpen,

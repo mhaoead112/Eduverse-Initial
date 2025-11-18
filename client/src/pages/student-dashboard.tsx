@@ -398,7 +398,7 @@ export default function StudentDashboard() {
         {/* Welcome Header */}
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user?.fullName?.split(' ')[0]}! 👋
+            Welcome back, {user?.fullName?.split(' ')[0]}!
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Here's what's happening with your studies today.

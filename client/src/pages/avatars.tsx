@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { User, Sparkles, Shuffle, Download } from "lucide-react";
+import { User, Sparkles, Shuffle, Download, Rocket, Wand2, Shield, FlaskConical, Drama, Laptop, Star, Bug, Trophy, Cloud, Palette } from "lucide-react";
 
 interface Avatar {
-  emoji: string;
+  icon: any;
   title: string;
   description: string;
   traits: string[];
@@ -15,70 +15,70 @@ interface Avatar {
 
 const avatarTypes: Avatar[] = [
   {
-    emoji: "🧑‍🚀",
+    icon: Rocket,
     title: "Astronaut Explorer",
     description: "Bold adventurers who reach for the stars!",
     traits: ["Curious", "Brave", "Scientific", "Ambitious"],
     color: "bg-blue-100 border-blue-300"
   },
   {
-    emoji: "🧙‍♀️",
+    icon: Wand2,
     title: "Knowledge Wizard",
     description: "Masters of wisdom and learning magic!",
     traits: ["Wise", "Creative", "Problem-solver", "Mentor"],
     color: "bg-purple-100 border-purple-300"
   },
   {
-    emoji: "🦸‍♂️",
+    icon: Shield,
     title: "Study Superhero",
     description: "Defenders of education and learning!",
     traits: ["Determined", "Strong", "Helpful", "Leader"],
     color: "bg-red-100 border-red-300"
   },
   {
-    emoji: "🧑‍🔬",
+    icon: FlaskConical,
     title: "Science Pioneer",
     description: "Inventors and discoverers of tomorrow!",
     traits: ["Analytical", "Innovative", "Precise", "Logical"],
     color: "bg-green-100 border-green-300"
   },
   {
-    emoji: "🎭",
+    icon: Drama,
     title: "Creative Artist",
     description: "Painters of imagination and dreams!",
     traits: ["Artistic", "Expressive", "Imaginative", "Unique"],
     color: "bg-pink-100 border-pink-300"
   },
   {
-    emoji: "🧑‍💻",
+    icon: Laptop,
     title: "Tech Genius",
     description: "Coders and builders of the digital future!",
     traits: ["Logical", "Innovative", "Detail-oriented", "Tech-savvy"],
     color: "bg-indigo-100 border-indigo-300"
   },
   {
-    emoji: "🌟",
+    icon: Star,
     title: "Bright Star",
     description: "Shining lights that inspire everyone!",
     traits: ["Inspiring", "Positive", "Motivating", "Charismatic"],
     color: "bg-yellow-100 border-yellow-300"
   },
   {
-    emoji: "🦋",
+    icon: Bug,
     title: "Graceful Learner",
     description: "Elegant minds that transform knowledge!",
     traits: ["Graceful", "Adaptable", "Gentle", "Transformative"],
     color: "bg-teal-100 border-teal-300"
   },
   {
-    emoji: "🏆",
+    icon: Trophy,
     title: "Champion Scholar",
     description: "Winners who excel in everything they do!",
     traits: ["Competitive", "Dedicated", "Achieving", "Persistent"],
     color: "bg-orange-100 border-orange-300"
   },
   {
-    emoji: "🌈",
+    icon: Cloud,
     title: "Rainbow Dreamer",
     description: "Colorful minds with endless possibilities!",
     traits: ["Optimistic", "Diverse", "Hopeful", "Inclusive"],
@@ -139,10 +139,10 @@ export default function Avatars() {
   };
   
   const exampleNames = [
-    { name: "Omar", avatar: "🧑‍🚀 Astronaut Explorer" },
-    { name: "Sara", avatar: "🧙‍♀️ Knowledge Wizard" },
-    { name: "Ali", avatar: "🦸‍♂️ Study Superhero" },
-    { name: "Ahmed", avatar: "🧑‍🔬 Science Pioneer" }
+    { name: "Omar", avatar: "Astronaut Explorer" },
+    { name: "Sara", avatar: "Knowledge Wizard" },
+    { name: "Ali", avatar: "Study Superhero" },
+    { name: "Ahmed", avatar: "Science Pioneer" }
   ];
 
   return (
@@ -158,13 +158,13 @@ export default function Avatars() {
           <div className="relative py-12 mb-8" data-testid="avatars-header">
             <div className="text-center">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-6xl animate-bounce">🎨</span>
+                <Palette size={64} className="text-yellow-400 animate-bounce" />
                 <h1 className="text-4xl font-luxury text-white/90 drop-shadow-2xl">
                   Learning Avatars Generator
                 </h1>
               </div>
-              <p className="text-xl text-white/80 max-w-2xl mx-auto font-elegant drop-shadow-lg">
-                Unleash your creativity! Discover your unique learning avatar based on your personality ✨
+              <p className="text-xl text-white/80 max-w-2xl mx-auto font-elegant drop-shadow-lg flex items-center justify-center gap-2">
+                Unleash your creativity! Discover your unique learning avatar based on your personality <Sparkles size={20} className="text-yellow-300" />
               </p>
             </div>
           </div>
@@ -228,8 +228,8 @@ export default function Avatars() {
                 <div className="text-center space-y-6">
                   {/* Avatar Display */}
                   <div className="relative">
-                    <div className="text-9xl mb-4 animate-bounce-in">
-                      {currentAvatar.emoji}
+                    <div className="mb-4 animate-bounce-in flex justify-center">
+                      <currentAvatar.icon size={128} className="text-eduverse-blue" />
                     </div>
                     <div className="absolute -top-2 -right-2">
                       <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
@@ -283,13 +283,16 @@ export default function Avatars() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {exampleNames.map((example) => (
-                  <div key={example.name} className="text-center p-4 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm rounded-lg border border-white/40 shadow-sm hover:shadow-md transition-all duration-300">
-                    <div className="text-3xl mb-2">{getAvatarForName(example.name).emoji}</div>
-                    <div className="font-luxury text-gray-800">{example.name}</div>
-                    <div className="text-xs text-gray-600 font-elegant">{example.avatar}</div>
-                  </div>
-                ))}
+                {exampleNames.map((example) => {
+                  const ExampleIcon = getAvatarForName(example.name).icon;
+                  return (
+                    <div key={example.name} className="text-center p-4 bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm rounded-lg border border-white/40 shadow-sm hover:shadow-md transition-all duration-300">
+                      <ExampleIcon size={48} className="mx-auto mb-2 text-eduverse-blue" />
+                      <div className="font-luxury text-gray-800">{example.name}</div>
+                      <div className="text-xs text-gray-600 font-elegant">{example.avatar}</div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -303,23 +306,26 @@ export default function Avatars() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {avatarTypes.map((avatar, index) => (
-                  <div 
-                    key={index} 
-                    className="p-4 rounded-lg text-center bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 shadow-sm hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer"
-                    onClick={() => {
-                      setStudentName(`Demo User ${index + 1}`);
-                      setShowAvatar(true);
-                    }}
-                    data-testid={`avatar-option-${index}`}
-                  >
-                    <div className="text-4xl mb-2">{avatar.emoji}</div>
-                    <div className="font-luxury text-sm text-gray-800">{avatar.title}</div>
-                    <div className="text-xs text-gray-600 font-elegant mt-1">
-                      {avatar.traits[0]}, {avatar.traits[1]}
+                {avatarTypes.map((avatar, index) => {
+                  const AvatarIcon = avatar.icon;
+                  return (
+                    <div 
+                      key={index} 
+                      className="p-4 rounded-lg text-center bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 shadow-sm hover:scale-105 hover:shadow-md transition-all duration-300 cursor-pointer"
+                      onClick={() => {
+                        setStudentName(`Demo User ${index + 1}`);
+                        setShowAvatar(true);
+                      }}
+                      data-testid={`avatar-option-${index}`}
+                    >
+                      <AvatarIcon size={48} className="mx-auto mb-2 text-eduverse-blue" />
+                      <div className="font-luxury text-sm text-gray-800">{avatar.title}</div>
+                      <div className="text-xs text-gray-600 font-elegant mt-1">
+                        {avatar.traits[0]}, {avatar.traits[1]}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
