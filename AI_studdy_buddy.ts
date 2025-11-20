@@ -13,18 +13,60 @@ const MYSQL_USER = process.env.MYSQL_USER || "root";
 const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD || "";
 const MYSQL_DB = process.env.MYSQL_DB || "eduverse";
 
-const EMBED_MODEL = process.env.EMBED_MODEL || "gemini-embedding-001";
+// FIX: Logic to handle deprecated model names in .env
+let envModel = process.env.EMBED_MODEL;
+if (envModel === "gemini-embedding-001" || envModel === "embedding-001") {
+    console.warn("⚠️ Warning: Overriding deprecated model in .env with 'text-embedding-004'");
+    envModel = "text-embedding-004";
+}
+// FIX: Default to the working model
+const EMBED_MODEL = envModel || "text-embedding-004";
+
 const GEN_MODEL = "gemini-2.5-flash";
 const TOP_K = 3;
-const SIMILARITY_THRESHOLD = 0.06;
 const MAX_RETRIES = 4;
 const BACKOFF_BASE = 1.7;
+
+console.log(`ℹ️ Using Embedding Model: ${EMBED_MODEL}`);
 
 if (!GEMINI_KEY) {
     throw new Error("GEMINI_API_KEY missing. Put GEMINI_API_KEY=... in .env");
 }
 
 const genAI = new GoogleGenerativeAI(GEMINI_KEY);
+
+// ------------- NEW: PERSONA DEFINITIONS -------------
+interface Persona {
+    name: string;
+    instruction: string;
+}
+
+const PERSONAS: Record<string, Persona> = {
+    ALEX: {
+        name: "Alex the Fun Learner",
+        instruction: `You are Alex, the Fun Learner. 
+        Style: Make learning fun! Use jokes, memes, pop-culture references, and entertaining metaphors. 
+        Tone: Casual, energetic, and lighthearted. 
+        Goal: Explain concepts simply but accurately, ensuring the student enjoys the process.`
+    },
+    DOCTOR: {
+        name: "Dr. Focus",
+        instruction: `You are Dr. Focus. 
+        Style: Structured, detailed, and methodical. Use bullet points, academic terminology, and clear logical steps.
+        Tone: Professional, serious, and precise.
+        Goal: Provide deep learning and comprehensive understanding without distractions.`
+    },
+    COACH: {
+        name: "Coach Inspire",
+        instruction: `You are Coach Inspire. 
+        Style: Act as a personal cheerleader. Use motivating language, affirmations, and high energy.
+        Tone: Empowering, confident, and supportive.
+        Goal: Keep the student motivated and confident while explaining the material clearly.`
+    }
+};
+
+// Default Persona
+let currentPersona = PERSONAS.ALEX;
 
 // ------------- TYPES -------------
 interface ChatMessage {
@@ -103,7 +145,6 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 // ------------- DATABASE -------------
-// Create a pool for better connection management
 const pool = mysql.createPool({
     host: MYSQL_HOST,
     port: MYSQL_PORT,
@@ -118,9 +159,10 @@ const pool = mysql.createPool({
 // ------------- EMBEDDING -------------
 async function embedQueryGemini(text: string): Promise<number[]> {
     const model = genAI.getGenerativeModel({ model: EMBED_MODEL });
+    
     const result = await model.embedContent({
         content: { role: 'user', parts: [{ text }] },
-        taskType: TaskType.RETRIEVAL_DOCUMENT
+        taskType: TaskType.RETRIEVAL_QUERY
     });
     
     const values = result.embedding.values;
@@ -140,13 +182,11 @@ async function retrieveTopKByLesson(queryEmb: number[], topK = TOP_K): Promise<L
         conn.release();
     }
 
-    // Compute similarity for each chunk
     const scoredChunks: ScoredChunk[] = [];
     
     for (const r of rows) {
         let emb: number[];
         try {
-            // Parse JSON string embedding from DB
             emb = JSON.parse(r.embedding);
         } catch (e) {
             console.warn(`Failed to parse embedding for chunk ${r.id}`);
@@ -162,10 +202,8 @@ async function retrieveTopKByLesson(queryEmb: number[], topK = TOP_K): Promise<L
         });
     }
 
-    // Sort by score descending
     scoredChunks.sort((a, b) => b.score - a.score);
 
-    // Group by lesson_id
     const lessonsMap = new Map<string, ScoredChunk[]>();
     for (const c of scoredChunks) {
         if (!lessonsMap.has(c.lesson_id)) {
@@ -174,7 +212,6 @@ async function retrieveTopKByLesson(queryEmb: number[], topK = TOP_K): Promise<L
         lessonsMap.get(c.lesson_id)!.push(c);
     }
 
-    // Take top_k lessons (by max score among their chunks)
     const sortedLessons = Array.from(lessonsMap.entries())
         .map(([lessonId, chunks]) => {
             const maxScore = Math.max(...chunks.map(c => c.score));
@@ -189,7 +226,7 @@ async function retrieveTopKByLesson(queryEmb: number[], topK = TOP_K): Promise<L
     }));
 }
 
-// ------------- PROMPT -------------
+// ------------- UPDATED PROMPT LOGIC -------------
 function buildPromptByLesson(lessons: LessonGroup[], question: string): string {
     const lessonTexts: string[] = [];
     
@@ -204,11 +241,13 @@ function buildPromptByLesson(lessons: LessonGroup[], question: string): string {
         ? lessonTexts.join("\n\n") 
         : "/* no lesson context available */";
 
-    // Get last 10 history items
     const recentHistory = chatHistory.slice(-10);
 
+    // Incorporate the current persona instruction
     return `
-You are a friendly AI study buddy. Treat each LESSON below as a distinct source of knowledge. 
+${currentPersona.instruction}
+
+Treat each LESSON below as a distinct source of knowledge. 
 Use primary lessons first, then other info if needed (highlight as secondary).
 
 LESSONS CONTEXT:
@@ -220,7 +259,7 @@ ${JSON.stringify(recentHistory, null, 2)}
 STUDENT QUESTION:
 ${question}
 
-Answer naturally, conversationally, and helpfully. Keep it student-friendly.
+Remember to answer in the voice and style of ${currentPersona.name}.
 `;
 }
 
@@ -260,7 +299,6 @@ async function produceAnswer(question: string): Promise<ResponseOutput> {
         return { error: `Generation failed: ${e}`, used_lessons: lessons };
     }
 
-    // Update chat history
     chatHistory.push({ role: "user", text: question });
     chatHistory.push({ role: "assistant", text: gen });
 
@@ -269,7 +307,10 @@ async function produceAnswer(question: string): Promise<ResponseOutput> {
 
 // ------------- CLI MAIN -------------
 async function main() {
-    console.log("✅ AI Study Buddy. Type 'exit' to quit.\n");
+    console.log("✅ AI Study Buddy Loaded.");
+    console.log("Type 'switch alex', 'switch doctor', or 'switch coach' to change personalities.");
+    console.log("Type 'exit' to quit.\n");
+    console.log(`Current Buddy: ${currentPersona.name}\n`);
 
     const rl = readline.createInterface({
         input: process.stdin,
@@ -279,21 +320,47 @@ async function main() {
     const ask = (q: string) => new Promise<string>(resolve => rl.question(q, resolve));
 
     while (true) {
-        let user = await ask("You: ");
+        let user = await ask(`[${currentPersona.name}] You: `);
         user = user.trim();
 
         if (!user) continue;
+
+        // Handle Exit
         if (user.toLowerCase() === "exit") {
             console.log("Goodbye.");
             rl.close();
             process.exit(0);
         }
 
+        // Handle Character Switching
+        const lowerUser = user.toLowerCase();
+        if (lowerUser.startsWith("switch")) {
+            if (lowerUser.includes("alex")) {
+                currentPersona = PERSONAS.ALEX;
+                console.log(`✨ Switched to: ${currentPersona.name}\n`);
+                continue;
+            } else if (lowerUser.includes("doctor") || lowerUser.includes("dr")) {
+                currentPersona = PERSONAS.DOCTOR;
+                console.log(`🩺 Switched to: ${currentPersona.name}\n`);
+                continue;
+            } else if (lowerUser.includes("coach")) {
+                currentPersona = PERSONAS.COACH;
+                console.log(`📣 Switched to: ${currentPersona.name}\n`);
+                continue;
+            } else {
+                console.log("⚠️ Unknown character. Try: 'switch alex', 'switch doctor', or 'switch coach'.");
+                continue;
+            }
+        }
+
+        // Safety check
         if (containsForbiddenRequest(user)) {
             console.log("Assistant: Unsafe request detected.");
             continue;
         }
 
+        // Generate Answer
+        console.log(`... ${currentPersona.name} is thinking ...`);
         const out = await produceAnswer(user);
 
         if (out.error) {
@@ -301,7 +368,7 @@ async function main() {
             continue;
         }
 
-        console.log("\nAssistant:\n");
+        console.log(`\n${currentPersona.name}:\n`);
         console.log(out.answer_text);
         console.log("\n---\n");
     }
