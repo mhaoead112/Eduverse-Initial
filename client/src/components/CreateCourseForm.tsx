@@ -189,7 +189,6 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardTitle className="flex items-center gap-2">
-          <span className="text-2xl">📚</span>
           Create New Course
         </CardTitle>
         <CardDescription>
@@ -226,7 +225,7 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
         {!isAuthenticated && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
-              ⚠️ You must be logged in as a teacher or administrator to create a course.
+              You must be logged in as a teacher or administrator to create a course.
             </p>
           </div>
         )}

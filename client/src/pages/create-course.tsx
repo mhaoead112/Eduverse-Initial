@@ -3,7 +3,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'wouter';
 import { CreateCourseForm } from '@/components/CreateCourseForm';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { 
+  ArrowLeft, Lock, ShieldAlert, CheckCircle, 
+  ClipboardList, FileText, Rocket, Lightbulb, Check
+} from 'lucide-react';
 
 export default function CreateCoursePage() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
@@ -27,7 +30,7 @@ export default function CreateCoursePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">🔒</div>
+          <Lock className="w-16 h-16 mx-auto mb-4 text-gray-400" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-600 mb-6">
             You must be logged in as a teacher or administrator to create a course.
@@ -48,7 +51,7 @@ export default function CreateCoursePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">⛔</div>
+          <ShieldAlert className="w-16 h-16 mx-auto mb-4 text-red-500" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Insufficient Permissions</h1>
           <p className="text-gray-600 mb-2">
             Only teachers and administrators can create courses.
@@ -95,7 +98,7 @@ export default function CreateCoursePage() {
         {successMessage && (
           <div className="mb-8 p-4 bg-green-50 border border-green-300 rounded-lg">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">✅</span>
+              <CheckCircle className="w-6 h-6 text-green-600 mt-0.5" />
               <div>
                 <p className="font-semibold text-green-900">Course Created!</p>
                 <p className="text-sm text-green-700 mt-1">
@@ -120,7 +123,7 @@ export default function CreateCoursePage() {
         {/* Information Cards */}
         <div className="mt-12 grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-            <div className="text-3xl mb-3">📋</div>
+            <ClipboardList className="w-10 h-10 text-blue-500 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-2">Course Title</h3>
             <p className="text-sm text-gray-600">
               Give your course a clear, descriptive title that helps students understand what they'll learn.
@@ -128,7 +131,7 @@ export default function CreateCoursePage() {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-500">
-            <div className="text-3xl mb-3">📝</div>
+            <FileText className="w-10 h-10 text-indigo-500 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
             <p className="text-sm text-gray-600">
               Provide a detailed description of course content, learning outcomes, and what students should expect.
@@ -136,7 +139,7 @@ export default function CreateCoursePage() {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-            <div className="text-3xl mb-3">🚀</div>
+            <Rocket className="w-10 h-10 text-purple-500 mb-3" />
             <h3 className="font-semibold text-gray-900 mb-2">Ready to Go</h3>
             <p className="text-sm text-gray-600">
               After creating your course, you can add lessons, manage content, and enroll students.
@@ -146,14 +149,17 @@ export default function CreateCoursePage() {
 
         {/* Quick Tips */}
         <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-blue-900 mb-4">💡 Quick Tips</h2>
+          <h2 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+            <Lightbulb className="w-5 h-5" />
+            Quick Tips
+          </h2>
           <ul className="space-y-2 text-sm text-blue-800">
-            <li>✓ Course titles can be up to 255 characters</li>
-            <li>✓ Descriptions can be up to 2000 characters</li>
-            <li>✓ Courses are created as unpublished by default</li>
-            <li>✓ You can edit your course details at any time</li>
-            <li>✓ Add lessons to your course after creation</li>
-            <li>✓ Publish your course when ready for students</li>
+            <li className="flex items-start gap-2"><Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> Course titles can be up to 255 characters</li>
+            <li className="flex items-start gap-2"><Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> Descriptions can be up to 2000 characters</li>
+            <li className="flex items-start gap-2"><Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> Courses are created as unpublished by default</li>
+            <li className="flex items-start gap-2"><Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> You can edit your course details at any time</li>
+            <li className="flex items-start gap-2"><Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> Add lessons to your course after creation</li>
+            <li className="flex items-start gap-2"><Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> Publish your course when ready for students</li>
           </ul>
         </div>
       </div>
