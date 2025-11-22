@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ChevronRight, Home, Bot, Sparkles, Heart, MessageCircle, Palette, TrendingUp, BookOpen, Calendar, Newspaper, Users, GraduationCap, Phone, FileText, Globe } from "lucide-react";
+import { Menu, X, ChevronRight, Home, Bot, Sparkles, Heart, MessageCircle, Palette, TrendingUp, BookOpen, Calendar, Newspaper, Users, GraduationCap, Phone, FileText, Globe, LogIn, UserPlus } from "lucide-react";
 import { Logo } from "./logo";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigationItems = [
   { name: "Home", href: "/home" },
@@ -162,6 +163,7 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     setIsOpen(false);
@@ -189,8 +191,8 @@ export function Navigation() {
       }`}>
         <div className="absolute inset-0 bg-gradient-to-r from-slate-50/98 via-white/99 to-slate-50/98"></div>
         <div className="absolute bottom-0 left-0 right-0 h-px gold-shimmer"></div>
-        <nav className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 relative z-10">
-        <div className="flex items-center justify-between gap-2">
+        <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 relative z-10">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           <Link href="/" className="relative group flex-shrink-0">
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-blue-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative transform group-hover:scale-105 transition-transform duration-300">
@@ -198,121 +200,120 @@ export function Navigation() {
             </div>
           </Link>
           
-          {/* Desktop Navigation - Organized & Creative */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3">
-            {/* Main Navigation Group */}
-            <div className="flex items-center space-x-1 premium-glass rounded-full px-3 xl:px-4 py-2 border border-white/30">
+          {/* Desktop Navigation - Optimized for space */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-2.5 xl:gap-3 flex-1 justify-end">
+            {/* Main Navigation Group - Compact */}
+            <div className="flex items-center space-x-1 premium-glass rounded-full px-2.5 md:px-3 py-2 border border-white/30">
               <Link
                 href="/home"
-                className={`px-3 xl:px-4 py-2 rounded-full font-premium transition-all duration-300 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-300 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/home") 
-                    ? "luxury-button text-white shadow-lg transform scale-105" 
-                    : "text-gray-700 hover:text-yellow-600 hover:bg-white/80 hover:shadow-md"
+                    ? "luxury-button text-white shadow-md transform scale-105" 
+                    : "text-gray-700 hover:text-yellow-600 hover:bg-white/80"
                 }`}
               >
-                <Home size={16} /> <span className="hidden xl:inline">Home</span>
+                <Home size={14} /> <span className="hidden xl:inline">Home</span>
               </Link>
               <Link
                 href="/about"
-                className={`px-3 xl:px-4 py-2 rounded-full font-premium transition-all duration-300 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-300 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/about") 
-                    ? "luxury-button text-white shadow-lg transform scale-105" 
-                    : "text-gray-700 hover:text-yellow-600 hover:bg-white/80 hover:shadow-md"
+                    ? "luxury-button text-white shadow-md transform scale-105" 
+                    : "text-gray-700 hover:text-yellow-600 hover:bg-white/80"
                 }`}
               >
-                <BookOpen size={16} /> <span className="hidden xl:inline">About</span>
+                <BookOpen size={14} /> <span className="hidden xl:inline">About</span>
               </Link>
             </div>
 
-            {/* Academic Section */}
-            <div className="flex items-center space-x-1 bg-blue-50/80 rounded-full px-3 xl:px-4 py-2">
+            {/* Academic Section - Compact */}
+            <div className="flex items-center space-x-1 bg-blue-50/80 rounded-full px-2.5 md:px-3 py-2">
               <Link
                 href="/programs"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/programs") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <GraduationCap size={16} /> <span className="hidden xl:inline">Programs</span>
+                <GraduationCap size={14} /> <span className="hidden xl:inline">Programs</span>
               </Link>
               <Link
                 href="/subjects"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/subjects") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <BookOpen size={16} /> <span className="hidden xl:inline">Subjects</span>
+                <BookOpen size={14} /> <span className="hidden xl:inline">Subjects</span>
               </Link>
             </div>
 
-            {/* Community Section */}
-            <div className="flex items-center space-x-1 bg-purple-50/80 rounded-full px-3 xl:px-4 py-2">
+            {/* Community Section - Compact */}
+            <div className="flex items-center space-x-1 bg-purple-50/80 rounded-full px-2.5 md:px-3 py-2">
               <Link
                 href="/news"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/news") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <Newspaper size={16} /> <span className="hidden xl:inline">News</span>
+                <Newspaper size={14} /> <span className="hidden xl:inline">News</span>
               </Link>
               <Link
                 href="/events"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/events") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <Calendar size={16} /> <span className="hidden xl:inline">Events</span>
+                <Calendar size={14} /> <span className="hidden xl:inline">Events</span>
               </Link>
               <Link
                 href="/staff"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/staff") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <Users size={16} /> <span className="hidden xl:inline">Staff</span>
+                <Users size={14} /> <span className="hidden xl:inline">Staff</span>
               </Link>
             </div>
 
-            {/* Contact Section */}
-            <div className="flex items-center space-x-1 bg-green-50/80 rounded-full px-3 xl:px-4 py-2">
+            {/* Contact Section - Compact */}
+            <div className="flex items-center space-x-1 bg-green-50/80 rounded-full px-2.5 md:px-3 py-2">
               <Link
                 href="/admissions"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/admissions") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <FileText size={16} /> <span className="hidden xl:inline">Admissions</span>
+                <FileText size={14} /> <span className="hidden xl:inline">Admissions</span>
               </Link>
               <Link
                 href="/contact"
-                className={`px-3 xl:px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1 text-sm xl:text-base ${
+                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
                   isActive("/contact") 
-                    ? "bg-eduverse-blue text-white shadow-md transform scale-105" 
+                    ? "bg-eduverse-blue text-white shadow-md" 
                     : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
                 }`}
               >
-                <Phone size={16} /> <span className="hidden xl:inline">Contact</span>
+                <Phone size={14} /> <span className="hidden xl:inline">Contact</span>
               </Link>
             </div>
             
-            {/* Interactive Features Dropdown - Enhanced */}
+            {/* Interactive Features Dropdown - Compact */}
             <div className="relative group">
-              <button className="luxury-button flex items-center gap-2 px-4 xl:px-6 py-2 xl:py-3 text-white rounded-full font-luxury text-sm xl:text-base shadow-2xl hover:shadow-xl transform hover:scale-105 border-2 border-yellow-300/40 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/20 animate-pulse"></div>
-                <Sparkles size={18} className="relative z-10" />
-                <span className="relative z-10 font-luxury hidden xl:inline">Features</span>
-                <svg className="w-4 h-4 transition-transform group-hover:rotate-180 duration-300" fill="currentColor" viewBox="0 0 20 20">
+              <button className="luxury-button flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-white rounded-full font-medium text-xs md:text-sm shadow-lg hover:shadow-xl transform hover:scale-105 border border-yellow-300/40">
+                <Sparkles size={16} />
+                <span className="hidden xl:inline">Features</span>
+                <svg className="w-3 h-3 transition-transform group-hover:rotate-180 duration-300" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </button>
@@ -368,30 +369,50 @@ export function Navigation() {
               </div>
             </div>
             
-            {/* AI Chat Button - Ultra Premium Style */}
+            {/* AI Chat Button - Compact */}
             <Link
               href="/ai-chat"
-              className="luxury-button flex items-center gap-2 px-4 xl:px-6 py-2 xl:py-3 text-white rounded-full font-luxury text-sm xl:text-base hover:shadow-xl transform hover:scale-105 border-2 border-yellow-300/40 relative overflow-hidden"
+              className="luxury-button flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-white rounded-full font-medium text-xs md:text-sm hover:shadow-xl transform hover:scale-105 border border-yellow-300/40 relative overflow-hidden"
               data-testid="nav-ai-chat-link"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/20 animate-pulse"></div>
-              <Bot size={18} className="relative z-10" />
-              <span className="relative z-10 font-luxury hidden xl:inline">Ask AI</span>
-              <div className="absolute top-1 right-2 w-2 h-2 bg-yellow-300 rounded-full animate-ping"></div>
+              <Bot size={16} className="relative z-10" />
+              <span className="relative z-10 hidden xl:inline">Ask AI</span>
+              <div className="absolute top-0.5 right-1.5 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-ping"></div>
             </Link>
+
+            {/* Auth Section - Login Only */}
+            {!isAuthenticated ? (
+              <Link
+                href="/login"
+                className="px-4 md:px-5 py-2 md:py-2.5 rounded-full font-medium bg-eduverse-blue text-white hover:bg-eduverse-blue/90 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 text-sm md:text-base"
+              >
+                <LogIn size={16} />
+                <span>Login</span>
+              </Link>
+            ) : (
+              <Link
+                href={`/${user?.role || 'student'}`}
+                className="px-4 md:px-5 py-2 md:py-2.5 rounded-full font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 text-sm md:text-base"
+              >
+                <GraduationCap size={16} />
+                <span>Dashboard</span>
+              </Link>
+            )}
           </div>
           
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden text-eduverse-blue"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors text-eduverse-blue"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
         
         {/* Enhanced Mobile Navigation with Animations */}
-        <div className={`lg:hidden transition-all duration-500 ease-out ${
+        <div className={`md:hidden transition-all duration-500 ease-out ${
           isOpen 
             ? 'max-h-screen opacity-100 translate-y-0' 
             : 'max-h-0 opacity-0 -translate-y-4 overflow-hidden'
@@ -476,6 +497,27 @@ export function Navigation() {
               <span className="relative z-10">Ask EduVerse AI</span>
               <span className="relative z-10 text-xs bg-yellow-300/30 px-3 py-1 rounded-full font-premium">NEW</span>
             </Link>
+
+            {/* Mobile Auth Button */}
+            {!isAuthenticated ? (
+              <div className="pt-4 border-t border-gray-200">
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-medium bg-eduverse-blue text-white hover:bg-eduverse-blue/90 shadow-lg hover:shadow-xl transition-all duration-300 text-lg w-full"
+                >
+                  <LogIn size={22} />
+                  <span>Login to Dashboard</span>
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href={`/${user?.role || 'student'}`}
+                className="flex items-center justify-center gap-3 px-8 py-6 rounded-2xl font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-300 text-lg border-t border-gray-200 mt-4 pt-4"
+              >
+                <GraduationCap size={24} />
+                <span>Go to Dashboard</span>
+              </Link>
+            )}
           </div>
         </div>
       </nav>

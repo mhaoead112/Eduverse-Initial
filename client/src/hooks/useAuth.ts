@@ -24,8 +24,9 @@ export function useAuth() {
 
   useEffect(() => {
     // Check for stored auth on component mount
-    const storedToken = localStorage.getItem('eduverse_token');
-    const storedUser = localStorage.getItem('eduverse_user');
+    // Support both old and new token keys
+    const storedToken = localStorage.getItem('auth_token') || localStorage.getItem('eduverse_token');
+    const storedUser = localStorage.getItem('user') || localStorage.getItem('eduverse_user');
     
     if (storedToken && storedUser) {
       try {
@@ -37,7 +38,9 @@ export function useAuth() {
         });
       } catch (error) {
         // Clear invalid stored data
+        localStorage.removeItem('auth_token');
         localStorage.removeItem('eduverse_token');
+        localStorage.removeItem('user');
         localStorage.removeItem('eduverse_user');
         setAuthState({
           user: null,
@@ -89,12 +92,23 @@ export function useAuth() {
   };
 
   const logout = () => {
+    // Clear both old and new token keys
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('eduverse_token');
+    localStorage.removeItem('user');
     localStorage.removeItem('eduverse_user');
     setAuthState({
       user: null,
       token: null,
       isAuthenticated: false
+    });
+    
+    // Optional: Call logout API endpoint
+    fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    }).catch(() => {
+      // Ignore errors during logout API call
     });
   };
 

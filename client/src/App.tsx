@@ -27,6 +27,7 @@ import Avatars from "@/pages/avatars";
 import LMSStructure from "@/pages/lms-structure";
 import TeacherDashboard from "@/pages/teacher-dashboard";
 import TeacherClasses from "@/pages/teacher-classes";
+import TeacherCourses from "@/pages/teacher-courses";
 import TeacherStudents from "@/pages/teacher-students";
 import TeacherAssessments from "@/pages/teacher-assessments";
 import TeacherContent from "@/pages/teacher-content";
@@ -51,6 +52,11 @@ import StudentCourseLessons from "@/pages/student-course-lessons";
 import StudentAssignments from "@/pages/student-assignments";
 import StudentGrades from "@/pages/student-grades";
 import StudentSchedule from "@/pages/student-schedule";
+import AnnouncementsPage from "@/pages/announcements";
+import StudentAnnouncementsPage from "@/pages/student-announcements";
+import StudentAllAnnouncementsPage from "@/pages/student-all-announcements";
+import Login from "@/pages/login";
+import Register from "@/pages/register";
 
 function Router() {
   const [location] = useLocation();
@@ -67,6 +73,20 @@ function Router() {
       {!isDashboardRoute && <Navigation />}
       <main className="flex-1">
         <Switch>
+          {/* Authentication routes */}
+          <Route path="/login">
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          </Route>
+
+          {/* Register route - kept for future admin functionality, redirects to login */}
+          <Route path="/register">
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          </Route>
+
           {/* Demo login route - high priority */}
           <Route path="/demo">
             <PublicOnlyRoute>
@@ -122,6 +142,18 @@ function Router() {
           <Route path="/student/schedule">
             <StudentRoute>
               <StudentSchedule />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/courses/:courseId/announcements">
+            <StudentRoute>
+              <StudentAnnouncementsPage />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/announcements">
+            <StudentRoute>
+              <StudentAllAnnouncementsPage />
             </StudentRoute>
           </Route>
           
@@ -197,7 +229,7 @@ function Router() {
           {/* Teacher Courses - Teacher/Admin only */}
           <Route path="/teacher/courses">
             <TeacherRoute>
-              <TeacherClasses />
+              <TeacherCourses />
             </TeacherRoute>
           </Route>
 
@@ -212,6 +244,13 @@ function Router() {
             <TeacherRoute>
               <LessonManagement />
             </TeacherRoute>
+          </Route>
+
+          {/* Teacher Announcements - Teacher/Admin only */}
+          <Route path="/courses/:courseId/announcements">
+            <MultiRoleRoute roles={['teacher', 'admin']}>
+              <AnnouncementsPage />
+            </MultiRoleRoute>
           </Route>
 
           {/* Lesson Management - Teacher/Admin only (legacy route) */}
