@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import LessonViewer from "@/components/LessonViewer";
 import StudyBuddyChat from "@/components/StudyBuddyChat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Megaphone } from "lucide-react";
 
 interface Lesson {
   id: string;
@@ -33,13 +34,20 @@ export default function StudentCourseLessonsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:3001/api/courses/${courseId}/lessons`, { headers: getAuthHeaders() });
+        const authHeaders = getAuthHeaders();
+        const headers = authHeaders.Authorization ? authHeaders : {};
+        const res = await fetch(`/api/lessons/course/${courseId}`, { headers });
         if (!res.ok) throw new Error("Failed to load lessons");
         const data = await res.json();
         // API returns { lessons: [] } per server implementation
         const items = data?.lessons || [];
-        setLessons(items);
-        if (items.length > 0) setSelectedLesson(items[0]);
+        // Add download URL to each lesson
+        const lessonsWithUrls = items.map((lesson: Lesson) => ({
+          ...lesson,
+          fileUrl: `/api/lessons/${lesson.id}/download`
+        }));
+        setLessons(lessonsWithUrls);
+        if (lessonsWithUrls.length > 0) setSelectedLesson(lessonsWithUrls[0]);
       } catch (err: any) {
         setError(err?.message || "Unknown error");
       } finally {
@@ -64,7 +72,21 @@ export default function StudentCourseLessonsPage() {
 
   return (
     <div className="pt-24 min-h-screen bg-slate-50 p-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header with Announcements Button */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Course Lessons</h1>
+          {courseId && (
+            <Link href={`/student/courses/${courseId}/announcements`}>
+              <Button variant="outline" className="gap-2">
+                <Megaphone className="h-4 w-4" />
+                View Announcements
+              </Button>
+            </Link>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Lessons list */}
         <div className="lg:col-span-1">
           <Card>
@@ -101,7 +123,7 @@ export default function StudentCourseLessonsPage() {
         <div className="lg:col-span-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             {selectedLesson ? (
-              <LessonViewer fileUrl={selectedLesson.fileUrl || (selectedLesson.filePath as any)} fileType={selectedLesson.fileType} fileName={selectedLesson.fileName} />
+              <LessonViewer fileUrl={selectedLesson.fileUrl} fileType={selectedLesson.fileType} fileName={selectedLesson.fileName} />
             ) : (
               <Card>
                 <CardHeader>
@@ -128,6 +150,7 @@ export default function StudentCourseLessonsPage() {
               </Card>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>
