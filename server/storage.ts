@@ -17,10 +17,14 @@ import {
   type NewsComment, type InsertNewsComment,
   type StaffProfile, type InsertStaffProfile,
   type StaffAchievement, type InsertStaffAchievement,
+  type Course, type InsertCourse,
+  type Enrollment, type InsertEnrollment,
+  type Lesson, type InsertLesson,
   applications, contacts, chatMessages, users, groups, groupMembers, 
   groupMessages, messageReactions, groupPolls, pollVotes, 
   raiseHandRequests, fileAttachments, newsArticles, events, 
   eventRegistrations, newsComments, staffProfiles, staffAchievements,
+  courses, enrollments, lessons,
   // Teacher portal tables
   classes, classEnrollments, assignments, assignmentSubmissions, 
   quizzes, quizAttempts, contentLibrary, contentBookmarks, 
@@ -972,6 +976,193 @@ export class DatabaseStorage implements IStorage {
 
   async deleteStaffAchievement(id: string): Promise<boolean> {
     const result = await db.delete(staffAchievements).where(eq(staffAchievements.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // ==================== COURSE MANAGEMENT ====================
+  
+  async createCourse(courseData: InsertCourse): Promise<Course> {
+    const [course] = await db
+      .insert(courses)
+      .values(courseData)
+      .returning();
+    return course;
+  }
+
+  async getCourses(): Promise<Course[]> {
+    return await db
+      .select()
+      .from(courses)
+      .orderBy(sql`${courses.createdAt} DESC`);
+  }
+
+  async getCourse(id: string): Promise<Course | undefined> {
+    const [course] = await db
+      .select()
+      .from(courses)
+      .where(eq(courses.id, id));
+    return course;
+  }
+
+  async getCoursesByTeacher(teacherId: string): Promise<Course[]> {
+    return await db
+      .select()
+      .from(courses)
+      .where(eq(courses.teacherId, teacherId))
+      .orderBy(sql`${courses.createdAt} DESC`);
+  }
+
+  async getPublishedCourses(): Promise<Course[]> {
+    return await db
+      .select()
+      .from(courses)
+      .where(eq(courses.isPublished, true))
+      .orderBy(sql`${courses.createdAt} DESC`);
+  }
+
+  async updateCourse(id: string, updates: Partial<InsertCourse>): Promise<Course | undefined> {
+    const [course] = await db
+      .update(courses)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(courses.id, id))
+      .returning();
+    return course;
+  }
+
+  async deleteCourse(id: string): Promise<boolean> {
+    const result = await db.delete(courses).where(eq(courses.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async publishCourse(id: string): Promise<Course | undefined> {
+    const [course] = await db
+      .update(courses)
+      .set({ isPublished: true, updatedAt: new Date() })
+      .where(eq(courses.id, id))
+      .returning();
+    return course;
+  }
+
+  async unpublishCourse(id: string): Promise<Course | undefined> {
+    const [course] = await db
+      .update(courses)
+      .set({ isPublished: false, updatedAt: new Date() })
+      .where(eq(courses.id, id))
+      .returning();
+    return course;
+  }
+
+  // ==================== ENROLLMENT MANAGEMENT ====================
+  
+  async enrollStudent(enrollmentData: InsertEnrollment): Promise<Enrollment> {
+    const [enrollment] = await db
+      .insert(enrollments)
+      .values(enrollmentData)
+      .returning();
+    return enrollment;
+  }
+
+  async unenrollStudent(studentId: string, courseId: string): Promise<boolean> {
+    const result = await db
+      .delete(enrollments)
+      .where(and(
+        eq(enrollments.studentId, studentId),
+        eq(enrollments.courseId, courseId)
+      ));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async getEnrollmentsByCourse(courseId: string): Promise<Enrollment[]> {
+    return await db
+      .select()
+      .from(enrollments)
+      .where(eq(enrollments.courseId, courseId))
+      .orderBy(sql`${enrollments.enrolledAt} DESC`);
+  }
+
+  async getEnrollmentsByStudent(studentId: string): Promise<Enrollment[]> {
+    return await db
+      .select()
+      .from(enrollments)
+      .where(eq(enrollments.studentId, studentId))
+      .orderBy(sql`${enrollments.enrolledAt} DESC`);
+  }
+
+  async isStudentEnrolled(studentId: string, courseId: string): Promise<boolean> {
+    const [enrollment] = await db
+      .select()
+      .from(enrollments)
+      .where(and(
+        eq(enrollments.studentId, studentId),
+        eq(enrollments.courseId, courseId)
+      ))
+      .limit(1);
+    return !!enrollment;
+  }
+
+  async getEnrolledCourses(studentId: string): Promise<Course[]> {
+    const studentEnrollments = await db
+      .select()
+      .from(enrollments)
+      .where(eq(enrollments.studentId, studentId));
+    
+    if (studentEnrollments.length === 0) {
+      return [];
+    }
+
+    const courseIds = studentEnrollments.map(e => e.courseId);
+    return await db
+      .select()
+      .from(courses)
+      .where(inArray(courses.id, courseIds))
+      .orderBy(sql`${courses.createdAt} DESC`);
+  }
+
+  async getEnrollmentCount(courseId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(enrollments)
+      .where(eq(enrollments.courseId, courseId));
+    return result[0]?.count ?? 0;
+  }
+
+  // ==================== LESSON MANAGEMENT ====================
+  
+  async createLesson(lessonData: InsertLesson): Promise<Lesson> {
+    const [lesson] = await db
+      .insert(lessons)
+      .values(lessonData)
+      .returning();
+    return lesson;
+  }
+
+  async getLessonsByCourse(courseId: string): Promise<Lesson[]> {
+    return await db
+      .select()
+      .from(lessons)
+      .where(eq(lessons.courseId, courseId))
+      .orderBy(sql`${lessons.createdAt} DESC`);
+  }
+
+  async getLesson(id: string): Promise<Lesson | undefined> {
+    const [lesson] = await db
+      .select()
+      .from(lessons)
+      .where(eq(lessons.id, id));
+    return lesson;
+  }
+
+  async updateLesson(id: string, updates: Partial<InsertLesson>): Promise<Lesson | undefined> {
+    const [lesson] = await db
+      .update(lessons)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(lessons.id, id))
+      .returning();
+    return lesson;
+  }
+
+  async deleteLesson(id: string): Promise<boolean> {
+    const result = await db.delete(lessons).where(eq(lessons.id, id));
     return (result.rowCount ?? 0) > 0;
   }
 }

@@ -423,6 +423,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Logout user
+  app.post("/api/auth/logout", async (req, res) => {
+    try {
+      // Clear the auth cookie
+      res.clearCookie('auth_token');
+      
+      res.json({ message: "Logout successful" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Logout failed", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   // Create demo users for development
   app.post("/api/auth/create-demo-users", async (req, res) => {
     try {
@@ -1380,7 +1393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all courses (public endpoint - anyone can see published courses)
   app.get("/api/courses", async (req, res) => {
     try {
-      const courses = await storage.getCourses?.() || [];
+      const courses = await storage.getCourses();
       res.json(courses);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch courses", error: error instanceof Error ? error.message : "Unknown error" });
@@ -1390,9 +1403,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get courses for authenticated user (their own courses if teacher, or enrolled courses if student)
   app.get("/api/courses/user", authMiddleware, async (req: AuthenticatedRequest, res) => {
     try {
-      // In a real implementation, this would filter based on user role and ID
-      // For now, return empty array - to be implemented with actual storage
-      res.json([]);
+      const userRole = req.userRole;
+      let courses = [];
+      
+      if (userRole === 'teacher' || userRole === 'admin') {
+        courses = await storage.getCoursesByTeacher(req.userId!);
+      } else if (userRole === 'student') {
+        courses = await storage.getEnrolledCourses(req.userId!);
+      }
+      
+      res.json(courses);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch user courses", error: error instanceof Error ? error.message : "Unknown error" });
     }
@@ -1401,9 +1421,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get specific course
   app.get("/api/courses/:id", async (req, res) => {
     try {
-      // In a real implementation, fetch from database
-      // For now, return error
-      res.status(404).json({ message: "Course not found" });
+      const course = await storage.getCourse(req.params.id);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+      res.json(course);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch course", error: error instanceof Error ? error.message : "Unknown error" });
     }
@@ -1418,17 +1440,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         teacherId: req.userId  // Set teacherId to authenticated user
       });
 
-      // In a real implementation, save to database
-      // For now, return mock response
-      const newCourse = {
-        id: Math.random().toString(36).substring(2, 15),
-        title: validatedData.title,
-        description: validatedData.description,
-        teacherId: req.userId,
-        isPublished: validatedData.isPublished || false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // Save to database
+      const newCourse = await storage.createCourse(validatedData);
 
       res.status(201).json({
         message: "Course created successfully",
@@ -1455,20 +1468,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertCourseSchema.partial().parse(req.body);
 
-      // In a real implementation:
-      // 1. Check if course exists
-      // 2. Check if user owns the course or is admin
-      // 3. Update in database
+      // Check if course exists
+      const existingCourse = await storage.getCourse(req.params.id);
+      if (!existingCourse) {
+        return res.status(404).json({ message: "Course not found" });
+      }
 
-      // For now, return mock response
+      // Check if user owns the course or is admin
+      if (existingCourse.teacherId !== req.userId && req.userRole !== 'admin') {
+        return res.status(403).json({ message: "You don't have permission to update this course" });
+      }
+
+      // Update in database
+      const updatedCourse = await storage.updateCourse(req.params.id, validatedData);
+
       res.json({
         message: "Course updated successfully",
-        course: {
-          id: req.params.id,
-          ...validatedData,
-          teacherId: req.userId,
-          updatedAt: new Date().toISOString()
-        }
+        course: updatedCourse
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -1485,13 +1501,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Publish/unpublish course (teacher/admin who owns the course)
+  app.patch("/api/courses/:id/publish", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
+    try {
+      // Check if course exists
+      const existingCourse = await storage.getCourse(req.params.id);
+      if (!existingCourse) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Check if user owns the course or is admin
+      if (existingCourse.teacherId !== req.userId && req.userRole !== 'admin') {
+        return res.status(403).json({ message: "You don't have permission to update this course" });
+      }
+
+      const { isPublished } = req.body;
+      
+      // Update publication status
+      const updatedCourse = await storage.updateCourse(req.params.id, { isPublished });
+
+      res.json({
+        message: `Course ${isPublished ? 'published' : 'unpublished'} successfully`,
+        course: updatedCourse
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to update course publication status",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Delete course (teacher/admin who owns the course)
   app.delete("/api/courses/:id", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
     try {
-      // In a real implementation:
-      // 1. Check if course exists
-      // 2. Check if user owns the course or is admin
-      // 3. Delete from database and related enrollments
+      // Check if course exists
+      const existingCourse = await storage.getCourse(req.params.id);
+      if (!existingCourse) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Check if user owns the course or is admin
+      if (existingCourse.teacherId !== req.userId && req.userRole !== 'admin') {
+        return res.status(403).json({ message: "You don't have permission to delete this course" });
+      }
+
+      // Delete from database (will cascade delete enrollments and lessons)
+      const success = await storage.deleteCourse(req.params.id);
+      
+      if (!success) {
+        return res.status(500).json({ message: "Failed to delete course" });
+      }
 
       res.json({ 
         message: "Course deleted successfully",
@@ -1508,17 +1568,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enroll student in course
   app.post("/api/courses/:courseId/enroll", authMiddleware, async (req: AuthenticatedRequest, res) => {
     try {
-      // In a real implementation:
-      // 1. Check if course exists
-      // 2. Check if student isn't already enrolled
-      // 3. Create enrollment record
+      const courseId = req.params.courseId;
+      const studentId = req.userId!;
 
-      const enrollment = {
-        id: Math.random().toString(36).substring(2, 15),
-        studentId: req.userId,
-        courseId: req.params.courseId,
-        enrolledAt: new Date().toISOString()
-      };
+      // Check if course exists
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Check if already enrolled
+      const isEnrolled = await storage.isStudentEnrolled(studentId, courseId);
+      if (isEnrolled) {
+        return res.status(400).json({ message: "Already enrolled in this course" });
+      }
+
+      // Create enrollment record
+      const enrollment = await storage.enrollStudent({
+        studentId,
+        courseId
+      });
 
       res.status(201).json({
         message: "Successfully enrolled in course",
@@ -1535,14 +1604,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Unenroll student from course
   app.delete("/api/courses/:courseId/enroll", authMiddleware, async (req: AuthenticatedRequest, res) => {
     try {
-      // In a real implementation:
-      // 1. Check if enrollment exists
-      // 2. Delete enrollment record
+      const courseId = req.params.courseId;
+      const studentId = req.userId!;
+
+      // Check if enrollment exists
+      const isEnrolled = await storage.isStudentEnrolled(studentId, courseId);
+      if (!isEnrolled) {
+        return res.status(404).json({ message: "Not enrolled in this course" });
+      }
+
+      // Delete enrollment record
+      const success = await storage.unenrollStudent(studentId, courseId);
+      
+      if (!success) {
+        return res.status(500).json({ message: "Failed to unenroll from course" });
+      }
 
       res.json({ 
         message: "Successfully unenrolled from course",
-        courseId: req.params.courseId,
-        studentId: req.userId
+        courseId,
+        studentId
       });
     } catch (error) {
       res.status(500).json({ 
@@ -1637,14 +1718,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Course ID is required" });
       }
 
-      // In production, fetch from database
-      // const lessons = await db.query.lessons.findMany({ 
-      //   where: eq(lessons.courseId, courseId),
-      //   orderBy: desc(lessons.createdAt)
-      // });
+      // Check if course exists
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Fetch lessons from database
+      const lessons = await storage.getLessonsByCourse(courseId);
 
       res.json({
-        lessons: [],
+        lessons,
         message: "Lessons retrieved successfully"
       });
     } catch (error) {
