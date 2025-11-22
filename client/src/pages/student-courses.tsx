@@ -11,6 +11,7 @@ interface Course {
   title: string;
   description?: string | null;
   teacherId: string;
+  isPublished: boolean;
 }
 
 export default function StudentCoursesPage() {
@@ -27,7 +28,9 @@ export default function StudentCoursesPage() {
         const res = await fetch("http://localhost:3001/api/courses");
         if (!res.ok) throw new Error("Failed to load courses");
         const data = await res.json();
-        setCourses(Array.isArray(data) ? data : []);
+        // Filter to show only published courses for students
+        const publishedCourses = Array.isArray(data) ? data.filter((c: Course) => c.isPublished) : [];
+        setCourses(publishedCourses);
       } catch (err: any) {
         setError(err?.message || "Unknown error");
       } finally {

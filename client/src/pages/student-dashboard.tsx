@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { 
   BookOpen, Clock, CheckCircle, AlertCircle, Calendar, 
   MessageCircle, Users, Trophy, Target, TrendingUp,
   FileText, Play, BookmarkPlus, Bell, Star, Award,
-  GraduationCap, Zap, Heart, Brain, Coffee
+  GraduationCap, Zap, Heart, Brain, Coffee, Megaphone
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { 
@@ -358,13 +359,22 @@ function AssignmentCard({ assignment }: { assignment: typeof mockStudentData.ass
 export default function StudentDashboard() {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString());
+  const [, setLocation] = useLocation();
 
   const quickActions = [
+    {
+      title: 'View Announcements',
+      description: 'Check latest updates',
+      icon: Megaphone,
+      color: 'blue' as const,
+      onClick: () => setLocation('/student/announcements'),
+      badge: 'New'
+    },
     {
       title: 'Submit Assignment',
       description: 'Upload your completed work',
       icon: FileText,
-      color: 'blue' as const,
+      color: 'green' as const,
       onClick: () => console.log('Submit assignment'),
       badge: '3'
     },
@@ -372,16 +382,8 @@ export default function StudentDashboard() {
       title: 'Message Teacher',
       description: 'Ask questions or get help',
       icon: MessageCircle,
-      color: 'green' as const,
-      onClick: () => console.log('Message teacher')
-    },
-    {
-      title: 'Join Study Group',
-      description: 'Connect with classmates',
-      icon: Users,
       color: 'purple' as const,
-      onClick: () => console.log('Join study group'),
-      badge: '2'
+      onClick: () => console.log('Message teacher')
     },
     {
       title: 'View Schedule',
@@ -390,6 +392,7 @@ export default function StudentDashboard() {
       color: 'orange' as const,
       onClick: () => console.log('View schedule')
     }
+
   ];
 
   return (

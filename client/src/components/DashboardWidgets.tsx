@@ -506,16 +506,21 @@ export function PerformanceOverview({ title, data, overallGPA }: PerformanceOver
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {data.map((item, index) => (
+        {data.map((item, index) => {
+          // Support both subject and category fields for flexibility
+          const displayName = (item as any).subject || (item as any).category || 'Unknown';
+          const key = displayName.toLowerCase().replace(/\s+/g, '-');
+          
+          return (
           <div 
-            key={item.subject}
+            key={key}
             className="animate-slide-up"
             style={{ animationDelay: `${index * 100}ms` }}
-            data-testid={`performance-${item.subject.toLowerCase().replace(/\s+/g, '-')}`}
+            data-testid={`performance-${key}`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-900 dark:text-white">
-                {item.subject}
+                {displayName}
               </span>
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-semibold">{item.score}%</span>
@@ -527,7 +532,8 @@ export function PerformanceOverview({ title, data, overallGPA }: PerformanceOver
               className="h-2"
             />
           </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );

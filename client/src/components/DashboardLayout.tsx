@@ -104,6 +104,7 @@ const navigationConfig: Record<string, NavigationItem[]> = {
       href: '/teacher/courses',
       icon: BookOpen,
       submenu: [
+        { id: 'view-courses', label: 'View All Courses', href: '/teacher/courses', icon: BookOpen },
         { id: 'create-course', label: 'Create Course', href: '/teacher/courses/create', icon: PlusCircle },
         { id: 'lessons', label: 'Lessons & Materials', href: '/teacher/lessons', icon: FileText }
       ]
@@ -149,30 +150,30 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     {
       id: 'overview',
       label: 'Dashboard',
-      href: '/dashboard/admin',
+      href: '/admin',
       icon: Home
     },
     {
       id: 'users',
       label: 'User Management',
-      href: '/dashboard/admin/users',
+      href: '/admin/users',
       icon: UserCog,
       submenu: [
-        { id: 'students', label: 'Students', href: '/dashboard/admin/users/students', icon: GraduationCap },
-        { id: 'teachers', label: 'Teachers', href: '/dashboard/admin/users/teachers', icon: Users },
-        { id: 'parents', label: 'Parents', href: '/dashboard/admin/users/parents', icon: Heart }
+        { id: 'students', label: 'Students', href: '/admin/users/students', icon: GraduationCap },
+        { id: 'teachers', label: 'Teachers', href: '/admin/users/teachers', icon: Users },
+        { id: 'parents', label: 'Parents', href: '/admin/users/parents', icon: Heart }
       ]
     },
     {
       id: 'reports',
       label: 'System Reports',
-      href: '/dashboard/admin/reports',
+      href: '/admin/reports',
       icon: BarChart3
     },
     {
       id: 'content',
       label: 'Content Management',
-      href: '/dashboard/admin/content',
+      href: '/admin/content',
       icon: Database,
       submenu: [
         { id: 'courses', label: 'Courses', href: '/admin/courses', icon: BookOpen },
@@ -183,20 +184,20 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     {
       id: 'settings',
       label: 'Settings',
-      href: '/dashboard/admin/settings',
+      href: '/admin/settings',
       icon: Wrench
     },
     {
       id: 'moderation',
       label: 'Moderation',
-      href: '/dashboard/admin/moderation',
+      href: '/admin/moderation',
       icon: Shield,
       badge: 3
     },
     {
       id: 'financial',
       label: 'Financial',
-      href: '/dashboard/admin/financial',
+      href: '/admin/financial',
       icon: CreditCard
     }
   ],
