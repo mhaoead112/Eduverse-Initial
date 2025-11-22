@@ -4,8 +4,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { LessonUploadForm } from "@/components/LessonUploadForm";
-import { Loader2, BookOpen, Upload, Trash2, Download } from "lucide-react";
+import { Loader2, BookOpen, Upload, Trash2, Download, Edit2, GripVertical, Megaphone, Pin, PinOff } from "lucide-react";
 
 interface Course {
   id: string;
@@ -20,6 +24,17 @@ interface Lesson {
   fileName: string;
   fileType: string;
   fileSize: string;
+  order?: string;
+  createdAt: string;
+}
+
+interface Announcement {
+  id: string;
+  courseId: string;
+  teacherId: string;
+  title: string;
+  content: string;
+  isPinned: boolean;
   createdAt: string;
 }
 
@@ -33,34 +48,49 @@ export default function LessonManagementPage() {
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [isLoadingLessons, setIsLoadingLessons] = useState(false);
   const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [draggedLesson, setDraggedLesson] = useState<Lesson | null>(null);
 
-  // Mock courses data - in production, fetch from API
+  // Fetch teacher's courses from API
   useEffect(() => {
-    const mockCourses: Course[] = [
-      {
-        id: "course-1",
-        title: "Introduction to Mathematics",
-        description: "Basic mathematics concepts for beginners"
-      },
-      {
-        id: "course-2",
-        title: "Advanced Physics",
-        description: "Quantum mechanics and relativity"
-      },
-      {
-        id: "course-3",
-        title: "English Literature",
-        description: "Classic and contemporary literary works"
+    const fetchCourses = async () => {
+      if (!token) {
+        setIsLoadingCourses(false);
+        return;
       }
-    ];
-    
-    setCourses(mockCourses);
-    setIsLoadingCourses(false);
-    
-    if (mockCourses.length > 0) {
-      setSelectedCourse(mockCourses[0].id);
-    }
-  }, []);
+
+      try {
+        const response = await fetch('/api/courses/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCourses(Array.isArray(data) ? data : []);
+          if (data.length > 0) {
+            setSelectedCourse(data[0].id);
+          }
+        } else {
+          throw new Error('Failed to fetch courses');
+        }
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load your courses',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoadingCourses(false);
+      }
+    };
+
+    fetchCourses();
+  }, [token]);
 
   // Fetch lessons for selected course
   useEffect(() => {
@@ -72,16 +102,22 @@ export default function LessonManagementPage() {
   const fetchLessons = async (courseId: string) => {
     setIsLoadingLessons(true);
     try {
+      const authHeaders = getAuthHeaders();
       const response = await fetch(
-        `http://localhost:3001/api/courses/${courseId}/lessons`,
+        `/api/lessons/course/${courseId}`,
         {
-          headers: getAuthHeaders(),
+          headers: authHeaders,
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        setLessons(data.lessons || []);
+        const lessonsData = data.lessons || [];
+        // Sort by order field
+        const sortedLessons = lessonsData.sort((a: Lesson, b: Lesson) => 
+          parseInt(a.order || '0') - parseInt(b.order || '0')
+        );
+        setLessons(sortedLessons);
       } else {
         throw new Error("Failed to fetch lessons");
       }
@@ -98,13 +134,110 @@ export default function LessonManagementPage() {
     }
   };
 
+  const handleEditLesson = (lesson: Lesson) => {
+    setEditingLesson(lesson);
+    setEditedTitle(lesson.title);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingLesson || !editedTitle.trim()) return;
+
+    try {
+      const response = await fetch(`/api/lessons/${editingLesson.id}`, {
+        method: 'PATCH',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title: editedTitle })
+      });
+
+      if (response.ok) {
+        const { lesson } = await response.json();
+        setLessons(lessons.map(l => l.id === lesson.id ? lesson : l));
+        setEditingLesson(null);
+        setEditedTitle("");
+        toast({
+          title: "Success",
+          description: "Lesson title updated successfully"
+        });
+      } else {
+        throw new Error("Failed to update lesson");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update lesson title",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDragStart = (lesson: Lesson) => {
+    setDraggedLesson(lesson);
+  };
+
+  const handleDragOver = (e: React.DragEvent, targetLesson: Lesson) => {
+    e.preventDefault();
+    if (!draggedLesson || draggedLesson.id === targetLesson.id) return;
+
+    const draggedIndex = lessons.findIndex(l => l.id === draggedLesson.id);
+    const targetIndex = lessons.findIndex(l => l.id === targetLesson.id);
+
+    const newLessons = [...lessons];
+    newLessons.splice(draggedIndex, 1);
+    newLessons.splice(targetIndex, 0, draggedLesson);
+
+    setLessons(newLessons);
+  };
+
+  const handleDragEnd = async () => {
+    if (!draggedLesson) return;
+
+    // Update order in backend
+    const lessonOrders = lessons.map((lesson, index) => ({
+      id: lesson.id,
+      order: index.toString()
+    }));
+
+    try {
+      const response = await fetch('/api/lessons/reorder', {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ lessons: lessonOrders })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Lessons reordered successfully"
+        });
+      } else {
+        throw new Error("Failed to reorder lessons");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save lesson order",
+        variant: "destructive"
+      });
+      // Refetch to restore original order
+      if (selectedCourse) fetchLessons(selectedCourse);
+    }
+
+    setDraggedLesson(null);
+  };
+
   const handleDeleteLesson = async (lessonId: string) => {
     if (!confirm("Are you sure you want to delete this lesson?")) return;
 
     setDeletingLessonId(lessonId);
     try {
       const response = await fetch(
-        `http://localhost:3001/api/lessons/${lessonId}`,
+        `/api/lessons/${lessonId}`,
         {
           method: "DELETE",
           headers: getAuthHeaders(),
@@ -254,33 +387,65 @@ export default function LessonManagementPage() {
                 </div>
               ) : lessons.length > 0 ? (
                 <div className="space-y-3">
-                  {lessons.map((lesson) => (
+                  {lessons.map((lesson, index) => (
                     <div
                       key={lesson.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      draggable
+                      onDragStart={() => handleDragStart(lesson)}
+                      onDragOver={(e) => handleDragOver(e, lesson)}
+                      onDragEnd={handleDragEnd}
+                      className={`flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-move ${
+                        draggedLesson?.id === lesson.id ? 'opacity-50' : ''
+                      }`}
                     >
                       <div className="flex items-center gap-4 flex-1">
+                        <GripVertical className="h-5 w-5 text-gray-400" />
                         <span className="text-2xl">
                           {getFileIcon(lesson.fileType)}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 truncate">
-                            {lesson.title}
-                          </p>
-                          <p className="text-sm text-gray-600 truncate">
-                            {lesson.fileName}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="secondary" className="text-xs">
-                              {formatFileSize(lesson.fileSize)}
-                            </Badge>
-                            <span className="text-xs text-gray-500">
-                              {new Date(lesson.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
+                          {editingLesson?.id === lesson.id ? (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={editedTitle}
+                                onChange={(e) => setEditedTitle(e.target.value)}
+                                className="max-w-md"
+                                autoFocus
+                              />
+                              <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingLesson(null)}>Cancel</Button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="font-semibold text-gray-900 truncate">
+                                {lesson.title}
+                              </p>
+                              <p className="text-sm text-gray-600 truncate">
+                                {lesson.fileName}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="secondary" className="text-xs">
+                                  {formatFileSize(lesson.fileSize)}
+                                </Badge>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(lesson.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleEditLesson(lesson)}
+                          disabled={editingLesson !== null}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                          Edit
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
