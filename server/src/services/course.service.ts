@@ -53,3 +53,39 @@ export const getPublishedCourses = async () => {
         .where(eq(courses.isPublished, true));
     return publishedCourses;
 };
+
+export const getCourseById = async (courseId: string) => {
+    const course = await db
+        .select()
+        .from(courses)
+        .where(eq(courses.id, courseId))
+        .limit(1);
+    return course[0] || null;
+};
+
+export const updateCoursePublishStatus = async (courseId: string, isPublished: boolean) => {
+    const updatedCourse = await db
+        .update(courses)
+        .set({ isPublished })
+        .where(eq(courses.id, courseId))
+        .returning();
+    
+    if (!updatedCourse[0]) {
+        throw new Error("Failed to update course publish status.");
+    }
+    
+    return updatedCourse[0];
+};
+
+export const deleteCourse = async (courseId: string) => {
+    const deletedCourse = await db
+        .delete(courses)
+        .where(eq(courses.id, courseId))
+        .returning();
+    
+    if (!deletedCourse[0]) {
+        throw new Error("Failed to delete course.");
+    }
+    
+    return deletedCourse[0];
+};
