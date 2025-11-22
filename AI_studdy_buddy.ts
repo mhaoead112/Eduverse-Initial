@@ -1,33 +1,32 @@
 import * as readline from 'readline';
 import * as dotenv from 'dotenv';
-import mysql from 'mysql2/promise';
+import { Pool } from 'pg';
 import { GoogleGenerativeAI, TaskType } from '@google/generative-ai';
 
 // ------------- CONFIG -------------
 dotenv.config();
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
-const MYSQL_HOST = process.env.MYSQL_HOST || "localhost";
-const MYSQL_PORT = parseInt(process.env.MYSQL_PORT || "3306");
-const MYSQL_USER = process.env.MYSQL_USER || "root";
-const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD || "";
-const MYSQL_DB = process.env.MYSQL_DB || "eduverse";
 
-// FIX: Logic to handle deprecated model names in .env
-let envModel = process.env.EMBED_MODEL;
-if (envModel === "gemini-embedding-001" || envModel === "embedding-001") {
-    console.warn("⚠️ Warning: Overriding deprecated model in .env with 'text-embedding-004'");
-    envModel = "text-embedding-004";
-}
-// FIX: Default to the working model
-const EMBED_MODEL = envModel || "text-embedding-004";
+// Postgres (Neon) Configuration
+const DB_HOST = process.env.DB_HOST;
+const DB_PORT = parseInt(process.env.DB_PORT || "5432");
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_NAME = process.env.DB_NAME;
 
-const GEN_MODEL = "gemini-2.5-flash";
-const TOP_K = 3;
-const MAX_RETRIES = 4;
-const BACKOFF_BASE = 1.7;
+// Model Configuration
+// Use the exact model defined in your .env (text-embedding-004)
+const EMBED_MODEL = process.env.EMBED_MODEL || "text-embedding-004";
+// Using the latest flash model for generation
+const GEN_MODEL = "gemini-2.5-flash"; 
 
-console.log(`ℹ️ Using Embedding Model: ${EMBED_MODEL}`);
+const TOP_K_LESSONS = 3; // Number of distinct lessons to retrieve context from
+const CHUNK_FETCH_LIMIT = 50; // Fetch top 50 chunks from DB to find the best lessons
+const MAX_RETRIES = 3;
+
+console.log(`ℹ️  Using Embedding Model: ${EMBED_MODEL}`);
+console.log(`ℹ️  Using Database: ${DB_HOST} (${DB_NAME})`);
 
 if (!GEMINI_KEY) {
     throw new Error("GEMINI_API_KEY missing. Put GEMINI_API_KEY=... in .env");
@@ -74,19 +73,10 @@ interface ChatMessage {
     text: string;
 }
 
-interface LessonChunkRow {
-    id: number;
-    lesson_id: string;
-    chunk_index: number;
-    chunk_text: string;
-    embedding: string; // JSON string from DB
-}
-
 interface ScoredChunk {
     lesson_id: string;
-    chunk_index: number;
     text: string;
-    score: number;
+    distance: number; // Cosine distance from PGVector
 }
 
 interface LessonGroup {
@@ -122,38 +112,20 @@ async function retry<T>(fn: () => Promise<T>, maxTries = MAX_RETRIES): Promise<T
         } catch (error) {
             if (attempt === maxTries) throw error;
             await new Promise(resolve => setTimeout(resolve, delay));
-            delay *= BACKOFF_BASE;
+            delay *= 1.5;
         }
     }
     throw new Error("Unreachable");
 }
 
-// ------------- VECTOR MATH -------------
-function dotProduct(a: number[], b: number[]): number {
-    return a.reduce((sum, val, i) => sum + val * b[i], 0);
-}
-
-function magnitude(a: number[]): number {
-    return Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
-}
-
-function cosineSimilarity(a: number[], b: number[]): number {
-    const magA = magnitude(a);
-    const magB = magnitude(b);
-    if (magA === 0 || magB === 0) return 0.0;
-    return dotProduct(a, b) / (magA * magB);
-}
-
 // ------------- DATABASE -------------
-const pool = mysql.createPool({
-    host: MYSQL_HOST,
-    port: MYSQL_PORT,
-    user: MYSQL_USER,
-    password: MYSQL_PASSWORD,
-    database: MYSQL_DB,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+const pool = new Pool({
+    host: DB_HOST,
+    port: DB_PORT,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
+    ssl: { rejectUnauthorized: false }, // Required for Neon
 });
 
 // ------------- EMBEDDING -------------
@@ -171,54 +143,47 @@ async function embedQueryGemini(text: string): Promise<number[]> {
 }
 
 // ------------- RETRIEVAL BY LESSON -------------
-async function retrieveTopKByLesson(queryEmb: number[], topK = TOP_K): Promise<LessonGroup[]> {
-    const conn = await pool.getConnection();
-    let rows: LessonChunkRow[];
+async function retrieveTopKByLesson(queryEmb: number[], topKLessons = TOP_K_LESSONS): Promise<LessonGroup[]> {
+    // 1. Vector Search in Postgres
+    // We fetch more chunks (CHUNK_FETCH_LIMIT) than we need, then group them by lesson to find the most relevant lessons.
+    // The `<=>` operator is Cosine Distance. Lower is better.
     
-    try {
-        const [result] = await conn.execute<any>('SELECT id, lesson_id, chunk_index, chunk_text, embedding FROM lesson_chunks');
-        rows = result as LessonChunkRow[];
-    } finally {
-        conn.release();
-    }
+    const vectorStr = `[${queryEmb.join(",")}]`;
+    
+    const query = `
+        SELECT lessonid, chunktxt, (vector <=> $1) as distance
+        FROM lesson_vectors
+        ORDER BY vector <=> $1 ASC
+        LIMIT $2
+    `;
 
-    const scoredChunks: ScoredChunk[] = [];
+    const res = await pool.query(query, [vectorStr, CHUNK_FETCH_LIMIT]);
     
+    const rows = res.rows;
+
+    // 2. Group chunks by Lesson ID
+    const lessonsMap = new Map<string, ScoredChunk[]>();
+
     for (const r of rows) {
-        let emb: number[];
-        try {
-            emb = JSON.parse(r.embedding);
-        } catch (e) {
-            console.warn(`Failed to parse embedding for chunk ${r.id}`);
-            continue;
+        if (!lessonsMap.has(r.lessonid)) {
+            lessonsMap.set(r.lessonid, []);
         }
-        
-        const score = cosineSimilarity(queryEmb, emb);
-        scoredChunks.push({
-            lesson_id: r.lesson_id,
-            chunk_index: r.chunk_index,
-            text: r.chunk_text,
-            score: score
+        lessonsMap.get(r.lessonid)!.push({
+            lesson_id: r.lessonid,
+            text: r.chunktxt,
+            distance: r.distance
         });
     }
 
-    scoredChunks.sort((a, b) => b.score - a.score);
-
-    const lessonsMap = new Map<string, ScoredChunk[]>();
-    for (const c of scoredChunks) {
-        if (!lessonsMap.has(c.lesson_id)) {
-            lessonsMap.set(c.lesson_id, []);
-        }
-        lessonsMap.get(c.lesson_id)!.push(c);
-    }
-
+    // 3. Sort Lessons by their best chunk (lowest distance is best)
     const sortedLessons = Array.from(lessonsMap.entries())
         .map(([lessonId, chunks]) => {
-            const maxScore = Math.max(...chunks.map(c => c.score));
-            return { lesson_id: lessonId, chunks, maxScore };
+            // Find the minimum distance (best match) in this lesson group
+            const minDistance = Math.min(...chunks.map(c => c.distance));
+            return { lesson_id: lessonId, chunks, minDistance };
         })
-        .sort((a, b) => b.maxScore - a.maxScore)
-        .slice(0, topK);
+        .sort((a, b) => a.minDistance - b.minDistance) // Ascending sort by distance
+        .slice(0, topKLessons);
 
     return sortedLessons.map(l => ({
         lesson_id: l.lesson_id,
@@ -226,37 +191,39 @@ async function retrieveTopKByLesson(queryEmb: number[], topK = TOP_K): Promise<L
     }));
 }
 
-// ------------- UPDATED PROMPT LOGIC -------------
+// ------------- PROMPT LOGIC -------------
 function buildPromptByLesson(lessons: LessonGroup[], question: string): string {
     const lessonTexts: string[] = [];
     
     for (const l of lessons) {
         const text = l.chunks
-            .map(c => `[Chunk ${c.chunk_index}] ${c.text}`)
+            .map(c => `[Context Chunk] ${c.text}`)
             .join("\n\n");
-        lessonTexts.push(`Lesson: ${l.lesson_id}\n${text}`);
+        lessonTexts.push(`SOURCE LESSON: ${l.lesson_id}\n${text}`);
     }
 
     const contextBlock = lessonTexts.length > 0 
         ? lessonTexts.join("\n\n") 
-        : "/* no lesson context available */";
+        : "/* no specific lesson context found, answer from general knowledge */";
 
-    const recentHistory = chatHistory.slice(-10);
+    const recentHistory = chatHistory.slice(-5); // Keep context window manageable
 
     // Incorporate the current persona instruction
     return `
 ${currentPersona.instruction}
 
-Treat each LESSON below as a distinct source of knowledge. 
-Use primary lessons first, then other info if needed (highlight as secondary).
+INSTRUCTIONS:
+1. Treat the SOURCE LESSONS below as your primary truth.
+2. If the answer is in the lessons, cite the lesson name casually (e.g., "According to the tutorial...").
+3. If the answer isn't in the lessons, rely on your general knowledge but mention that it wasn't in the specific notes.
 
-LESSONS CONTEXT:
+SOURCE LESSONS:
 ${contextBlock}
 
 CHAT HISTORY:
 ${JSON.stringify(recentHistory, null, 2)}
 
-STUDENT QUESTION:
+CURRENT STUDENT QUESTION:
 ${question}
 
 Remember to answer in the voice and style of ${currentPersona.name}.
@@ -285,9 +252,10 @@ async function produceAnswer(question: string): Promise<ResponseOutput> {
 
     try {
         qEmb = await retry(() => embedQueryGemini(question));
-        lessons = await retrieveTopKByLesson(qEmb, TOP_K);
+        lessons = await retrieveTopKByLesson(qEmb, TOP_K_LESSONS);
     } catch (e) {
-        return { error: `Embedding/Retrieval failed: ${e}` };
+        console.error("Retrieval Error:", e);
+        return { error: "I'm having trouble accessing my library memory right now." };
     }
 
     const prompt = buildPromptByLesson(lessons, question);
@@ -296,7 +264,8 @@ async function produceAnswer(question: string): Promise<ResponseOutput> {
     try {
         gen = await retry(() => generateWithGemini(prompt));
     } catch (e) {
-        return { error: `Generation failed: ${e}`, used_lessons: lessons };
+        console.error("Generation Error:", e);
+        return { error: "I'm having trouble thinking of an answer right now.", used_lessons: lessons };
     }
 
     chatHistory.push({ role: "user", text: question });
@@ -307,7 +276,7 @@ async function produceAnswer(question: string): Promise<ResponseOutput> {
 
 // ------------- CLI MAIN -------------
 async function main() {
-    console.log("✅ AI Study Buddy Loaded.");
+    console.log("✅ AI Study Buddy Loaded (Postgres + pgvector Enabled).");
     console.log("Type 'switch alex', 'switch doctor', or 'switch coach' to change personalities.");
     console.log("Type 'exit' to quit.\n");
     console.log(`Current Buddy: ${currentPersona.name}\n`);
@@ -329,6 +298,7 @@ async function main() {
         if (user.toLowerCase() === "exit") {
             console.log("Goodbye.");
             rl.close();
+            await pool.end();
             process.exit(0);
         }
 
@@ -370,6 +340,13 @@ async function main() {
 
         console.log(`\n${currentPersona.name}:\n`);
         console.log(out.answer_text);
+        
+        // Debug: Show sources if helpful
+        if (out.used_lessons && out.used_lessons.length > 0) {
+            console.log("\n--- Sources ---");
+            out.used_lessons.forEach(l => console.log(`• ${l.lesson_id}`));
+        }
+        
         console.log("\n---\n");
     }
 }
