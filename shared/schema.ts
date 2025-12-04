@@ -1,6 +1,6 @@
 // shared/schema.ts
 
-import { pgTable, text, varchar, timestamp, pgEnum, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, timestamp, pgEnum, boolean, primaryKey } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm'; // <-- CRITICAL: Import 'sql' from the main package
 import { createId } from '@paralleldrive/cuid2';
 import { createInsertSchema } from 'drizzle-zod';
@@ -59,6 +59,15 @@ export const lessons = pgTable("lessons", {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
 });
+
+export const lessonProgress = pgTable('lesson_progress', {
+    studentId: text('student_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    lessonId: text('lesson_id').notNull().references(() => lessons.id, { onDelete: 'cascade' }),
+    isCompleted: boolean('is_completed').default(false).notNull(),
+    completedAt: timestamp('completed_at'),
+}, (t) => ({
+    pk: primaryKey({ columns: [t.studentId, t.lessonId] }),
+}));
 
 // --- ASSIGNMENTS TABLES ---
 export const assignments = pgTable("assignments", {
@@ -197,6 +206,8 @@ export const insertLessonSchema = createInsertSchema(lessons).omit({
   order: z.string().optional().default('0'),
 });
 
+export const insertLessonProgressSchema = createInsertSchema(lessonProgress);
+
 export const insertAssignmentSchema = createInsertSchema(assignments).omit({
   id: true,
   createdAt: true,
@@ -256,6 +267,8 @@ export type Enrollment = typeof enrollments.$inferSelect;
 export type InsertEnrollment = z.infer<typeof insertEnrollmentSchema>;
 export type Lesson = typeof lessons.$inferSelect;
 export type InsertLesson = z.infer<typeof insertLessonSchema>;
+export type LessonProgress = typeof lessonProgress.$inferSelect;
+export type InsertLessonProgress = z.infer<typeof insertLessonProgressSchema>;
 export type Assignment = typeof assignments.$inferSelect;
 export type InsertAssignment = z.infer<typeof insertAssignmentSchema>;
 export type Submission = typeof submissions.$inferSelect;

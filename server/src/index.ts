@@ -14,6 +14,7 @@ import courseRoutes from './api/course.routes.js';
 import lessonRoutes from './api/lesson.routes.js';
 import announcementRoutes from './api/announcement.routes.js';
 import enrollmentRoutes from './api/enrollment.routes.js';
+import adminRoutes from './api/admin.routes.js';
 // We will NOT import staff.routes.js as it doesn't exist yet
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +29,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date() });

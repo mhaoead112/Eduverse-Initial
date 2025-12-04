@@ -2,8 +2,8 @@
 
 import express from 'express';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
-import { db } from '../db.js';
-import { enrollments, courses } from '../../shared/schema.js';
+import { db } from '../../db.js';
+import { enrollments, courses } from '../../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 const router = express.Router();
