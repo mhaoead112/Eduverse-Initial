@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { User } from '@shared/schema';
+import { apiEndpoint } from '@/lib/config';
 
 interface AuthState {
   user: User | null;
@@ -50,14 +51,35 @@ export function useAuth() {
       }
     }
     
+    // Listen for storage changes (profile updates)
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem('eduverse_user');
+      if (updatedUser) {
+        try {
+          const user = JSON.parse(updatedUser);
+          setAuthState(prev => ({
+            ...prev,
+            user
+          }));
+        } catch (error) {
+          console.error('Failed to parse updated user data:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
     // Mark loading as complete
     setIsLoading(false);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const login = async (loginData: LoginData): Promise<{ success: boolean; error?: string }> => {
-    const port ='3001';
     try {
-      const response = await fetch(`http://localhost:${port}/api/auth/login`, {
+      const response = await fetch(apiEndpoint('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,14 +134,16 @@ export function useAuth() {
     });
   };
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): HeadersInit => {
     if (authState.token) {
       return {
         'Authorization': `Bearer ${authState.token}`,
         'Content-Type': 'application/json'
       };
     }
-    return {};
+    return {
+      'Content-Type': 'application/json'
+    };
   };
 
   return {
