@@ -1,33 +1,25 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { 
   Users, Settings, BarChart3, Shield, FileText, 
-  AlertTriangle, DollarSign, TrendingUp, Eye,
-  UserCheck, UserX, BookOpen, MessageSquare,
-  Flag, Monitor, Database, Calendar, Zap,
-  Crown, Lock, CheckCircle, XCircle, Clock,
-  Plus, Search, Filter, MoreVertical
+  AlertTriangle, TrendingUp, Eye,
+  UserCheck, BookOpen,
+  Flag, Monitor, Plus, MoreVertical, Loader2,
+  XCircle, CheckCircle, Activity, GraduationCap,
+  ArrowUpRight, ArrowDownRight, Clock, Zap,
+  Bell, Calendar, MessageSquare, Award, Target,
+  ChevronRight, RefreshCw, Download
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { 
-  StatsCard, 
-  ProgressWidget, 
-  QuickActionCard, 
-  ActivityFeed,
-  PerformanceOverview,
-  QuickActionsPanel
-} from "@/components/DashboardWidgets";
-import { 
-  UserGrowthChart, 
-  RevenueChart, 
-  EngagementChart,
-  PerformanceGauge 
+  UserGrowthChart
 } from "@/components/Charts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   Table, 
   TableBody, 
@@ -49,253 +41,203 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Progress } from "@/components/ui/progress";
+import AddUserModal from "@/components/modals/AddUserModal";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data for demonstration - in real app this would come from API
-const mockAdminData = {
-  systemOverview: {
-    totalUsers: 2847,
-    activeUsers: 2134,
-    totalCourses: 156,
-    totalRevenue: 284750,
-    pendingReports: 12,
-    systemUptime: 99.8
-  },
-  userStats: {
-    students: 2156,
-    teachers: 127,
-    parents: 523,
-    admins: 41,
-    newUsersThisWeek: 89,
-    activeToday: 1876
-  },
-  recentUsers: [
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      role: 'student',
-      status: 'active',
-      joinedDate: '2025-10-20',
-      lastActive: '2 hours ago'
-    },
-    {
-      id: '2',
-      name: 'Dr. Michael Chen',
-      email: 'mchen@email.com',
-      role: 'teacher',
-      status: 'active',
-      joinedDate: '2025-09-15',
-      lastActive: '1 hour ago'
-    },
-    {
-      id: '3',
-      name: 'Emily Davis',
-      email: 'emily.d@email.com',
-      role: 'parent',
-      status: 'pending',
-      joinedDate: '2025-10-23',
-      lastActive: 'Never'
-    },
-    {
-      id: '4',
-      name: 'Alex Rodriguez',
-      email: 'alex.r@email.com',
-      role: 'student',
-      status: 'suspended',
-      joinedDate: '2025-08-12',
-      lastActive: '3 days ago'
-    }
-  ],
-  systemReports: [
-    {
-      id: '1',
-      title: 'Inappropriate Content Report',
-      type: 'content',
-      priority: 'high',
-      reporter: 'Jane Smith',
-      reportedUser: 'Mike Wilson',
-      description: 'Inappropriate language in discussion forum',
-      createdAt: '2 hours ago',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      title: 'Spam Messages',
-      type: 'spam',
-      priority: 'medium',
-      reporter: 'Tom Johnson',
-      reportedUser: 'Bot Account',
-      description: 'Multiple spam messages in group chat',
-      createdAt: '5 hours ago',
-      status: 'investigating'
-    },
-    {
-      id: '3',
-      title: 'Academic Misconduct',
-      type: 'academic',
-      priority: 'high',
-      reporter: 'Dr. Sarah Lee',
-      reportedUser: 'Student123',
-      description: 'Suspected plagiarism in submitted assignment',
-      createdAt: '1 day ago',
-      status: 'resolved'
-    }
-  ],
-  contentOverview: [
-    {
-      id: '1',
-      title: 'Advanced Mathematics Course',
-      type: 'course',
-      creator: 'Dr. Johnson',
-      students: 156,
-      status: 'published',
-      lastUpdated: '2 days ago'
-    },
-    {
-      id: '2',
-      title: 'Physics Lab Materials',
-      type: 'materials',
-      creator: 'Prof. Chen',
-      downloads: 89,
-      status: 'pending_review',
-      lastUpdated: '1 day ago'
-    },
-    {
-      id: '3',
-      title: 'Biology Study Guide',
-      type: 'resource',
-      creator: 'Ms. Davis',
-      views: 234,
-      status: 'published',
-      lastUpdated: '3 hours ago'
-    }
-  ],
-  platformMetrics: [
-    { category: 'User Engagement', score: 87, trend: 'up' as const },
-    { category: 'Course Completion', score: 74, trend: 'up' as const },
-    { category: 'Teacher Satisfaction', score: 92, trend: 'stable' as const },
-    { category: 'Platform Performance', score: 95, trend: 'up' as const }
-  ],
-  recentActivities: [
-    {
-      id: '1',
-      type: 'user_registration' as const,
-      title: 'New User Registration',
-      description: '15 new students registered today',
-      timestamp: '1 hour ago'
-    },
-    {
-      id: '2',
-      type: 'system_update' as const,
-      title: 'System Maintenance',
-      description: 'Platform updated to version 2.4.1',
-      timestamp: '3 hours ago'
-    },
-    {
-      id: '3',
-      type: 'security_alert' as const,
-      title: 'Security Alert',
-      description: 'Unusual login attempt blocked from IP 192.168.1.1',
-      timestamp: '6 hours ago'
-    },
-    {
-      id: '4',
-      type: 'content_approval' as const,
-      title: 'Content Approved',
-      description: 'Physics course materials approved by review team',
-      timestamp: '1 day ago'
-    }
-  ],
-  userGrowthData: [
-    { month: 'Jan', students: 1200, teachers: 45, parents: 380, total: 1625 },
-    { month: 'Feb', students: 1350, teachers: 52, parents: 420, total: 1822 },
-    { month: 'Mar', students: 1480, teachers: 58, parents: 465, total: 2003 },
-    { month: 'Apr', students: 1620, teachers: 65, parents: 510, total: 2195 },
-    { month: 'May', students: 1780, teachers: 72, parents: 555, total: 2407 },
-    { month: 'Jun', students: 1950, teachers: 89, parents: 598, total: 2637 },
-    { month: 'Jul', students: 2100, teachers: 98, parents: 630, total: 2828 },
-    { month: 'Aug', students: 2200, teachers: 108, parents: 665, total: 2973 },
-    { month: 'Sep', students: 2350, teachers: 115, parents: 695, total: 3160 },
-    { month: 'Oct', students: 2456, teachers: 127, parents: 723, total: 3306 }
-  ],
-  revenueData: [
-    { month: 'Jan', revenue: 45000, target: 50000 },
-    { month: 'Feb', revenue: 52000, target: 55000 },
-    { month: 'Mar', revenue: 48000, target: 60000 },
-    { month: 'Apr', revenue: 65000, target: 65000 },
-    { month: 'May', revenue: 72000, target: 70000 },
-    { month: 'Jun', revenue: 78000, target: 75000 },
-    { month: 'Jul', revenue: 85000, target: 80000 },
-    { month: 'Aug', revenue: 92000, target: 85000 },
-    { month: 'Sep', revenue: 88000, target: 90000 },
-    { month: 'Oct', revenue: 96000, target: 95000 }
-  ],
-  systemEngagement: [
-    { day: 'Mon', messagesSent: 456, assignmentsSubmitted: 234, forumPosts: 89 },
-    { day: 'Tue', messagesSent: 523, assignmentsSubmitted: 287, forumPosts: 102 },
-    { day: 'Wed', messagesSent: 487, assignmentsSubmitted: 301, forumPosts: 95 },
-    { day: 'Thu', messagesSent: 601, assignmentsSubmitted: 276, forumPosts: 118 },
-    { day: 'Fri', messagesSent: 389, assignmentsSubmitted: 198, forumPosts: 67 },
-    { day: 'Sat', messagesSent: 156, assignmentsSubmitted: 89, forumPosts: 23 },
-    { day: 'Sun', messagesSent: 234, assignmentsSubmitted: 134, forumPosts: 45 }
-  ]
-};
+const API_BASE = 'http://localhost:3001/api';
 
-function UserManagementTable({ users }: { users: typeof mockAdminData.recentUsers }) {
+interface SystemStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalCourses: number;
+  totalEnrollments?: number;
+  recentSignups?: number;
+  pendingReports: number;
+}
+
+interface UserStats {
+  students: number;
+  teachers: number;
+  parents: number;
+  admins: number;
+  newUsersThisWeek: number;
+  activeToday: number;
+}
+
+interface User {
+  id: string;
+  username: string;
+  fullName: string;
+  email: string;
+  role: 'student' | 'teacher' | 'admin' | 'parent';
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+interface AnalyticsData {
+  userGrowth: Array<{
+    month: string;
+    students: number;
+    teachers: number;
+    parents: number;
+    total: number;
+  }>;
+  recentActivity: {
+    assignments: number;
+    submissions: number;
+    announcements: number;
+  };
+  courseStats: {
+    published: number;
+    totalEnrollments: number;
+  };
+}
+
+interface Report {
+  id: string;
+  reporterId: string;
+  reportedUserId: string;
+  reason: string;
+  context?: string;
+  status: 'pending' | 'reviewed' | 'resolved';
+  createdAt: string;
+  reporter?: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
+  reportedUser?: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
+}
+
+// API Functions
+async function fetchWithAuth(url: string, token: string, options?: RequestInit) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+function UserManagementTable({ users, onRefresh }: { users: User[]; onRefresh: () => void }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [, setLocation] = useLocation();
+  const { token } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ userId, status }: { userId: string; status: boolean }) => {
+      return fetchWithAuth(`${API_BASE}/admin/users/${userId}/status`, token!, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({ title: "Success", description: "User status updated" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update user status", variant: "destructive" });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return fetchWithAuth(`${API_BASE}/admin/users/${userId}`, token!, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({ title: "Success", description: "User deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to delete user", variant: "destructive" });
+    },
+  });
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && user.isActive) ||
+                         (statusFilter === 'inactive' && !user.isActive);
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const getRoleColor = (role: string) => {
+  const getRoleConfig = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
-      case 'teacher': return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'student': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-      case 'parent': return 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400';
-      default: return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'admin': return { bg: 'bg-gradient-to-r from-red-500 to-rose-500', text: 'text-white', icon: Shield };
+      case 'teacher': return { bg: 'bg-gradient-to-r from-blue-500 to-indigo-500', text: 'text-white', icon: GraduationCap };
+      case 'student': return { bg: 'bg-gradient-to-r from-emerald-500 to-green-500', text: 'text-white', icon: BookOpen };
+      case 'parent': return { bg: 'bg-gradient-to-r from-purple-500 to-violet-500', text: 'text-white', icon: Users };
+      default: return { bg: 'bg-gray-100', text: 'text-gray-700', icon: Users };
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-      case 'pending': return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'suspended': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+  const handleToggleStatus = (userId: string, currentStatus: boolean) => {
+    toggleStatusMutation.mutate({ userId, status: !currentStatus });
+  };
+
+  const handleDeleteUser = (userId: string, userName: string) => {
+    if (confirm(`Are you sure you want to delete ${userName}?`)) {
+      deleteUserMutation.mutate(userId);
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
         <div className="flex items-center justify-between">
-          <CardTitle>User Management</CardTitle>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
+          <div>
+            <CardTitle className="text-xl font-bold text-gray-800">User Management</CardTitle>
+            <CardDescription className="text-gray-600">Manage all platform users</CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onRefresh} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+            <Button onClick={() => setLocation('/admin/users')} className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+              <Plus className="h-4 w-4" />
+              View All Users
+            </Button>
+          </div>
         </div>
-        <div className="flex space-x-4 mt-4">
-          <div className="flex-1">
+        <div className="flex flex-wrap gap-3 mt-4">
+          <div className="flex-1 min-w-[200px]">
             <Input
-              placeholder="Search users..."
+              placeholder="🔍 Search users by name, email, or username..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="bg-white border-gray-200"
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-36 bg-white">
               <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>
@@ -307,127 +249,245 @@ function UserManagementTable({ users }: { users: typeof mockAdminData.recentUser
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-36 bg-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead>Last Active</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-gray-50/50">
+              <TableHead className="font-semibold">User</TableHead>
+              <TableHead className="font-semibold">Role</TableHead>
+              <TableHead className="font-semibold">Status</TableHead>
+              <TableHead className="font-semibold">Joined</TableHead>
+              <TableHead className="text-right font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        {user.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-sm">{user.name}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+            {filteredUsers.slice(0, 10).map((user, index) => {
+              const roleConfig = getRoleConfig(user.role);
+              const RoleIcon = roleConfig.icon;
+              return (
+                <TableRow key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10 ring-2 ring-offset-2 ring-gray-200">
+                        <AvatarFallback className={`${roleConfig.bg} ${roleConfig.text} font-semibold`}>
+                          {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-gray-900">{user.fullName}</p>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={`text-xs ${getRoleColor(user.role)}`}>
-                    {user.role}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge className={`text-xs ${getStatusColor(user.status)}`}>
-                    {user.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm">{user.joinedDate}</TableCell>
-                <TableCell className="text-sm">{user.lastActive}</TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View Profile</DropdownMenuItem>
-                      <DropdownMenuItem>Edit Permissions</DropdownMenuItem>
-                      <DropdownMenuItem>Send Message</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
-                        Suspend User
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={`${roleConfig.bg} ${roleConfig.text} gap-1 font-medium shadow-sm`}>
+                      <RoleIcon className="h-3 w-3" />
+                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                      <span className={`text-sm font-medium ${user.isActive ? 'text-green-700' : 'text-gray-500'}`}>
+                        {user.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {new Date(user.createdAt).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => setLocation(`/admin/users`)} className="gap-2">
+                          <Eye className="h-4 w-4" />
+                          View Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleStatus(user.id, user.isActive)} className="gap-2">
+                          {user.isActive ? (
+                            <>
+                              <XCircle className="h-4 w-4 text-orange-500" />
+                              Deactivate
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              Activate
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-red-600 gap-2"
+                          onClick={() => handleDeleteUser(user.id, user.fullName)}
+                        >
+                          <XCircle className="h-4 w-4" />
+                          Delete User
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
+        {filteredUsers.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <Users className="h-12 w-12 mb-3 opacity-50" />
+            <p className="font-medium">No users found</p>
+            <p className="text-sm">Try adjusting your search or filters</p>
+          </div>
+        )}
+        {filteredUsers.length > 10 && (
+          <div className="p-4 border-t bg-gray-50/50 text-center">
+            <Button variant="outline" onClick={() => setLocation('/admin/users')} className="gap-2">
+              View All {filteredUsers.length} Users
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function ReportCard({ report }: { report: typeof mockAdminData.systemReports[0] }) {
-  const priorityColors = {
-    high: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400',
-    medium: 'bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-400',
-    low: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400'
+function ReportCard({ report, onUpdate }: { report: Report; onUpdate: () => void }) {
+  const { token } = useAuth();
+  const { toast } = useToast();
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  const updateStatus = async (newStatus: 'reviewed' | 'resolved') => {
+    setIsUpdating(true);
+    try {
+      await fetchWithAuth(`${API_BASE}/admin/reports/${report.id}`, token!, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      toast({ title: "Success", description: `Report marked as ${newStatus}` });
+      onUpdate();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update report", variant: "destructive" });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const statusColors = {
-    pending: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
-    investigating: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
-    resolved: 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+  const statusConfig = {
+    pending: { 
+      bg: 'bg-gradient-to-r from-amber-50 to-orange-50', 
+      border: 'border-amber-200',
+      badge: 'bg-amber-100 text-amber-800',
+      icon: AlertTriangle,
+      iconColor: 'text-amber-500'
+    },
+    reviewed: { 
+      bg: 'bg-gradient-to-r from-blue-50 to-indigo-50', 
+      border: 'border-blue-200',
+      badge: 'bg-blue-100 text-blue-800',
+      icon: Eye,
+      iconColor: 'text-blue-500'
+    },
+    resolved: { 
+      bg: 'bg-gradient-to-r from-green-50 to-emerald-50', 
+      border: 'border-green-200',
+      badge: 'bg-green-100 text-green-800',
+      icon: CheckCircle,
+      iconColor: 'text-green-500'
+    }
   };
+
+  const config = statusConfig[report.status];
+  const StatusIcon = config.icon;
 
   return (
-    <Card className={`hover:shadow-md transition-all duration-300 ${priorityColors[report.priority as keyof typeof priorityColors]}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-1">{report.title}</h3>
-            <p className="text-xs opacity-80 mb-2">{report.description}</p>
-            <div className="flex items-center space-x-2 text-xs">
-              <span>Reported by: {report.reporter}</span>
-              <span>•</span>
-              <span>Target: {report.reportedUser}</span>
+    <Card className={`${config.bg} border ${config.border} hover:shadow-lg transition-all duration-300 overflow-hidden`}>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start gap-3 flex-1">
+            <div className={`p-2 rounded-lg ${config.badge}`}>
+              <StatusIcon className={`h-4 w-4 ${config.iconColor}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{report.reason}</h3>
+              {report.context && (
+                <p className="text-sm text-gray-600 line-clamp-2 mb-2">{report.context}</p>
+              )}
             </div>
           </div>
-          <div className="flex flex-col items-end space-y-1">
-            <Badge className={`text-xs ${statusColors[report.status as keyof typeof statusColors]}`}>
-              {report.status}
-            </Badge>
-            <span className="text-xs text-gray-500">{report.createdAt}</span>
-          </div>
+          <Badge className={`${config.badge} font-medium shrink-0`}>
+            {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+          </Badge>
         </div>
         
-        <div className="flex space-x-2">
-          <Button size="sm" variant="outline" className="flex-1">
-            <Eye className="h-3 w-3 mr-1" />
-            View
-          </Button>
-          <Button size="sm" className="flex-1">
-            <Shield className="h-3 w-3 mr-1" />
-            Take Action
-          </Button>
+        <div className="flex items-center gap-4 text-xs text-gray-600 mb-4">
+          {report.reporter && (
+            <div className="flex items-center gap-1">
+              <span className="font-medium">From:</span>
+              <span>{report.reporter.fullName}</span>
+            </div>
+          )}
+          {report.reportedUser && (
+            <div className="flex items-center gap-1">
+              <span className="font-medium">Against:</span>
+              <span className="text-red-600">{report.reportedUser.fullName}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Clock className="h-3 w-3" />
+            {new Date(report.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </div>
+          
+          {report.status === 'pending' && (
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => updateStatus('reviewed')}
+                disabled={isUpdating}
+                className="gap-1 text-xs h-8"
+              >
+                <Eye className="h-3 w-3" />
+                Review
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={() => updateStatus('resolved')}
+                disabled={isUpdating}
+                className="gap-1 text-xs h-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              >
+                {isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Shield className="h-3 w-3" />}
+                Resolve
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -435,263 +495,495 @@ function ReportCard({ report }: { report: typeof mockAdminData.systemReports[0] 
 }
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const { toast } = useToast();
   const [selectedTab, setSelectedTab] = useState('overview');
+  const [, setLocation] = useLocation();
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 
-  const quickActions = [
-    {
-      title: 'Add New User',
-      description: 'Create student, teacher, or admin accounts',
-      icon: UserCheck,
-      color: 'blue' as const,
-      onClick: () => console.log('Add user')
-    },
-    {
-      title: 'Review Reports',
-      description: 'Handle moderation reports',
-      icon: Flag,
-      color: 'red' as const,
-      onClick: () => console.log('Review reports'),
-      badge: '12'
-    },
-    {
-      title: 'System Settings',
-      description: 'Configure platform settings',
-      icon: Settings,
-      color: 'purple' as const,
-      onClick: () => console.log('System settings')
-    },
-    {
-      title: 'View Analytics',
-      description: 'Platform usage and performance',
-      icon: BarChart3,
-      color: 'green' as const,
-      onClick: () => console.log('View analytics')
-    }
-  ];
+  // Fetch system stats
+  const { data: systemStats, isLoading: statsLoading } = useQuery<SystemStats>({
+    queryKey: ['admin-stats'],
+    queryFn: () => fetchWithAuth(`${API_BASE}/admin/stats`, token!),
+    enabled: !!token,
+  });
+
+  // Fetch user stats
+  const { data: userStats, isLoading: userStatsLoading } = useQuery<UserStats>({
+    queryKey: ['admin-user-stats'],
+    queryFn: () => fetchWithAuth(`${API_BASE}/admin/stats/users`, token!),
+    enabled: !!token,
+  });
+
+  // Fetch recent users
+  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: () => fetchWithAuth(`${API_BASE}/admin/users?limit=20`, token!),
+    enabled: !!token,
+  });
+
+  // Fetch analytics
+  const { data: analytics, isLoading: analyticsLoading } = useQuery<AnalyticsData>({
+    queryKey: ['admin-analytics'],
+    queryFn: () => fetchWithAuth(`${API_BASE}/admin/analytics`, token!),
+    enabled: !!token,
+  });
+
+  // Fetch reports
+  const { data: reportsData, isLoading: reportsLoading, refetch: refetchReports } = useQuery({
+    queryKey: ['admin-reports'],
+    queryFn: () => fetchWithAuth(`${API_BASE}/admin/reports?status=pending&limit=6`, token!),
+    enabled: !!token,
+  });
+
+  const isLoading = statsLoading || userStatsLoading || usersLoading;
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-purple-200 rounded-full animate-spin border-t-purple-600" />
+            <Shield className="h-6 w-6 text-purple-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-gray-500 font-medium">Loading admin dashboard...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Calculate some metrics
+  const totalUsers = systemStats?.totalUsers || 0;
+  const activePercentage = totalUsers > 0 ? Math.round(((systemStats?.activeUsers || 0) / totalUsers) * 100) : 0;
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Welcome Header */}
-        <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Admin Dashboard 🛡️
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Monitor and manage the EduVerse platform with comprehensive administrative tools.
-          </p>
+      <div className="space-y-8">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-violet-600 p-8 text-white shadow-xl">
+          <div className="absolute inset-0 bg-grid-white/10" />
+          <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Shield className="h-6 w-6" />
+                  </div>
+                  <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm">
+                    Administrator
+                  </Badge>
+                </div>
+                <h1 className="text-3xl font-bold mb-2">
+                  Welcome back, {user?.fullName?.split(' ')[0] || 'Admin'}! 👋
+                </h1>
+                <p className="text-white/80 max-w-xl">
+                  Monitor and manage the EduVerse platform. You have full access to all administrative tools and analytics.
+                </p>
+              </div>
+              
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-white/60 text-sm">Platform Status</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="font-semibold">All Systems Operational</span>
+                  </div>
+                </div>
+                <div className="h-12 w-px bg-white/20" />
+                <div className="text-right">
+                  <p className="text-white/60 text-sm">Last Updated</p>
+                  <p className="font-semibold">{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <Users className="h-8 w-8 text-white/80" />
+                  <div>
+                    <p className="text-2xl font-bold">{systemStats?.totalUsers?.toLocaleString() || 0}</p>
+                    <p className="text-white/60 text-sm">Total Users</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <Activity className="h-8 w-8 text-green-300" />
+                  <div>
+                    <p className="text-2xl font-bold">{systemStats?.activeUsers?.toLocaleString() || 0}</p>
+                    <p className="text-white/60 text-sm">Active Now</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="h-8 w-8 text-blue-300" />
+                  <div>
+                    <p className="text-2xl font-bold">{systemStats?.totalCourses || 0}</p>
+                    <p className="text-white/60 text-sm">Courses</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="h-8 w-8 text-amber-300" />
+                  <div>
+                    <p className="text-2xl font-bold">{systemStats?.pendingReports || 0}</p>
+                    <p className="text-white/60 text-sm">Pending Reports</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* System Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <StatsCard
-            title="Total Users"
-            value={mockAdminData.systemOverview.totalUsers.toLocaleString()}
-            icon={Users}
-            color="blue"
-            trend={{ value: 12, isPositive: true }}
-          />
-          <StatsCard
-            title="Active Users"
-            value={mockAdminData.systemOverview.activeUsers.toLocaleString()}
-            icon={UserCheck}
-            color="green"
-            trend={{ value: 8, isPositive: true }}
-          />
-          <StatsCard
-            title="Total Courses"
-            value={mockAdminData.systemOverview.totalCourses}
-            icon={BookOpen}
-            color="purple"
-            trend={{ value: 15, isPositive: true }}
-          />
-          <StatsCard
-            title="Revenue"
-            value={`$${mockAdminData.systemOverview.totalRevenue.toLocaleString()}`}
-            icon={DollarSign}
-            color="green"
-            trend={{ value: 23, isPositive: true }}
-          />
-          <StatsCard
-            title="Pending Reports"
-            value={mockAdminData.systemOverview.pendingReports}
-            icon={AlertTriangle}
-            color="red"
-            subtitle="Need attention"
-          />
-          <StatsCard
-            title="System Uptime"
-            value={`${mockAdminData.systemOverview.systemUptime}%`}
-            icon={Monitor}
-            color="green"
-            trend={{ value: 0.2, isPositive: true }}
-          />
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button
+            onClick={() => setIsAddUserModalOpen(true)}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <UserCheck className="h-5 w-5" />
+                </div>
+                <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <h3 className="font-semibold text-lg">Add New User</h3>
+              <p className="text-sm text-white/70">Create accounts</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setLocation('/admin/reports')}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-500 to-rose-600 p-5 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-rose-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {(reportsData?.reports?.length || 0) > 0 && (
+              <div className="absolute top-3 right-3 px-2 py-0.5 bg-white text-red-600 text-xs font-bold rounded-full">
+                {reportsData?.reports?.length}
+              </div>
+            )}
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Flag className="h-5 w-5" />
+                </div>
+                <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <h3 className="font-semibold text-lg">Review Reports</h3>
+              <p className="text-sm text-white/70">Handle issues</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setLocation('/admin/settings')}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 p-5 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Settings className="h-5 w-5" />
+                </div>
+                <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <h3 className="font-semibold text-lg">System Settings</h3>
+              <p className="text-sm text-white/70">Configure platform</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setLocation('/admin/analytics')}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 p-5 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
+                <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <h3 className="font-semibold text-lg">View Analytics</h3>
+              <p className="text-sm text-white/70">Platform insights</p>
+            </div>
+          </button>
         </div>
 
         {/* Main Content Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-white shadow-sm border p-1 rounded-xl h-auto">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-lg py-2.5 gap-2">
+              <Target className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-lg py-2.5 gap-2">
+              <Users className="h-4 w-4" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-lg py-2.5 gap-2 relative">
+              <Flag className="h-4 w-4" />
+              Reports
+              {(reportsData?.reports?.filter((r: Report) => r.status === 'pending').length || 0) > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {reportsData?.reports?.filter((r: Report) => r.status === 'pending').length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-lg py-2.5 gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column */}
+              {/* Left Column - 2/3 width */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Quick Actions */}
-                <QuickActionsPanel 
-                  title="Admin Quick Actions"
-                  actions={quickActions}
-                />
-
                 {/* Recent Activity */}
-                <ActivityFeed 
-                  activities={mockAdminData.recentActivities}
-                  maxItems={4}
-                />
-              </div>
+                {analytics && (
+                  <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                    <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
+                            <Activity className="h-5 w-5 text-white" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">Recent Platform Activity</CardTitle>
+                            <CardDescription>Activity from the last 7 days</CardDescription>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <RefreshCw className="h-4 w-4" />
+                          Refresh
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 p-5 border border-blue-100">
+                          <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-blue-100/50" />
+                          <FileText className="h-8 w-8 text-blue-600 mb-3" />
+                          <p className="text-3xl font-bold text-blue-900">{analytics.recentActivity.assignments}</p>
+                          <p className="text-sm text-blue-600 font-medium">New Assignments</p>
+                        </div>
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 p-5 border border-green-100">
+                          <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-green-100/50" />
+                          <Award className="h-8 w-8 text-green-600 mb-3" />
+                          <p className="text-3xl font-bold text-green-900">{analytics.recentActivity.submissions}</p>
+                          <p className="text-sm text-green-600 font-medium">Submissions</p>
+                        </div>
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 p-5 border border-purple-100">
+                          <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-purple-100/50" />
+                          <Bell className="h-8 w-8 text-purple-600 mb-3" />
+                          <p className="text-3xl font-bold text-purple-900">{analytics.recentActivity.announcements}</p>
+                          <p className="text-sm text-purple-600 font-medium">Announcements</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* User Statistics */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Users className="h-5 w-5" />
-                      <span>User Breakdown</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Students</span>
-                        <Badge variant="secondary">{mockAdminData.userStats.students}</Badge>
+                {/* User Distribution */}
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg">
+                        <Users className="h-5 w-5 text-white" />
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Teachers</span>
-                        <Badge variant="secondary">{mockAdminData.userStats.teachers}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Parents</span>
-                        <Badge variant="secondary">{mockAdminData.userStats.parents}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Admins</span>
-                        <Badge variant="secondary">{mockAdminData.userStats.admins}</Badge>
+                      <div>
+                        <CardTitle className="text-lg">User Distribution</CardTitle>
+                        <CardDescription>Breakdown by role</CardDescription>
                       </div>
                     </div>
-                    <div className="pt-3 border-t">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-green-600 dark:text-green-400">New this week:</span>
-                        <span className="font-medium">{mockAdminData.userStats.newUsersThisWeek}</span>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {userStats && (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-4 gap-4">
+                          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100">
+                            <GraduationCap className="h-6 w-6 text-emerald-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-emerald-900">{userStats.students}</p>
+                            <p className="text-xs text-emerald-600 font-medium">Students</p>
+                          </div>
+                          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
+                            <BookOpen className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-blue-900">{userStats.teachers}</p>
+                            <p className="text-xs text-blue-600 font-medium">Teachers</p>
+                          </div>
+                          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100">
+                            <Users className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-purple-900">{userStats.parents}</p>
+                            <p className="text-xs text-purple-600 font-medium">Parents</p>
+                          </div>
+                          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-red-50 to-rose-50 border border-red-100">
+                            <Shield className="h-6 w-6 text-red-600 mx-auto mb-2" />
+                            <p className="text-2xl font-bold text-red-900">{userStats.admins}</p>
+                            <p className="text-xs text-red-600 font-medium">Admins</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 mt-4">
+                          <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100">
+                            <div className="flex items-center gap-3">
+                              <TrendingUp className="h-5 w-5 text-green-600" />
+                              <span className="text-sm font-medium text-gray-700">New this week</span>
+                            </div>
+                            <span className="text-lg font-bold text-green-600">+{userStats.newUsersThisWeek}</span>
+                          </div>
+                          <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100">
+                            <div className="flex items-center gap-3">
+                              <Zap className="h-5 w-5 text-blue-600" />
+                              <span className="text-sm font-medium text-gray-700">Active today</span>
+                            </div>
+                            <span className="text-lg font-bold text-blue-600">{userStats.activeToday}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-blue-600 dark:text-blue-400">Active today:</span>
-                        <span className="font-medium">{mockAdminData.userStats.activeToday}</span>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Column - 1/3 width */}
+              <div className="space-y-6">
+                {/* System Health */}
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg">
+                        <Monitor className="h-5 w-5 text-white" />
+                      </div>
+                      <CardTitle className="text-lg">System Health</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
+                      <div>
+                        <p className="font-semibold text-green-800">All Systems</p>
+                        <p className="text-sm text-green-600">Operational</p>
+                      </div>
+                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-gray-600">User Activity</span>
+                          <span className="font-medium text-gray-900">{activePercentage}%</span>
+                        </div>
+                        <Progress value={activePercentage} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-gray-600">Server Load</span>
+                          <span className="font-medium text-gray-900">23%</span>
+                        </div>
+                        <Progress value={23} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-gray-600">Storage Used</span>
+                          <span className="font-medium text-gray-900">45%</span>
+                        </div>
+                        <Progress value={45} className="h-2" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Platform Performance */}
-                <PerformanceOverview
-                  title="Platform Metrics"
-                  data={mockAdminData.platformMetrics}
-                />
+                {/* Course Statistics */}
+                {analytics && (
+                  <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                    <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-r from-purple-500 to-violet-500 rounded-lg">
+                          <BookOpen className="h-5 w-5 text-white" />
+                        </div>
+                        <CardTitle className="text-lg">Course Statistics</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4">
+                      <div className="text-center p-6 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100">
+                        <BookOpen className="h-10 w-10 text-purple-600 mx-auto mb-3" />
+                        <p className="text-4xl font-bold text-purple-900">{analytics.courseStats.published}</p>
+                        <p className="text-sm text-purple-600 font-medium">Published Courses</p>
+                      </div>
+                      <div className="text-center p-6 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100">
+                        <TrendingUp className="h-10 w-10 text-green-600 mx-auto mb-3" />
+                        <p className="text-4xl font-bold text-green-900">{analytics.courseStats.totalEnrollments}</p>
+                        <p className="text-sm text-green-600 font-medium">Total Enrollments</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           </TabsContent>
 
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
-            <UserManagementTable users={mockAdminData.recentUsers} />
-          </TabsContent>
-
-          {/* Content Tab */}
-          <TabsContent value="content" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Content Management</CardTitle>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Content
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockAdminData.contentOverview.map((content) => (
-                    <div key={content.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                          <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-sm">{content.title}</h3>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            by {content.creator} • {content.lastUpdated}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Badge className="text-xs">
-                          {content.type}
-                        </Badge>
-                        <Badge 
-                          className={`text-xs ${
-                            content.status === 'published' 
-                              ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                              : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
-                          }`}
-                        >
-                          {content.status}
-                        </Badge>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {usersData && (
+              <UserManagementTable 
+                users={usersData.users || []} 
+                onRefresh={() => refetchUsers()}
+              />
+            )}
           </TabsContent>
 
           {/* Reports Tab */}
           <TabsContent value="reports" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 Moderation Reports
               </h2>
               <div className="flex space-x-2">
                 <Badge variant="destructive">
-                  {mockAdminData.systemReports.filter(r => r.priority === 'high').length} High Priority
+                  {reportsData?.reports?.filter((r: Report) => r.status === 'pending').length || 0} Pending
                 </Badge>
-                <Badge variant="secondary">
-                  {mockAdminData.systemReports.filter(r => r.status === 'pending').length} Pending
-                </Badge>
+                <Button variant="outline" onClick={() => setLocation('/admin/reports')}>
+                  View All Reports
+                </Button>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {mockAdminData.systemReports.map(report => (
-                <ReportCard key={report.id} report={report} />
-              ))}
-            </div>
+            {reportsLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : reportsData?.reports?.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {reportsData.reports.map((report: Report) => (
+                  <ReportCard key={report.id} report={report} onUpdate={() => refetchReports()} />
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <CheckCircle className="h-12 w-12 text-green-500 mb-4" />
+                  <p className="text-lg font-medium text-gray-900">No pending reports</p>
+                  <p className="text-sm text-gray-500">All reports have been handled</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 System Analytics
               </h2>
               <Button variant="outline">
@@ -700,142 +992,89 @@ export default function AdminDashboard() {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
+            {analyticsLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : analytics ? (
+              <div className="space-y-6">
                 <UserGrowthChart 
-                  data={mockAdminData.userGrowthData}
+                  data={analytics.userGrowth}
                   title="User Growth Over Time"
                 />
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RevenueChart 
-                    data={mockAdminData.revenueData}
-                    title="Revenue vs Target"
-                  />
-                  
-                  <EngagementChart 
-                    data={mockAdminData.systemEngagement}
-                    title="Daily Platform Engagement"
-                  />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Platform Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <p className="text-2xl font-bold text-blue-600">
+                          {analytics.recentActivity.assignments}
+                        </p>
+                        <p className="text-sm text-gray-600">Recent Assignments</p>
+                      </div>
+                      <div className="text-center p-4 bg-green-50 rounded-lg">
+                        <p className="text-2xl font-bold text-green-600">
+                          {analytics.recentActivity.submissions}
+                        </p>
+                        <p className="text-sm text-gray-600">Submissions</p>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg">
+                        <p className="text-2xl font-bold text-purple-600">
+                          {analytics.recentActivity.announcements}
+                        </p>
+                        <p className="text-sm text-gray-600">Announcements</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="lg:col-span-2">
+                    <CardHeader>
+                      <CardTitle>Platform Health</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">System Status</p>
+                          <p className="text-sm text-gray-500">All services operational</p>
+                        </div>
+                        <CheckCircle className="h-8 w-8 text-green-600" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center p-4 border rounded-lg">
+                          <p className="text-2xl font-bold">{systemStats?.totalCourses}</p>
+                          <p className="text-sm text-gray-500">Total Courses</p>
+                        </div>
+                        <div className="text-center p-4 border rounded-lg">
+                          <p className="text-2xl font-bold">{analytics.courseStats.totalEnrollments}</p>
+                          <p className="text-sm text-gray-500">Total Enrollments</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
-              
-              <div className="space-y-6">
-                <PerformanceGauge 
-                  data={{ 
-                    score: Math.round(mockAdminData.platformMetrics.reduce((acc, curr) => acc + curr.score, 0) / mockAdminData.platformMetrics.length), 
-                    label: 'System Health' 
-                  }}
-                  title="Overall Platform Health"
-                  color="#10b981"
-                />
-                
-                <PerformanceOverview
-                  title="Platform Metrics"
-                  data={mockAdminData.platformMetrics}
-                />
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Usage Statistics</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4">
-                      <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                          {mockAdminData.userStats.activeToday}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Daily Active Users</p>
-                      </div>
-                      <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {mockAdminData.userStats.newUsersThisWeek}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">New Users This Week</p>
-                      </div>
-                      <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                          {mockAdminData.systemOverview.systemUptime}%
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">System Uptime</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              System Settings
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            ) : (
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Shield className="h-5 w-5" />
-                    <span>Security Settings</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Two-Factor Authentication</span>
-                    <Badge className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                      Enabled
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Password Policy</span>
-                    <Badge className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                      Strong
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Session Timeout</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">24 hours</span>
-                  </div>
-                  <Button className="w-full mt-4">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configure Security
-                  </Button>
+                <CardContent className="flex items-center justify-center py-12">
+                  <p className="text-gray-500">No analytics data available</p>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Database className="h-5 w-5" />
-                    <span>System Maintenance</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Database Status</span>
-                    <Badge className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                      Healthy
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Last Backup</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">System Version</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">v2.4.1</span>
-                  </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    <Monitor className="h-4 w-4 mr-2" />
-                    System Diagnostics
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Add User Modal */}
+      <AddUserModal 
+        isOpen={isAddUserModalOpen} 
+        onClose={() => {
+          setIsAddUserModalOpen(false);
+          refetchUsers();
+        }} 
+      />
     </DashboardLayout>
   );
 }
