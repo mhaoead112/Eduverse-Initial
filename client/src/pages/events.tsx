@@ -1,250 +1,274 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import { 
   CalendarIcon, Clock, MapPin, Users, Search,
-  Star, Calendar as CalendarLucide, Filter,
-  Trophy, BookOpen, Coffee, Music, GraduationCap,
-  ChevronRight, User, Settings
+  Star, Calendar as CalendarLucide, Filter, Sparkles,
+  BookOpen, GraduationCap, ChevronRight, Video, ArrowRight
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { format, startOfMonth, endOfMonth, isSameDay, parseISO, isAfter, isBefore } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Event } from "@shared/schema";
+import { format, startOfMonth, endOfMonth, isSameDay, isAfter, isBefore } from "date-fns";
+
+interface PublicEvent {
+  id: string;
+  title: string;
+  description?: string;
+  eventType: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+  meetingLink?: string;
+  courseId?: string;
+  courseName?: string;
+  isPublic: boolean;
+  maxParticipants?: number;
+  participants?: number;
+  createdAt: string;
+}
 
 export default function Events() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [view, setView] = useState<"list" | "calendar">("list");
-  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: events, isLoading } = useQuery<Event[]>({
-    queryKey: ['/api/events', { upcoming: 'true' }],
-  });
-
-  // Event registration mutation
-  const registerMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      return apiRequest('POST', `/api/events/${eventId}/register`);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Registration Successful",
-        description: "You have been registered for this event!",
-      });
-      // Invalidate and refetch events to update UI
-      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Registration Failed",
-        description: error instanceof Error ? error.message : "Failed to register for event",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Event details handler
-  const handleViewDetails = (eventId: string, eventTitle: string) => {
-    // For now, show a toast with event details since we don't have a detail route yet
-    // In the future, this could navigate to `/events/${eventId}`
-    toast({
-      title: `Event Details: ${eventTitle}`,
-      description: `Viewing details for event ID: ${eventId}`,
-    });
-  };
-
-  // Event registration handler
-  const handleRegisterEvent = (eventId: string) => {
-    // Ensure we're passing the correct string ID, not the object
-    if (typeof eventId === 'string' && eventId.trim()) {
-      registerMutation.mutate(eventId);
-    } else {
-      toast({
-        title: "Registration Error", 
-        description: "Invalid event ID provided",
-        variant: "destructive",
-      });
+  const { data: events, isLoading } = useQuery<PublicEvent[]>({
+    queryKey: ['/api/events'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3001/api/events');
+      if (!response.ok) throw new Error('Failed to fetch events');
+      return response.json();
     }
-  };
+  });
 
   const categories = [
-    { id: "all", name: "All Events", icon: CalendarLucide, color: "bg-blue-500" },
-    { id: "school", name: "School", icon: GraduationCap, color: "bg-green-500" },
-    { id: "academic", name: "Academic", icon: BookOpen, color: "bg-purple-500" },
-    { id: "sports", name: "Sports", icon: Trophy, color: "bg-yellow-500" },
-    { id: "social", name: "Social", icon: Coffee, color: "bg-pink-500" },
-    { id: "holiday", name: "Holiday", icon: Music, color: "bg-red-500" },
+    { id: "all", name: "All Events", icon: CalendarLucide, color: "from-blue-500 to-indigo-600" },
+    { id: "event", name: "Events", icon: Star, color: "from-purple-500 to-pink-600" },
+    { id: "class", name: "Classes", icon: BookOpen, color: "from-green-500 to-emerald-600" },
+    { id: "meeting", name: "Meetings", icon: Users, color: "from-blue-500 to-cyan-600" },
+    { id: "exam", name: "Exams", icon: GraduationCap, color: "from-red-500 to-orange-600" },
+    { id: "deadline", name: "Deadlines", icon: Clock, color: "from-yellow-500 to-amber-600" },
   ];
 
-  const eventTypes = [
-    { id: "general", name: "General", color: "bg-gray-500" },
-    { id: "meeting", name: "Meeting", color: "bg-blue-500" },
-    { id: "workshop", name: "Workshop", color: "bg-green-500" },
-    { id: "competition", name: "Competition", color: "bg-yellow-500" },
-    { id: "celebration", name: "Celebration", color: "bg-pink-500" },
-  ];
+  const getEventTypeStyle = (eventType: string) => {
+    const styles: Record<string, { bg: string; text: string; icon: any }> = {
+      event: { bg: "bg-gradient-to-r from-purple-500 to-pink-500", text: "text-white", icon: Star },
+      class: { bg: "bg-gradient-to-r from-green-500 to-emerald-500", text: "text-white", icon: BookOpen },
+      meeting: { bg: "bg-gradient-to-r from-blue-500 to-cyan-500", text: "text-white", icon: Users },
+      exam: { bg: "bg-gradient-to-r from-red-500 to-orange-500", text: "text-white", icon: GraduationCap },
+      deadline: { bg: "bg-gradient-to-r from-yellow-500 to-amber-500", text: "text-white", icon: Clock },
+      assignment: { bg: "bg-gradient-to-r from-indigo-500 to-violet-500", text: "text-white", icon: BookOpen },
+    };
+    return styles[eventType] || { bg: "bg-gradient-to-r from-gray-500 to-slate-500", text: "text-white", icon: CalendarLucide };
+  };
 
   const filteredEvents = useMemo(() => {
     if (!events) return [];
     
-    let filtered = events;
+    let filtered = [...events];
     
+    // Filter by category/type
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(event => event.category === selectedCategory);
+      filtered = filtered.filter(event => event.eventType === selectedCategory);
     }
     
-    if (selectedDate && view === "calendar") {
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(event => 
-        isSameDay(new Date(event.startDate), selectedDate)
+        event.title.toLowerCase().includes(query) ||
+        event.description?.toLowerCase().includes(query) ||
+        event.location?.toLowerCase().includes(query)
       );
     }
     
-    return filtered.sort((a, b) => {
-      // Sort by featured status first, then by start date
-      if (a.isFeatured && !b.isFeatured) return -1;
-      if (!a.isFeatured && b.isFeatured) return 1;
-      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-    });
-  }, [events, selectedCategory, selectedDate, view]);
-
-  // Get events for calendar display
-  const calendarEvents = useMemo(() => {
-    if (!events || !selectedDate) return [];
+    // Filter by selected date in calendar view
+    if (selectedDate && view === "calendar") {
+      filtered = filtered.filter(event => 
+        isSameDay(new Date(event.startTime), selectedDate)
+      );
+    }
     
-    const monthStart = startOfMonth(selectedDate);
-    const monthEnd = endOfMonth(selectedDate);
-    
-    return events.filter(event => {
-      const eventDate = new Date(event.startDate);
-      return isAfter(eventDate, monthStart) && isBefore(eventDate, monthEnd);
-    });
-  }, [events, selectedDate]);
+    // Sort by start time (upcoming first)
+    return filtered.sort((a, b) => 
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+  }, [events, selectedCategory, selectedDate, view, searchQuery]);
 
-  const getEventTypeColor = (eventType: string) => {
-    return eventTypes.find(type => type.id === eventType)?.color || "bg-gray-500";
+  // Check if a date has events
+  const hasEventsOnDate = (date: Date) => {
+    return events?.some(event => isSameDay(new Date(event.startTime), date)) || false;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-eduverse-light via-white to-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-eduverse-blue mx-auto mb-4"></div>
-          <p className="text-eduverse-gray">Loading events...</p>
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-indigo-200 rounded-full animate-spin border-t-indigo-600 mx-auto"></div>
+            <CalendarIcon className="h-8 w-8 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-gray-600 mt-4 font-medium">Loading events...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <>
-      {/* SEO Meta Tags */}
-      <title>EduVerse Live Events - Educational Events & Workshops Calendar</title>
-      <meta name="description" content="Join educational events, workshops, and activities at EduVerse. Discover upcoming learning opportunities in our vibrant community calendar." />
-      
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50">
-        {/* Indigo/Blue Theme Header */}
-        <header className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 text-white shadow-xl" data-testid="events-header">
-        <div className="container mx-auto px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Hero Header */}
+      <header className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
+        {/* Background decorations */}
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        
+        <div className="container mx-auto px-6 py-12 relative z-10">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <span className="text-6xl animate-bounce">📅</span>
-              <h1 className="text-5xl font-bold">
-                Live Events Calendar
-              </h1>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <CalendarIcon className="h-10 w-10" />
+              </div>
+              <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm px-4 py-1">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Public Events
+              </Badge>
             </div>
-            <p className="text-indigo-100 max-w-2xl mx-auto text-xl">
-              Discover upcoming events, workshops, and activities in our vibrant educational community.
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+              Upcoming Events
+            </h1>
+            <p className="text-indigo-100 max-w-2xl mx-auto text-lg">
+              Discover educational events, workshops, and activities happening at EduVerse. 
+              Join our vibrant community of learners!
             </p>
           </div>
 
-          {/* Controls */}
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search events by title, description, or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 py-6 rounded-2xl border-0 bg-white/95 backdrop-blur-sm text-gray-900 placeholder:text-gray-500 shadow-xl text-lg"
+              />
+            </div>
+          </div>
+
+          {/* View Toggle & Stats */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             {/* View Toggle */}
-            <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+            <div className="flex bg-white/10 backdrop-blur-sm rounded-xl p-1">
               <Button
-                variant={view === "list" ? "default" : "ghost"}
+                variant="ghost"
                 size="sm"
                 onClick={() => setView("list")}
-                className="rounded-none"
-                data-testid="button-list-view"
+                className={`rounded-lg px-6 ${view === "list" ? "bg-white text-indigo-600 shadow-md" : "text-white hover:bg-white/20"}`}
               >
                 <Filter className="h-4 w-4 mr-2" />
                 List View
               </Button>
               <Button
-                variant={view === "calendar" ? "default" : "ghost"}
+                variant="ghost"
                 size="sm"
                 onClick={() => setView("calendar")}
-                className="rounded-none"
-                data-testid="button-calendar-view"
+                className={`rounded-lg px-6 ${view === "calendar" ? "bg-white text-indigo-600 shadow-md" : "text-white hover:bg-white/20"}`}
               >
                 <CalendarIcon className="h-4 w-4 mr-2" />
-                Calendar View
+                Calendar
               </Button>
             </div>
             
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => {
-                const Icon = category.icon;
-                return (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`${
-                      selectedCategory === category.id 
-                        ? `${category.color} text-white` 
-                        : 'border-gray-300'
-                    }`}
-                    data-testid={`filter-${category.id}`}
-                  >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {category.name}
-                  </Button>
-                );
-              })}
+            {/* Event Stats */}
+            <div className="flex gap-6 text-white/90">
+              <div className="text-center">
+                <div className="text-3xl font-bold">{events?.length || 0}</div>
+                <div className="text-sm text-white/70">Total Events</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">
+                  {events?.filter(e => new Date(e.startTime) > new Date()).length || 0}
+                </div>
+                <div className="text-sm text-white/70">Upcoming</div>
+              </div>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Category Filters */}
+      <div className="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {categories.map((category) => {
+              const Icon = category.icon;
+              const isActive = selectedCategory === category.id;
+              return (
+                <Button
+                  key={category.id}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`rounded-full px-4 transition-all duration-300 ${
+                    isActive 
+                      ? `bg-gradient-to-r ${category.color} text-white shadow-lg scale-105` 
+                      : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  <Icon className="h-4 w-4 mr-2" />
+                  {category.name}
+                  {category.id !== "all" && (
+                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-gray-200'}`}>
+                      {events?.filter(e => e.eventType === category.id).length || 0}
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         {view === "calendar" ? (
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Calendar */}
             <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
+              <Card className="shadow-xl border-0 overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
                     Events Calendar
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
-                    className="rounded-md border w-full"
+                    className="rounded-xl border-0 w-full"
                     modifiers={{
-                      eventDay: calendarEvents.map(event => new Date(event.startDate))
+                      eventDay: (date) => hasEventsOnDate(date)
                     }}
                     modifiersStyles={{
-                      eventDay: { backgroundColor: 'var(--eduverse-blue)', color: 'white' }
+                      eventDay: { 
+                        backgroundColor: '#6366f1', 
+                        color: 'white',
+                        borderRadius: '50%'
+                      }
                     }}
-                    data-testid="calendar-widget"
                   />
                   
-                  <div className="mt-4 text-sm text-gray-600">
-                    <p className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded bg-eduverse-blue"></div>
-                      Days with events
+                  <div className="mt-6 p-4 bg-indigo-50 rounded-xl">
+                    <p className="flex items-center gap-2 text-sm text-indigo-700">
+                      <div className="w-4 h-4 rounded-full bg-indigo-500"></div>
+                      Days with scheduled events
                     </p>
                   </div>
                 </CardContent>
@@ -253,40 +277,51 @@ export default function Events() {
 
             {/* Selected Day Events */}
             <div>
-              <Card>
-                <CardHeader>
+              <Card className="shadow-xl border-0 sticky top-24">
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                   <CardTitle className="text-lg">
                     {selectedDate ? format(selectedDate, "EEEE, MMMM d") : "Select a Date"}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   {filteredEvents.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">
-                      No events scheduled for this day
-                    </p>
+                    <div className="text-center py-8">
+                      <CalendarIcon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500">No events scheduled for this day</p>
+                    </div>
                   ) : (
-                    <div className="space-y-3">
-                      {filteredEvents.slice(0, 3).map((event) => (
-                        <div 
-                          key={event.id}
-                          className="p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                          data-testid={`calendar-event-${event.id}`}
-                        >
-                          <h4 className="font-semibold text-sm text-gray-900 mb-1">
-                            {event.title}
-                          </h4>
-                          <div className="flex items-center gap-2 text-xs text-gray-600">
-                            <Clock className="h-3 w-3" />
-                            {format(new Date(event.startDate), "h:mm a")}
-                          </div>
-                          {event.location && (
-                            <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
-                              <MapPin className="h-3 w-3" />
-                              {event.location}
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {filteredEvents.map((event) => {
+                        const typeStyle = getEventTypeStyle(event.eventType);
+                        const TypeIcon = typeStyle.icon;
+                        return (
+                          <div 
+                            key={event.id}
+                            className="p-4 border rounded-xl hover:shadow-md transition-all duration-300 bg-white"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg ${typeStyle.bg}`}>
+                                <TypeIcon className="h-4 w-4 text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-gray-900 truncate">
+                                  {event.title}
+                                </h4>
+                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                  <Clock className="h-3 w-3" />
+                                  {format(new Date(event.startTime), "h:mm a")}
+                                </div>
+                                {event.location && (
+                                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span className="truncate">{event.location}</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </CardContent>
@@ -295,132 +330,154 @@ export default function Events() {
           </div>
         ) : (
           /* List View */
-          (<div className="space-y-6">
-            {filteredEvents?.length === 0 ? (
-              <div className="text-center py-12">
-                <CalendarIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Events Found</h3>
-                <p className="text-gray-500">
-                  No upcoming events available for this category
+          <div className="space-y-6">
+            {filteredEvents.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CalendarIcon className="h-12 w-12 text-indigo-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-700 mb-2">No Events Found</h3>
+                <p className="text-gray-500 max-w-md mx-auto">
+                  {searchQuery 
+                    ? "No events match your search criteria. Try adjusting your filters."
+                    : "No public events are currently scheduled. Check back later!"
+                  }
                 </p>
+                {searchQuery && (
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    Clear Search
+                  </Button>
+                )}
               </div>
             ) : (
-              filteredEvents?.map((event) => (
-                <Card 
-                  key={event.id}
-                  className={`hover:shadow-lg transition-shadow ${
-                    event.isFeatured ? 'border-yellow-300 bg-yellow-50' : ''
-                  }`}
-                  data-testid={`event-${event.id}`}
-                >
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {event.isFeatured && (
-                            <Badge className="bg-yellow-500 text-white">
-                              <Star className="h-3 w-3 mr-1" />
-                              Featured
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEvents.map((event) => {
+                  const typeStyle = getEventTypeStyle(event.eventType);
+                  const TypeIcon = typeStyle.icon;
+                  const isPast = new Date(event.endTime) < new Date();
+                  
+                  return (
+                    <Card 
+                      key={event.id}
+                      className={`group hover:shadow-2xl transition-all duration-500 border-0 overflow-hidden ${
+                        isPast ? 'opacity-60' : ''
+                      }`}
+                    >
+                      {/* Event Type Header */}
+                      <div className={`${typeStyle.bg} p-4 text-white`}>
+                        <div className="flex items-center justify-between">
+                          <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm">
+                            <TypeIcon className="h-3 w-3 mr-1" />
+                            {event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1)}
+                          </Badge>
+                          {isPast && (
+                            <Badge className="bg-black/20 text-white border-0">
+                              Past Event
                             </Badge>
                           )}
-                          <Badge 
-                            variant="secondary"
-                            className={`${
-                              categories.find(cat => cat.id === event.category)?.color || 'bg-gray-500'
-                            } text-white`}
-                          >
-                            {categories.find(cat => cat.id === event.category)?.name || event.category}
-                          </Badge>
-                          <Badge 
-                            variant="outline"
-                            className={`${getEventTypeColor(event.eventType)} text-white border-0`}
-                          >
-                            {eventTypes.find(type => type.id === event.eventType)?.name || event.eventType}
-                          </Badge>
                         </div>
-                        
-                        <CardTitle className="text-xl font-bold text-gray-900 mb-2">
+                        <h3 className="text-xl font-bold mt-3 line-clamp-2 group-hover:line-clamp-none transition-all">
                           {event.title}
-                        </CardTitle>
-                        
-                        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <CalendarIcon className="h-4 w-4" />
-                            {format(new Date(event.startDate), "MMM dd, yyyy")}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            {format(new Date(event.startDate), "h:mm a")} - {format(new Date(event.endDate), "h:mm a")}
-                          </div>
-                          {event.location && (
-                            <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              {event.location}
-                            </div>
-                          )}
-                          {event.maxAttendees && (
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4" />
-                              Max {event.maxAttendees} attendees
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    {event.description && (
-                      <p className="text-gray-700 mb-4 line-clamp-2">
-                        {event.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <User className="h-4 w-4" />
-                          Event Organizer
-                        </div>
-                        {event.registrationRequired && (
-                          <Badge variant="outline" className="text-green-600 border-green-600">
-                            Registration Required
-                          </Badge>
-                        )}
+                        </h3>
                       </div>
                       
-                      <div className="flex gap-2">
-                        {event.registrationRequired && (
-                          <Button 
-                            size="sm"
-                            className="bg-eduverse-blue hover:bg-eduverse-blue/90"
-                            onClick={() => handleRegisterEvent(event.id)}
-                            disabled={registerMutation.isPending}
-                            data-testid={`button-register-${event.id}`}
-                          >
-                            {registerMutation.isPending ? "Registering..." : "Register Now"}
-                          </Button>
+                      <CardContent className="p-5">
+                        {/* Date & Time */}
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center gap-3 text-gray-600">
+                            <div className="p-2 bg-indigo-100 rounded-lg">
+                              <CalendarIcon className="h-4 w-4 text-indigo-600" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {format(new Date(event.startTime), "EEEE, MMMM d, yyyy")}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {format(new Date(event.startTime), "h:mm a")} - {format(new Date(event.endTime), "h:mm a")}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {event.location && (
+                            <div className="flex items-center gap-3 text-gray-600">
+                              <div className="p-2 bg-green-100 rounded-lg">
+                                <MapPin className="h-4 w-4 text-green-600" />
+                              </div>
+                              <span className="text-sm">{event.location}</span>
+                            </div>
+                          )}
+                          
+                          {event.meetingLink && (
+                            <div className="flex items-center gap-3 text-gray-600">
+                              <div className="p-2 bg-blue-100 rounded-lg">
+                                <Video className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <span className="text-sm text-blue-600">Online Event</span>
+                            </div>
+                          )}
+                          
+                          {event.maxParticipants && (
+                            <div className="flex items-center gap-3 text-gray-600">
+                              <div className="p-2 bg-purple-100 rounded-lg">
+                                <Users className="h-4 w-4 text-purple-600" />
+                              </div>
+                              <span className="text-sm">
+                                {event.participants || 0} / {event.maxParticipants} participants
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Description */}
+                        {event.description && (
+                          <p className="text-gray-600 text-sm line-clamp-2 mb-4">
+                            {event.description}
+                          </p>
                         )}
+                        
+                        {/* Course Badge */}
+                        {event.courseName && (
+                          <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50">
+                            <BookOpen className="h-3 w-3 mr-1" />
+                            {event.courseName}
+                          </Badge>
+                        )}
+                        
+                        {/* Action Button */}
                         <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-eduverse-blue hover:text-eduverse-blue hover:bg-eduverse-light"
-                          onClick={() => handleViewDetails(event.id, event.title)}
-                          data-testid={`button-details-${event.id}`}
+                          className={`w-full group/btn ${typeStyle.bg} text-white border-0 hover:opacity-90`}
+                          disabled={isPast}
                         >
-                          View Details
-                          <ChevronRight className="h-4 w-4 ml-1" />
+                          {isPast ? "Event Ended" : "View Details"}
+                          {!isPast && <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />}
                         </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
-          </div>)
+          </div>
         )}
       </main>
+      
+      {/* Footer CTA */}
+      <section className="bg-gradient-to-r from-indigo-600 to-purple-600 py-12 mt-12">
+        <div className="container mx-auto px-6 text-center text-white">
+          <h2 className="text-3xl font-bold mb-4">Want to Create Your Own Events?</h2>
+          <p className="text-indigo-100 mb-6 max-w-xl mx-auto">
+            Join EduVerse as a teacher or administrator to create and manage educational events for our community.
+          </p>
+          <Button className="bg-white text-indigo-600 hover:bg-indigo-50 px-8 py-6 text-lg rounded-xl shadow-xl">
+            <GraduationCap className="h-5 w-5 mr-2" />
+            Get Started Today
+          </Button>
+        </div>
+      </section>
     </div>
-    </>
   );
 }
