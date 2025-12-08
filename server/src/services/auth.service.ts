@@ -5,7 +5,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 // These should be in your .env file
-const JWT_SECRET = process.env.JWT_SECRET || 'DEFAULT_SECRET_KEY_PLEASE_CHANGE';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required!');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const SALT_ROUNDS = 10; // Standard for bcrypt password hashing
 
 // --- Interfaces for Data Transfer ---
@@ -29,9 +32,12 @@ export interface AuthResponse {
     token: string;
     user: {
         id: string;
-        name: string;
+        fullName: string;
+        username: string;
         email: string;
         role: string;
+        profilePicture?: string | null;
+        grade?: string | null;
     };
 }
 
@@ -106,13 +112,26 @@ export const loginUser = async (credentials: LoginUserDto): Promise<AuthResponse
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
 
     // 5. Return the token and public user data
+    console.log('Login user data:', {
+        id: user.id,
+        fullName: user.fullName,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture,
+        grade: user.grade,
+    });
+    
     return {
         token,
         user: {
             id: user.id,
-            name: user.name,
+            fullName: user.fullName,
+            username: user.username,
             email: user.email,
             role: user.role,
+            profilePicture: user.profilePicture,
+            grade: user.grade,
         }
     };
 };

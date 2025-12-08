@@ -4,7 +4,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'replace-me';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required!');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 
 export async function registerUser(data: { name?:string; email:string; password:string; role?:string }) {

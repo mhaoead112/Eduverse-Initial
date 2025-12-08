@@ -1,6 +1,7 @@
 import { db } from "../db/index.js";
-import { assignments, submissions, courses } from "../../../shared/schema.js";
+import { assignments, submissions, courses, grades } from "../../../shared/schema.js";
 import { and, desc, eq } from "drizzle-orm";
+import { createId } from "@paralleldrive/cuid2";
 
 export interface CreateAssignmentInput {
   courseId: string;
@@ -71,21 +72,52 @@ export interface GradeSubmissionInput {
   submissionId: string;
   grade: number;
   feedback?: string;
+  gradedBy?: string;
+  maxScore?: number;
 }
 
 export async function gradeSubmission(data: GradeSubmissionInput) {
-  const [updated] = await db
-    .update(submissions)
-    .set({
-      grade: data.grade,
-      feedback: data.feedback ?? null,
-      gradedAt: new Date(),
-    })
-    .where(eq(submissions.id, data.submissionId))
-    .returning();
+  // Check if grade already exists
+  const existingGrade = await db
+    .select()
+    .from(grades)
+    .where(eq(grades.submissionId, data.submissionId))
+    .limit(1);
 
-  if (!updated) throw new Error("Submission not found.");
-  return updated;
+  if (existingGrade.length > 0) {
+    // Update existing grade
+    const [updated] = await db
+      .update(grades)
+      .set({
+        score: data.grade.toString(),
+        maxScore: data.maxScore?.toString() || '100',
+        feedback: data.feedback ?? null,
+        gradedBy: data.gradedBy ?? null,
+        gradedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(grades.submissionId, data.submissionId))
+      .returning();
+
+    if (!updated) throw new Error("Failed to update grade.");
+    return updated;
+  } else {
+    // Create new grade
+    const [created] = await db
+      .insert(grades)
+      .values({
+        id: createId(),
+        submissionId: data.submissionId,
+        score: data.grade.toString(),
+        maxScore: data.maxScore?.toString() || '100',
+        feedback: data.feedback ?? null,
+        gradedBy: data.gradedBy ?? null,
+      })
+      .returning();
+
+    if (!created) throw new Error("Failed to create grade.");
+    return created;
+  }
 }
 
 export async function getStudentProgress(studentId: string) {
