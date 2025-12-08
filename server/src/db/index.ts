@@ -1,9 +1,17 @@
 import * as dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../db/schema"; // adjust path if needed
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env from server directory (go up two levels: db -> src -> server)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 // Check that DATABASE_URL exists
-dotenv.config();
 if (!process.env.DATABASE_URL) {
   throw new Error("FATAL ERROR: DATABASE_URL is not set in your .env file.");
 }
@@ -11,6 +19,8 @@ if (!process.env.DATABASE_URL) {
 // Create a pool using local PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // Handle empty password
+  ssl: false,
 });
 
 // Initialize Drizzle with our schema
