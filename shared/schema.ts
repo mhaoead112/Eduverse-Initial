@@ -8,6 +8,8 @@ import { z } from 'zod';
 
 // --- ENUMS ---
 export const userRoleEnum = pgEnum('user_role', ['student', 'teacher', 'admin', 'parent']);
+export const reportCardPeriodEnum = pgEnum('report_period', ['Q1', 'Q2', 'Q3', 'Q4', 'S1', 'S2', 'FINAL']);
+export const eventTypeEnum = pgEnum('event_type', ['assignment', 'exam', 'class', 'event', 'deadline', 'meeting']);
 
 // --- CORE TABLES (Auth and Users) ---
 export const users = pgTable('users', {
@@ -17,6 +19,10 @@ export const users = pgTable('users', {
     email: varchar('email', { length: 255 }).notNull().unique(),
     password: text('password_hash').notNull(),
     role: userRoleEnum('role').default('student').notNull(),
+    profilePicture: text('profile_picture'),
+    phone: text('phone'),
+    bio: text('bio'),
+    grade: varchar('grade', { length: 50 }), // For students: "Grade 1", "Grade 2", etc.
     isActive: boolean('is_active').default(true).notNull(),
     // emailVerified: boolean('email_verified').default(false).notNull(),
     // emailVerificationToken: text('email_verification_token'),
@@ -113,6 +119,46 @@ export const announcements = pgTable("announcements", {
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
 });
 
+// --- EVENTS TABLES ---
+export const events = pgTable("events", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  title: text("title").notNull(),
+  description: text("description"),
+  eventType: eventTypeEnum("event_type").notNull(),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  location: text("location"),
+  meetingLink: text("meeting_link"),
+  courseId: text("course_id").references(() => courses.id, { onDelete: 'cascade' }),
+  createdBy: text("created_by").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  isPublic: boolean("is_public").default(true).notNull(),
+  maxParticipants: text("max_participants"),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
+});
+
+export const eventParticipants = pgTable("event_participants", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  eventId: text("event_id").notNull().references(() => events.id, { onDelete: 'cascade' }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  status: text("status").default('registered').notNull(), // registered, attended, cancelled
+  registeredAt: timestamp('registered_at').defaultNow().notNull(),
+});
+
+// --- REPORT CARDS TABLES ---
+export const reportCards = pgTable("report_cards", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  studentId: text("student_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  period: reportCardPeriodEnum("period").notNull(),
+  academicYear: text("academic_year").notNull(), // e.g., "2024-2025"
+  fileName: text("file_name").notNull(),
+  filePath: text("file_path").notNull(),
+  fileSize: text("file_size").notNull(),
+  uploadedBy: text("uploaded_by").notNull().references(() => users.id, { onDelete: 'set null' }),
+  uploadedAt: timestamp('uploaded_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // --- STAFF TABLES (from auth-feature branch) ---
 export const staffProfiles = pgTable("staff_profiles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -140,6 +186,41 @@ export const staffAchievements = pgTable("staff_achievements", {
   url: text("url"),
   isPublic: boolean("is_public").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// --- STUDY ACTIVITY & STREAKS ---
+export const studyActivity = pgTable("study_activity", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  activityDate: timestamp("activity_date").notNull(), // Date of the activity (normalized to start of day)
+  activityType: text("activity_type").notNull(), // 'lesson_view', 'assignment_submit', 'quiz_complete', etc.
+  durationMinutes: text("duration_minutes"), // Optional: time spent
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const studyStreaks = pgTable("study_streaks", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  currentStreak: text("current_streak").default('0').notNull(), // Current consecutive days
+  longestStreak: text("longest_streak").default('0').notNull(), // Best streak ever
+  lastActivityDate: timestamp("last_activity_date"), // Last date user was active
+  totalActiveDays: text("total_active_days").default('0').notNull(), // Total days with activity
+  weeklyGoalHours: text("weekly_goal_hours").default('10').notNull(), // User's weekly goal
+  currentWeekHours: text("current_week_hours").default('0').notNull(), // Hours this week
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+});
+
+// --- PUSH SUBSCRIPTIONS TABLE ---
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(), // Public key
+  auth: text("auth").notNull(), // Auth secret
+  userAgent: text("user_agent"), // Browser/device info
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
 });
 
 // --- ZOD SCHEMAS & TYPES ---
@@ -250,6 +331,47 @@ export const insertAnnouncementSchema = createInsertSchema(announcements).omit({
   isPinned: z.boolean().optional().default(false),
 });
 
+export const insertEventSchema = createInsertSchema(events).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  title: z.string().min(1, "Event title is required").max(255),
+  description: z.string().optional(),
+  eventType: z.enum(['assignment', 'exam', 'class', 'event', 'deadline', 'meeting']),
+  startTime: z.date(),
+  endTime: z.date(),
+  location: z.string().optional(),
+  meetingLink: z.string().optional(),
+  courseId: z.string().optional(),
+  createdBy: z.string().min(1, "Creator ID is required"),
+  isPublic: z.boolean().optional().default(true),
+  maxParticipants: z.string().optional(),
+});
+
+export const insertEventParticipantSchema = createInsertSchema(eventParticipants).omit({
+  id: true,
+  registeredAt: true,
+}).extend({
+  eventId: z.string().min(1, "Event ID is required"),
+  userId: z.string().min(1, "User ID is required"),
+  status: z.string().optional().default('registered'),
+});
+
+export const insertReportCardSchema = createInsertSchema(reportCards).omit({
+  id: true,
+  createdAt: true,
+  uploadedAt: true,
+}).extend({
+  studentId: z.string().min(1, "Student ID is required"),
+  period: z.enum(['Q1', 'Q2', 'Q3', 'Q4', 'S1', 'S2', 'FINAL']),
+  academicYear: z.string().min(1, "Academic year is required"),
+  fileName: z.string().min(1, "File name is required"),
+  filePath: z.string().min(1, "File path is required"),
+  fileSize: z.string().min(1, "File size is required"),
+  uploadedBy: z.string().min(1, "Uploaded by is required"),
+});
+
 export type Course = typeof courses.$inferSelect;
 export type InsertCourse = z.infer<typeof insertCourseSchema>;
 export type Enrollment = typeof enrollments.$inferSelect;
@@ -264,6 +386,14 @@ export type Grade = typeof grades.$inferSelect;
 export type InsertGrade = z.infer<typeof insertGradeSchema>;
 export type Announcement = typeof announcements.$inferSelect;
 export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+export type EventParticipant = typeof eventParticipants.$inferSelect;
+export type InsertEventParticipant = z.infer<typeof insertEventParticipantSchema>;
+export type ReportCard = typeof reportCards.$inferSelect;
+export type InsertReportCard = z.infer<typeof insertReportCardSchema>;
+export type ReportPeriod = 'Q1' | 'Q2' | 'Q3' | 'Q4' | 'S1' | 'S2' | 'FINAL';
+export type EventType = 'assignment' | 'exam' | 'class' | 'event' | 'deadline' | 'meeting';
 
 // Staff schemas
 export const insertStaffProfileSchema = createInsertSchema(staffProfiles).omit({
@@ -282,5 +412,31 @@ export type InsertStaffProfile = z.infer<typeof insertStaffProfileSchema>;
 
 export type StaffAchievement = typeof staffAchievements.$inferSelect;
 export type InsertStaffAchievement = z.infer<typeof insertStaffAchievementSchema>;
+
+// Study activity schemas
+export const insertStudyActivitySchema = createInsertSchema(studyActivity).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertStudyStreakSchema = createInsertSchema(studyStreaks).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type StudyActivity = typeof studyActivity.$inferSelect;
+export type InsertStudyActivity = z.infer<typeof insertStudyActivitySchema>;
+export type StudyStreak = typeof studyStreaks.$inferSelect;
+export type InsertStudyStreak = z.infer<typeof insertStudyStreakSchema>;
+
+// Push subscription schemas
+export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
 
 export type UserRole = 'student' | 'teacher' | 'admin' | 'parent';

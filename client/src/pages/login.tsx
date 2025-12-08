@@ -57,6 +57,17 @@ export default function Login() {
       localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
+      // Track login streak for students
+      if (data.user.role === 'student') {
+        fetch('http://localhost:3001/api/streaks/login', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${data.token}`,
+            'Content-Type': 'application/json'
+          },
+        }).catch(err => console.error('Failed to track login:', err));
+      }
+
       toast({
         title: 'Login Successful',
         description: `Welcome back, ${data.user.fullName}!`,
@@ -116,34 +127,34 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4 pt-24">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-3 sm:p-4 md:p-6 pt-20 sm:pt-24">
       <div className="w-full max-w-md">
         {/* Logo and Header */}
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-3">
+        <div className="text-center mb-4 sm:mb-6">
+          <div className="flex justify-center mb-2 sm:mb-3">
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
             <span className="text-eduverse-blue">EDU</span><span className='text-eduverse-gold'>VERSE</span>
           </h1>
-          <p className="text-gray-600 mt-1 text-sm">Education Excellence</p>
+          <p className="text-gray-600 mt-1 text-xs sm:text-sm">Education Excellence</p>
         </div>
 
         {/* Login Card */}
         <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">
+          <CardHeader className="space-y-1 p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-center">Welcome Back</CardTitle>
+            <CardDescription className="text-center text-xs sm:text-sm">
               Sign in to your account to continue
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="p-4 sm:p-6">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               {/* Email Field */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="email" className="text-sm">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   <Input
                     id="email"
                     name="email"
@@ -151,7 +162,7 @@ export default function Login() {
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-10"
+                    className="pl-8 sm:pl-10 h-10 sm:h-11 text-sm sm:text-base"
                     disabled={loginMutation.isPending}
                     autoComplete="email"
                   />
@@ -159,19 +170,19 @@ export default function Login() {
               </div>
 
               {/* Password Field */}
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-sm">Password</Label>
                   <button
                     type="button"
                     onClick={() => setLocation('/forgot-password')}
-                    className="text-sm text-eduverse-blue hover:underline"
+                    className="text-xs sm:text-sm text-eduverse-blue hover:underline"
                   >
                     Forgot password?
                   </button>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   <Input
                     id="password"
                     name="password"
@@ -179,19 +190,19 @@ export default function Login() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10"
+                    className="pl-8 sm:pl-10 pr-10 h-10 sm:h-11 text-sm sm:text-base"
                     disabled={loginMutation.isPending}
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                     ) : (
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                     )}
                   </button>
                 </div>
@@ -199,9 +210,9 @@ export default function Login() {
 
               {/* Error Display */}
               {loginMutation.isError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-700">
+                <div className="p-2.5 sm:p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-red-700">
                     {loginMutation.error?.message || 'An error occurred during login'}
                   </p>
                 </div>
@@ -210,30 +221,30 @@ export default function Login() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-eduverse-blue hover:bg-eduverse-blue/90"
+                className="w-full bg-eduverse-blue hover:bg-eduverse-blue/90 h-10 sm:h-11"
                 size="lg"
                 disabled={loginMutation.isPending}
               >
                 {loginMutation.isPending ? (
                   <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Signing in...
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
+                    <span className="text-sm sm:text-base">Signing in...</span>
                   </>
                 ) : (
                   <>
-                    <LogIn className="h-5 w-5 mr-2" />
-                    Sign In
+                    <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                    <span className="text-sm sm:text-base">Sign In</span>
                   </>
                 )}
               </Button>
             </form>
 
             {/* Divider */}
-            <div className="relative my-6">
+            <div className="relative my-4 sm:my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
+              <div className="relative flex justify-center text-xs sm:text-sm">
                 <span className="px-2 bg-white text-gray-500">Or</span>
               </div>
             </div>
@@ -242,15 +253,15 @@ export default function Login() {
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="w-full h-10 sm:h-11 text-sm sm:text-base"
               onClick={() => setLocation('/demo')}
             >
               Try Demo Login
             </Button>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center text-gray-600">
+          <CardFooter className="flex flex-col space-y-3 sm:space-y-4 p-4 sm:p-6">
+            <div className="text-xs sm:text-sm text-center text-gray-600">
               Need help accessing your account?{' '}
               <button
                 onClick={() => setLocation('/contact')}
@@ -263,7 +274,7 @@ export default function Login() {
         </Card>
 
         {/* Footer Links */}
-        <div className="mt-8 text-center text-sm text-gray-600">
+        <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-600">
           <button
             onClick={() => setLocation('/')}
             className="hover:text-eduverse-blue hover:underline"
