@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Megaphone, Pin, Loader2, BookOpen } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint, assetUrl } from '@/lib/config';
 
 interface Announcement {
   id: string;
@@ -47,7 +48,7 @@ export default function StudentAllAnnouncementsPage() {
       const authHeaders = getAuthHeaders();
 
       // DEV MODE: Fetch all published courses instead of checking enrollments
-      const coursesRes = await fetch("http://localhost:3001/api/courses", {
+      const coursesRes = await fetch(apiEndpoint("/api/courses"), {
         headers: authHeaders,
       });
 
@@ -153,10 +154,10 @@ export default function StudentAllAnnouncementsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900">
             Recent Announcements
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-gray-600 mt-2">
             Stay updated with the latest announcements from all your courses
           </p>
         </div>
@@ -166,7 +167,7 @@ export default function StudentAllAnnouncementsPage() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Megaphone className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 dark:text-gray-400 text-center">
+              <p className="text-gray-600 text-center">
                 No announcements yet. Check back later for updates from your instructors.
               </p>
             </CardContent>
@@ -177,7 +178,7 @@ export default function StudentAllAnnouncementsPage() {
               <Card 
                 key={announcement.id} 
                 className={`transition-all hover:shadow-md ${
-                  announcement.isPinned ? "border-blue-500 border-2 bg-blue-50 dark:bg-blue-950" : ""
+                  announcement.isPinned ? "border-blue-500 border-2 bg-blue-50" : ""
                 }`}
               >
                 <CardHeader>
@@ -187,7 +188,7 @@ export default function StudentAllAnnouncementsPage() {
                         <Link href={`/student/courses/${announcement.courseId}/announcements`}>
                           <Badge 
                             variant="secondary" 
-                            className="gap-1 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700"
+                            className="gap-1 cursor-pointer hover:bg-gray-300"
                           >
                             <BookOpen className="h-3 w-3" />
                             {announcement.courseName}
@@ -199,7 +200,7 @@ export default function StudentAllAnnouncementsPage() {
                             Pinned
                           </Badge>
                         )}
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-gray-500">
                           {formatDate(announcement.createdAt)}
                         </span>
                       </div>
@@ -208,7 +209,7 @@ export default function StudentAllAnnouncementsPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-3">
+                  <p className="text-gray-700 whitespace-pre-wrap line-clamp-3">
                     {announcement.content}
                   </p>
                   {announcement.content.length > 200 && (

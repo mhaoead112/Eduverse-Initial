@@ -1,0 +1,470 @@
+import { useState, useEffect } from "react";
+import { useRoute, useLocation } from "wouter";
+import { 
+  BookOpen, Users, FileText, Settings, Trash2, Edit, Plus,
+  ArrowLeft, Calendar, Clock, TrendingUp, CheckCircle2, Loader2
+} from "lucide-react";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  teacherId: string;
+  createdAt: string;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  content: string;
+  videoUrl?: string;
+  createdAt: string;
+}
+
+interface Assignment {
+  id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  maxScore: number;
+}
+
+interface Enrollment {
+  enrollmentId: string;
+  enrolledAt: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  studentRole: string;
+}
+
+export default function TeacherCourseManage() {
+  const [, params] = useRoute("/teacher/courses/:id");
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const { user, token, isAuthenticated, getAuthHeaders } = useAuth();
+  const [course, setCourse] = useState<Course | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+
+  const courseId = params?.id;
+
+  // Handle redirect for 'create' courseId - must be in useEffect, not during render
+  useEffect(() => {
+    if (courseId === 'create') {
+      setLocation('/teacher/courses/create');
+    }
+  }, [courseId, setLocation]);
+
+  useEffect(() => {
+    if (courseId && courseId !== 'create' && token && isAuthenticated) {
+      fetchCourseData();
+    } else if (!token || !isAuthenticated) {
+      setLoading(false);
+    }
+  }, [courseId, token, isAuthenticated]);
+
+  const fetchCourseData = async () => {
+    try {
+      setLoading(true);
+      const headers = getAuthHeaders();
+
+      // Fetch course details
+      const courseRes = await fetch(`http://localhost:3001/api/courses/${courseId}`, { headers });
+      if (courseRes.ok) {
+        const courseData = await courseRes.json();
+        setCourse(courseData);
+        setEditTitle(courseData.title);
+        setEditDescription(courseData.description);
+      }
+
+      // Fetch lessons
+      const lessonsRes = await fetch(`http://localhost:3001/api/lessons/course/${courseId}`, { headers });
+      if (lessonsRes.ok) {
+        const lessonsData = await lessonsRes.json();
+        setLessons(Array.isArray(lessonsData.lessons) ? lessonsData.lessons : []);
+      }
+
+      // Fetch assignments
+      const assignmentsRes = await fetch(`http://localhost:3001/api/assignments/courses/${courseId}/assignments`, { headers });
+      if (assignmentsRes.ok) {
+        const assignmentsData = await assignmentsRes.json();
+        setAssignments(Array.isArray(assignmentsData) ? assignmentsData : []);
+      }
+
+      // Fetch enrolled students
+      const studentsRes = await fetch(`http://localhost:3001/api/enrollments/course/${courseId}`, { headers });
+      if (studentsRes.ok) {
+        const studentsData = await studentsRes.json();
+        setEnrollments(Array.isArray(studentsData) ? studentsData : []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch course data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load course data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateCourse = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/courses/${courseId}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ title: editTitle, description: editDescription }),
+      });
+
+      if (response.ok) {
+        toast({ title: "Success", description: "Course updated successfully" });
+        setIsEditDialogOpen(false);
+        fetchCourseData();
+      } else {
+        throw new Error("Failed to update course");
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update course", variant: "destructive" });
+    }
+  };
+
+  if (loading && courseId !== 'create') {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!course && courseId !== 'create') {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <p className="text-gray-600">Course not found</p>
+          <Button onClick={() => setLocation("/teacher/courses")} className="mt-4">
+            Back to Courses
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // If courseId is 'create', show loading while useEffect handles redirect
+  if (courseId === 'create') {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // At this point, course must exist (due to checks above)
+  if (!course) return null;
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6 pb-10">
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-4">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setLocation("/teacher/courses")}
+                className="hover:bg-white"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{course.title}</h1>
+                <p className="text-gray-600 max-w-2xl">{course.description}</p>
+                <div className="flex items-center gap-3 mt-3">
+                  <Badge variant="outline" className="bg-white">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    Created {new Date(course.createdAt).toLocaleDateString()}
+                  </Badge>
+                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                    {course.status}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(true)} className="bg-white">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+              <Button onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/create`)} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Lesson
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 mb-1">Students Enrolled</p>
+                  <h3 className="text-4xl font-bold text-blue-900">{enrollments.length}</h3>
+                  <p className="text-xs text-blue-600 mt-1">Active learners</p>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
+                  <Users className="h-7 w-7 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0 shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">Total Lessons</p>
+                  <h3 className="text-4xl font-bold text-green-900">{lessons.length}</h3>
+                  <p className="text-xs text-green-600 mt-1">Content modules</p>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-green-600 flex items-center justify-center shadow-lg">
+                  <BookOpen className="h-7 w-7 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-0 shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-orange-700 mb-1">Assignments</p>
+                  <h3 className="text-4xl font-bold text-orange-900">{assignments.length}</h3>
+                  <p className="text-xs text-orange-600 mt-1">Active tasks</p>
+                </div>
+                <div className="w-14 h-14 rounded-xl bg-orange-600 flex items-center justify-center shadow-lg">
+                  <FileText className="h-7 w-7 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Enhanced Content Tabs */}
+        <Tabs defaultValue="lessons" className="space-y-4">
+          <TabsList className="bg-white border border-gray-200 p-1 shadow-sm">
+            <TabsTrigger value="lessons" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Lessons ({lessons.length})
+            </TabsTrigger>
+            <TabsTrigger value="assignments" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <FileText className="h-4 w-4 mr-2" />
+              Assignments ({assignments.length})
+            </TabsTrigger>
+            <TabsTrigger value="students" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <Users className="h-4 w-4 mr-2" />
+              Students ({enrollments.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="lessons" className="space-y-4">
+            {lessons.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No lessons yet. Create your first lesson!</p>
+                  <Button 
+                    className="mt-4" 
+                    onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/create`)}
+                  >
+                    Create Lesson
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {lessons.map((lesson) => (
+                  <Card key={lesson.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-2">{lesson.title}</h3>
+                          <p className="text-sm text-gray-600 line-clamp-2">{lesson.content}</p>
+                          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {new Date(lesson.createdAt).toLocaleDateString()}
+                            </span>
+                            {lesson.videoUrl && (
+                              <Badge variant="secondary">Has Video</Badge>
+                            )}
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/${lesson.id}`)}
+                        >
+                          View
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="assignments" className="space-y-4">
+            {assignments.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No assignments yet.</p>
+                  <Button 
+                    className="mt-4"
+                    onClick={() => setLocation('/teacher/assignments')}
+                  >
+                    Create Assignment
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {assignments.map((assignment) => (
+                  <Card key={assignment.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-2">{assignment.title}</h3>
+                          <p className="text-sm text-gray-600 mb-3">{assignment.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Due: {new Date(assignment.dueDate).toLocaleDateString()}
+                            </span>
+                            <span>Max Score: {assignment.maxScore}</span>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation(`/teacher/assignments/${assignment.id}`)}
+                        >
+                          View
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="students" className="space-y-4">
+            {enrollments.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No students enrolled yet.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {enrollments.map((enrollment) => (
+                  <Card key={enrollment.enrollmentId} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                            {enrollment.studentName?.charAt(0) || 'S'}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold">{enrollment.studentName || 'Student'}</h3>
+                            <p className="text-sm text-gray-500">{enrollment.studentEmail}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              Enrolled {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          View Progress
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Edit Course Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Course</DialogTitle>
+              <DialogDescription>Update course information</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Course Title</Label>
+                <Input
+                  id="title"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateCourse}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
+  );
+}

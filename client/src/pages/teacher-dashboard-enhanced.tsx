@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { 
   Users, FileText, BarChart3, Calendar, MessageCircle, 
   Plus, BookOpen, ClipboardList, TrendingUp, Award,
@@ -298,7 +299,7 @@ function ClassCard({ classItem }: { classItem: typeof mockTeacherData.classes[0]
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">{classItem.name}</CardTitle>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               {classItem.students} students • {classItem.room}
             </p>
           </div>
@@ -316,11 +317,11 @@ function ClassCard({ classItem }: { classItem: typeof mockTeacherData.classes[0]
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4 text-gray-500" />
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-600">
               Next: {classItem.nextClass}
             </span>
           </div>
-          <span className="text-green-600 dark:text-green-400 font-medium">
+          <span className="text-green-600 font-medium">
             {classItem.recentActivity}
           </span>
         </div>
@@ -350,9 +351,9 @@ function ClassCard({ classItem }: { classItem: typeof mockTeacherData.classes[0]
 
 function TaskCard({ task }: { task: typeof mockTeacherData.pendingTasks[0] }) {
   const priorityColors = {
-    high: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400',
-    medium: 'bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-400',
-    low: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400'
+    high: 'bg-red-50 border-red-200 text-red-800',
+    medium: 'bg-orange-50 border-orange-200 text-orange-800',
+    low: 'bg-green-50 border-green-200 text-green-800'
   };
 
   const typeIcons = {
@@ -411,10 +412,10 @@ function TaskCard({ task }: { task: typeof mockTeacherData.pendingTasks[0] }) {
 
 function StudentProgressCard({ student }: { student: typeof mockTeacherData.recentStudents[0] }) {
   const statusColors = {
-    excellent: 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20',
-    good: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20',
-    struggling: 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20',
-    'at-risk': 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
+    excellent: 'text-green-600 bg-green-50',
+    good: 'text-blue-600 bg-blue-50',
+    struggling: 'text-orange-600 bg-orange-50',
+    'at-risk': 'text-red-600 bg-red-50'
   };
 
   return (
@@ -428,13 +429,13 @@ function StudentProgressCard({ student }: { student: typeof mockTeacherData.rece
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm text-gray-900 dark:text-white truncate">
+            <h3 className="font-medium text-sm text-gray-900 truncate">
               {student.name}
             </h3>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
+            <p className="text-xs text-gray-600">
               {student.class} • Grade: {student.currentGrade}%
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500">
               Last active: {student.lastActivity}
             </p>
           </div>
@@ -451,13 +452,15 @@ export default function EnhancedTeacherDashboard() {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString());
 
+  const [, setLocation] = useLocation();
+
   const quickActions = [
     {
       title: 'Grade Assignments',
       description: 'Review and grade submissions',
       icon: FileText,
       color: 'blue' as const,
-      onClick: () => console.log('Grade assignments'),
+      onClick: () => setLocation('/teacher/assignments'),
       badge: '23'
     },
     {
@@ -465,14 +468,14 @@ export default function EnhancedTeacherDashboard() {
       description: 'Create new homework or quiz',
       icon: Plus,
       color: 'green' as const,
-      onClick: () => console.log('Create assignment')
+      onClick: () => setLocation('/teacher/courses')
     },
     {
       title: 'Message Students',
       description: 'Send announcements or messages',
       icon: MessageCircle,
       color: 'purple' as const,
-      onClick: () => console.log('Message students'),
+      onClick: () => setLocation('/teacher/communication'),
       badge: '5'
     },
     {
@@ -480,7 +483,7 @@ export default function EnhancedTeacherDashboard() {
       description: 'Check class performance data',
       icon: BarChart3,
       color: 'orange' as const,
-      onClick: () => console.log('View analytics')
+      onClick: () => setLocation('/teacher/analytics')
     }
   ];
 
@@ -489,10 +492,10 @@ export default function EnhancedTeacherDashboard() {
       <div className="space-y-6">
         {/* Welcome Header */}
         <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Good {new Date().getHours() < 12 ? 'morning' : 'afternoon'}, {user?.fullName?.split(' ')[0]}! 👋
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             Here's what's happening with your classes today.
           </p>
         </div>
@@ -612,7 +615,7 @@ export default function EnhancedTeacherDashboard() {
           {/* Classes Tab */}
           <TabsContent value="classes" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 My Classes
               </h2>
               <Link href="/teacher/classes">
@@ -633,7 +636,7 @@ export default function EnhancedTeacherDashboard() {
           {/* Students Tab */}
           <TabsContent value="students" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 Recent Student Activity
               </h2>
               <Link href="/teacher/students">
@@ -654,7 +657,7 @@ export default function EnhancedTeacherDashboard() {
           {/* Tasks Tab */}
           <TabsContent value="tasks" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 Pending Tasks
               </h2>
               <div className="flex space-x-2">
@@ -677,7 +680,7 @@ export default function EnhancedTeacherDashboard() {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 Class Analytics
               </h2>
               <Link href="/teacher/analytics">
@@ -722,10 +725,10 @@ export default function EnhancedTeacherDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {mockTeacherData.classes.map((classItem) => (
-                      <div key={classItem.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div key={classItem.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
                           <p className="font-medium text-sm">{classItem.name}</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                          <p className="text-xs text-gray-600">
                             {classItem.students} students
                           </p>
                         </div>

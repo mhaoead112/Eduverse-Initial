@@ -379,15 +379,15 @@ export default function TeacherContent() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Content Library
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Organize and manage your teaching materials
             </p>
           </div>
@@ -591,9 +591,9 @@ export default function TeacherContent() {
                     
                     <div className="space-y-4">
                       <Label>File Upload</Label>
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                         <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                        <p className="text-gray-600 dark:text-gray-400 mb-2">
+                        <p className="text-gray-600 mb-2">
                           Click to upload or drag and drop
                         </p>
                         <p className="text-sm text-gray-500">
@@ -702,8 +702,8 @@ export default function TeacherContent() {
                         key={folder.id}
                         className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                           selectedFolder === folder.id 
-                            ? 'bg-blue-50 dark:bg-blue-900 border-blue-300 dark:border-blue-600' 
-                            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            ? 'bg-blue-50 border-blue-300' 
+                            : 'bg-white hover:bg-gray-50'
                         }`}
                         onClick={() => setSelectedFolder(selectedFolder === folder.id ? null : folder.id)}
                         data-testid={`folder-${folder.id}`}
@@ -712,11 +712,11 @@ export default function TeacherContent() {
                           <FolderOpen className="h-6 w-6 text-blue-600" />
                           <span className="text-sm text-gray-500">{folder.itemCount} items</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">
                           {folder.name}
                         </h3>
                         {folder.description && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                          <p className="text-sm text-gray-600 line-clamp-2">
                             {folder.description}
                           </p>
                         )}
@@ -752,7 +752,7 @@ export default function TeacherContent() {
                     {filteredContent.map((item) => (
                       <div 
                         key={item.id}
-                        className="bg-white dark:bg-gray-800 border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
                         data-testid={`content-item-${item.id}`}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -802,12 +802,12 @@ export default function TeacherContent() {
                           </div>
                         </div>
                         
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                           {item.title}
                         </h3>
                         
                         {item.description && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                             {item.description}
                           </p>
                         )}
@@ -824,7 +824,7 @@ export default function TeacherContent() {
                           </Badge>
                         </div>
                         
-                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex justify-between text-xs text-gray-500">
                           <span>{formatFileSize(item.fileSize)}</span>
                           <span>{item.downloads} downloads</span>
                         </div>
@@ -836,16 +836,16 @@ export default function TeacherContent() {
                     {filteredContent.map((item) => (
                       <div 
                         key={item.id}
-                        className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border rounded-lg"
+                        className="flex items-center justify-between p-4 bg-white border rounded-lg"
                         data-testid={`content-list-item-${item.id}`}
                       >
                         <div className="flex items-center gap-4 flex-1">
                           {getFileIcon(item.fileType)}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                            <h3 className="font-semibold text-gray-900 truncate">
                               {item.title}
                             </h3>
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
                               <span>{item.category}</span>
                               <span>{item.subject}</span>
                               <span>{formatFileSize(item.fileSize)}</span>
@@ -867,10 +867,10 @@ export default function TeacherContent() {
                 {filteredContent.length === 0 && (
                   <div className="text-center py-8" data-testid="empty-content">
                     <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       No content found
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-gray-600">
                       Try adjusting your search or filters, or upload new content.
                     </p>
                   </div>
@@ -890,7 +890,7 @@ export default function TeacherContent() {
                   {filteredSharedContent.map((item) => (
                     <div 
                       key={item.id}
-                      className="bg-white dark:bg-gray-800 border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
                       data-testid={`shared-content-item-${item.id}`}
                     >
                       <div className="flex items-center justify-between mb-3">
@@ -909,16 +909,16 @@ export default function TeacherContent() {
                         </Button>
                       </div>
                       
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                         {item.title}
                       </h3>
                       
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-gray-600 mb-2">
                         by {item.uploadedBy}
                       </p>
                       
                       {item.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                           {item.description}
                         </p>
                       )}
@@ -933,7 +933,7 @@ export default function TeacherContent() {
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500">
                           {item.downloads} downloads
                         </div>
                         <Button variant="outline" size="sm" data-testid={`button-download-shared-${item.id}`}>
@@ -961,7 +961,7 @@ export default function TeacherContent() {
                     .map((item) => (
                       <div 
                         key={item.id}
-                        className="bg-white dark:bg-gray-800 border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
                         data-testid={`bookmark-item-${item.id}`}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -969,11 +969,11 @@ export default function TeacherContent() {
                           <Star className="h-4 w-4 text-yellow-500" />
                         </div>
                         
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                           {item.title}
                         </h3>
                         
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <p className="text-sm text-gray-600 mb-2">
                           by {item.uploadedBy}
                         </p>
                         
@@ -997,10 +997,10 @@ export default function TeacherContent() {
                 {[...mockContent, ...mockSharedContent].filter(item => item.isBookmarked).length === 0 && (
                   <div className="text-center py-8" data-testid="empty-bookmarks">
                     <Star className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       No bookmarked content
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-gray-600">
                       Bookmark content to save it for quick access later.
                     </p>
                   </div>

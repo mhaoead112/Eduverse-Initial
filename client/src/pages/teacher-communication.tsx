@@ -369,20 +369,20 @@ export default function TeacherCommunication() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'in-progress': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'resolved': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'closed': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'open': return 'bg-blue-100 text-blue-800';
+      case 'in-progress': return 'bg-yellow-100 text-yellow-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'urgent': return 'bg-red-100 text-red-800';
+      case 'high': return 'bg-orange-100 text-orange-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -407,15 +407,15 @@ export default function TeacherCommunication() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Communication Hub
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Collaborate with colleagues and manage communications
             </p>
           </div>
@@ -578,13 +578,13 @@ export default function TeacherCommunication() {
                         </Avatar>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                            <h3 className="font-semibold text-gray-900">
                               {post.title}
                             </h3>
                             {post.isPinned && <Pin className="h-4 w-4 text-blue-600" />}
                             {post.isResolved && <CheckCircle className="h-4 w-4 text-green-600" />}
                           </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-gray-600">
                             by {post.authorName} • {new Date(post.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -613,7 +613,7 @@ export default function TeacherCommunication() {
                       </DropdownMenu>
                     </div>
                     
-                    <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    <p className="text-gray-700 mb-4">
                       {post.content}
                     </p>
                     
@@ -627,7 +627,7 @@ export default function TeacherCommunication() {
                         ))}
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <MessageSquare className="h-4 w-4" />
                           {post.replies}
@@ -649,10 +649,10 @@ export default function TeacherCommunication() {
               {filteredPosts.length === 0 && (
                 <div className="text-center py-8" data-testid="empty-forum-posts">
                   <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     No posts found
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600">
                     Try adjusting your search or create a new post to start the discussion.
                   </p>
                 </div>
@@ -681,8 +681,8 @@ export default function TeacherCommunication() {
                             key={chat.id}
                             className={`p-3 rounded-lg cursor-pointer transition-colors ${
                               selectedChat === chat.id 
-                                ? 'bg-blue-50 dark:bg-blue-900 border border-blue-300 dark:border-blue-600' 
-                                : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                ? 'bg-blue-50 border border-blue-300' 
+                                : 'bg-gray-50 hover:bg-gray-100'
                             }`}
                             onClick={() => setSelectedChat(chat.id)}
                             data-testid={`group-chat-${chat.id}`}
@@ -698,11 +698,11 @@ export default function TeacherCommunication() {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                            <p className="text-xs text-gray-600 mb-1">
                               {chat.memberCount} members
                             </p>
                             {chat.lastMessage && (
-                              <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
+                              <p className="text-xs text-gray-500 truncate">
                                 {chat.lastMessage}
                               </p>
                             )}
@@ -759,7 +759,7 @@ export default function TeacherCommunication() {
                                     {new Date(message.timestamp).toLocaleTimeString()}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                <p className="text-sm text-gray-700">
                                   {message.content}
                                 </p>
                                 {message.attachments && (
@@ -812,10 +812,10 @@ export default function TeacherCommunication() {
                     <CardContent className="flex items-center justify-center h-96">
                       <div className="text-center">
                         <MessageCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           Select a chat
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <p className="text-gray-600">
                           Choose a group chat from the list to start messaging
                         </p>
                       </div>
@@ -830,8 +830,8 @@ export default function TeacherCommunication() {
             {/* Support Header */}
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Support Tickets</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <h2 className="text-xl font-semibold text-gray-900">Support Tickets</h2>
+                <p className="text-sm text-gray-600">
                   Get help with technical issues and feature requests
                 </p>
               </div>
@@ -959,7 +959,7 @@ export default function TeacherCommunication() {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                          <h3 className="font-semibold text-gray-900">
                             #{ticket.id} - {ticket.subject}
                           </h3>
                           <Badge className={getStatusColor(ticket.status)}>
@@ -969,16 +969,16 @@ export default function TeacherCommunication() {
                             {ticket.priority}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <p className="text-sm text-gray-600 mb-2">
                           Category: {ticket.category}
                         </p>
-                        <p className="text-gray-700 dark:text-gray-300">
+                        <p className="text-gray-700">
                           {ticket.description}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center justify-between text-sm text-gray-600">
                       <div className="flex items-center gap-4">
                         <span>Created: {new Date(ticket.createdAt).toLocaleDateString()}</span>
                         {ticket.updatedAt && (
@@ -1000,10 +1000,10 @@ export default function TeacherCommunication() {
               {mockSupportTickets.length === 0 && (
                 <div className="text-center py-8" data-testid="empty-support-tickets">
                   <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     No support tickets
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600">
                     Create a new ticket if you need help or have questions.
                   </p>
                 </div>

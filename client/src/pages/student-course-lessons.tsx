@@ -130,7 +130,7 @@ export default function StudentCourseLessonsPage() {
                   <CardTitle>Select a lesson</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">Choose a lesson from the left to preview the document and start the AI Study Buddy session.</p>
+                  <p className="text-sm text-gray-600">Choose a lesson from the left to preview the document and chat with Versa about it.</p>
                 </CardContent>
               </Card>
             )}
@@ -142,10 +142,10 @@ export default function StudentCourseLessonsPage() {
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>AI Study Buddy</CardTitle>
+                  <CardTitle>Versa - AI Study Buddy</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">Select a lesson to start an AI-assisted study session that is pre-loaded with that lesson's context.</p>
+                  <p className="text-sm text-gray-600">Select a lesson to chat with Versa about that specific content. She'll help you understand the material better!</p>
                 </CardContent>
               </Card>
             )}

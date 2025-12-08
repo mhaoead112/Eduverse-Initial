@@ -32,7 +32,7 @@ interface Course {
 }
 
 export default function TeacherCoursesPage() {
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated, getAuthHeaders } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -45,20 +45,15 @@ export default function TeacherCoursesPage() {
 
   const fetchCourses = async () => {
     if (!token) {
-      console.log("No token available yet");
       setIsLoading(false);
       return;
     }
     
-    console.log("Fetching courses for user:", user?.username, "Role:", user?.role);
     setIsLoading(true);
     setError(null);
     try {
       const res = await fetch("http://localhost:3001/api/courses/user", {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: getAuthHeaders()
       });
       
       if (!res.ok) {
@@ -68,7 +63,6 @@ export default function TeacherCoursesPage() {
       }
       
       const data = await res.json();
-      console.log("Courses fetched:", data);
       setCourses(Array.isArray(data) ? data : []);
     } catch (err: any) {
       console.error("Failed to fetch courses:", err);
@@ -94,13 +88,9 @@ export default function TeacherCoursesPage() {
   const handleTogglePublish = async (courseId: string, currentStatus: boolean) => {
     setPublishingId(courseId);
     try {
-        console.log(`Toggling publish status for course ${courseId} to ${!currentStatus}`);
       const res = await fetch(`http://localhost:3001/api/courses/${courseId}/publish`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ isPublished: !currentStatus })
       });
 
@@ -136,10 +126,7 @@ export default function TeacherCoursesPage() {
     try {
       const res = await fetch(`/api/courses/${courseToDelete.id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: getAuthHeaders()
       });
 
       if (!res.ok) {
@@ -176,130 +163,117 @@ export default function TeacherCoursesPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              My Courses
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Manage your courses, publish them for students, and track enrollments
-            </p>
-          </div>
-          <Link href="/teacher/courses/create">
-            <Button className="flex items-center gap-2">
+      <div className="space-y-6 pb-10">
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Courses</h1>
+              <p className="text-gray-600">Create, manage, and publish your courses</p>
+            </div>
+            <Button 
+              onClick={() => setLocation('/teacher/courses/create')}
+              className="bg-blue-600 hover:bg-blue-700 gap-2"
+            >
               <Plus className="h-4 w-4" />
-              Create New Course
+              Create Course
             </Button>
-          </Link>
-        </div>
+          </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Total Courses
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {courses.length}
-                  </p>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-blue-600" />
                 </div>
-                <BookOpen className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Published
-                  </p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {courses.filter(c => c.isPublished).length}
-                  </p>
+                  <p className="text-sm text-gray-600">Total Courses</p>
+                  <p className="text-2xl font-bold text-gray-900">{courses.length}</p>
                 </div>
-                <Globe className="h-8 w-8 text-green-600" />
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+            </div>
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Globe className="h-5 w-5 text-green-600" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Drafts
-                  </p>
-                  <p className="text-2xl font-bold text-orange-600">
-                    {courses.filter(c => !c.isPublished).length}
-                  </p>
+                  <p className="text-sm text-gray-600">Published</p>
+                  <p className="text-2xl font-bold text-gray-900">{courses.filter(c => c.isPublished).length}</p>
                 </div>
-                <Lock className="h-8 w-8 text-orange-600" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Lock className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Drafts</p>
+                  <p className="text-2xl font-bold text-gray-900">{courses.filter(c => !c.isPublished).length}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Courses List */}
         {isLoading ? (
           <div className="flex items-center justify-center h-64 text-gray-500">
-            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-            Loading your courses...
+            <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+            <span>Loading your courses...</span>
           </div>
         ) : error ? (
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="py-6">
-              <div className="flex items-center gap-2 text-red-700">
+          <Card className="border-red-100 bg-red-50 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+            <CardContent className="py-8 text-center">
+              <div className="flex items-center justify-center gap-2 text-red-700">
                 <XCircle className="h-5 w-5" />
                 <span>{error}</span>
               </div>
             </CardContent>
           </Card>
         ) : courses.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
+            <CardContent className="py-16 text-center">
+              <BookOpen className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 No courses yet
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-gray-600 mb-6">
                 Get started by creating your first course
               </p>
-              <Link href="/teacher/courses/create">
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Course
-                </Button>
-              </Link>
+              <Button 
+                onClick={() => setLocation('/teacher/courses/create')}
+                className="bg-blue-600 hover:bg-blue-700 gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Create Your First Course
+              </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => (
-              <Card key={course.id} className="flex flex-col">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg line-clamp-2">
-                        {course.title}
-                      </CardTitle>
-                      <CardDescription className="mt-2 line-clamp-3">
-                        {course.description || "No description provided"}
-                      </CardDescription>
+              <Card 
+                key={course.id} 
+                className="group border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all overflow-hidden"
+              >
+                <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                      <BookOpen className="h-6 w-6 text-blue-600" />
                     </div>
                     <Badge 
-                      variant={course.isPublished ? "default" : "secondary"}
-                      className="shrink-0"
+                      className={course.isPublished 
+                        ? "bg-green-100 text-green-700 hover:bg-green-100 border-0" 
+                        : "bg-orange-100 text-orange-700 hover:bg-orange-100 border-0"
+                      }
                     >
                       {course.isPublished ? (
                         <span className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
+                          <Globe className="h-3 w-3" />
                           Published
                         </span>
                       ) : (
@@ -310,26 +284,39 @@ export default function TeacherCoursesPage() {
                       )}
                     </Badge>
                   </div>
+                  <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    {course.title}
+                  </CardTitle>
+                  <CardDescription className="mt-2 line-clamp-2 text-sm">
+                    {course.description || "No description provided"}
+                  </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="flex-1 flex flex-col justify-between">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                <CardContent className="space-y-4">
+                  <div className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 rounded-lg p-2">
+                    <CheckCircle2 className="h-3 w-3" />
                     Created: {formatDate(course.createdAt)}
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       size="sm"
-                      variant={course.isPublished ? "outline" : "default"}
+                      variant="default"
+                      onClick={() => setLocation(`/teacher/courses/${course.id}`)}
+                      className="bg-blue-600 hover:bg-blue-700 w-full"
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Manage
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => handleTogglePublish(course.id, course.isPublished)}
                       disabled={publishingId === course.id}
-                      className="flex-1"
                     >
                       {publishingId === course.id ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                          {course.isPublished ? 'Unpublishing...' : 'Publishing...'}
-                        </>
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : course.isPublished ? (
                         <>
                           <EyeOff className="h-4 w-4 mr-1" />
@@ -342,40 +329,29 @@ export default function TeacherCoursesPage() {
                         </>
                       )}
                     </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setLocation(`/courses/${course.id}/announcements`)}
-                      title="Manage announcements"
-                    >
-                      <Megaphone className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setLocation(`/teacher/courses/${course.id}/edit`)}
-                      title="Edit course"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setCourseToDelete(course)}
-                      disabled={deletingId === course.id}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      title="Delete course"
-                    >
-                      {deletingId === course.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
                   </div>
+                  
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setCourseToDelete(course);
+                    }}
+                    disabled={deletingId === course.id}
+                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    {deletingId === course.id ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete Course
+                      </>
+                    )}
+                  </Button>
                 </CardContent>
               </Card>
             ))}

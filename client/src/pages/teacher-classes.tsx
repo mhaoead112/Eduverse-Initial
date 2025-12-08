@@ -138,15 +138,15 @@ export default function TeacherClasses() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               My Classes
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Manage your classes, students, and course materials
             </p>
           </div>
@@ -353,7 +353,7 @@ export default function TeacherClasses() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                    <span className="flex items-center gap-1 text-gray-600">
                       <Users className="h-4 w-4" />
                       Students
                     </span>
@@ -364,7 +364,7 @@ export default function TeacherClasses() {
                   
                   {classItem.schedule?.time && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                      <span className="flex items-center gap-1 text-gray-600">
                         <Clock className="h-4 w-4" />
                         Schedule
                       </span>
@@ -374,7 +374,7 @@ export default function TeacherClasses() {
                   
                   {classItem.schedule?.room && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                      <span className="flex items-center gap-1 text-gray-600">
                         <Calendar className="h-4 w-4" />
                         Room
                       </span>
@@ -383,7 +383,7 @@ export default function TeacherClasses() {
                   )}
                   
                   {classItem.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <p className="text-sm text-gray-600 mt-2">
                       {classItem.description}
                     </p>
                   )}
@@ -408,10 +408,10 @@ export default function TeacherClasses() {
           <Card className="text-center py-12" data-testid="empty-state">
             <CardContent>
               <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 No classes yet
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-gray-600 mb-4">
                 Create your first class to start teaching and managing students
               </p>
               <Button onClick={() => setIsCreateDialogOpen(true)} data-testid="button-create-first-class">

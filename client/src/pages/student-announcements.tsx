@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
 import { ArrowLeft, Megaphone, Pin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint, assetUrl } from '@/lib/config';
 
 interface Announcement {
   id: string;
@@ -47,7 +48,7 @@ export default function StudentAnnouncementsPage() {
   const fetchCourse = async () => {
     try {
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/courses/${courseId}`, {
+      const response = await fetch(apiEndpoint(`/api/courses/${courseId}`), {
         headers: authHeaders,
       });
       if (response.ok) {
@@ -63,7 +64,7 @@ export default function StudentAnnouncementsPage() {
     try {
       setLoading(true);
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/announcements/course/${courseId}`, {
+      const response = await fetch(apiEndpoint(`/api/announcements/course/${courseId}`), {
         headers: authHeaders,
       });
       

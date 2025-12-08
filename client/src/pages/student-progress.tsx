@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle2, FileText, GraduationCap, AlertCircle } from "lucide-react";
+import { apiEndpoint, assetUrl } from '@/lib/config';
 
 interface StudentAssignment {
   id: string;
@@ -46,7 +47,7 @@ export default function StudentProgressPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch("http://localhost:3001/api/student/my-progress", {
+        const res = await fetch(apiEndpoint("/api/student/my-progress"), {
           headers: getAuthHeaders(),
         });
         if (!res.ok) throw new Error("Failed to load progress");

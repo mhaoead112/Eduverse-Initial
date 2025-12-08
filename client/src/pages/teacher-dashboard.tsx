@@ -1,490 +1,636 @@
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "wouter";
+import { 
+  BookOpen, Clock, Users, Sparkles, FileText, Calendar,
+  Loader2, CheckCircle2, Circle, Megaphone, TrendingUp,
+  MessageSquare, UserPlus, BarChart3, Bell, Video, Download,
+  ChevronLeft, ChevronRight, GraduationCap
+} from "lucide-react";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PermissionGuard, ProtectedElement, RoleGuard } from "@/components/PermissionGuard";
-import { useCurrentUser, useHasPermission } from "@/hooks/usePermissions";
-import { 
-  Calendar, 
-  Users, 
-  FileText, 
-  MessageSquare, 
-  Bell, 
-  BookOpen,
-  Clock,
-  TrendingUp,
-  Plus,
-  Shield,
-  Settings,
-  Crown,
-  BarChart3,
-  UserPlus,
-  GraduationCap
-} from "lucide-react";
-import { Link } from "wouter";
+import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import VersaFloatingChat from "@/components/VersaFloatingChat";
 
-interface DashboardStats {
-  totalClasses: number;
-  totalStudents: number;
-  pendingSubmissions: number;
-  unreadMessages: number;
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  teacherId: string;
+  status: string;
 }
 
-interface RecentActivity {
+interface Assignment {
   id: string;
-  type: 'submission' | 'message' | 'enrollment';
-  content: string;
-  time: string;
-  studentName?: string;
-  className?: string;
-}
-
-interface UpcomingClass {
-  id: string;
-  name: string;
-  time: string;
-  students: number;
-  room?: string;
+  title: string;
+  dueDate: string;
+  courseId: string;
+  courseName?: string;
+  submissionsCount?: number;
+  totalStudents?: number;
 }
 
 export default function TeacherDashboard() {
-  const { data: user } = useCurrentUser();
-  const canManageTeachers = useHasPermission('admin', 'manage_teachers');
-  const canViewDepartmentAnalytics = useHasPermission('admin', 'view_department_analytics');
-  const canCreateContent = useHasPermission('content', 'create');
+  const { user, getAuthHeaders, token, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    totalStudents: 0,
+    pendingGrading: 0,
+    activeStudents: 0,
+  });
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // Mock data for now - this will be replaced with real API calls
-  const mockStats: DashboardStats = {
-    totalClasses: 5,
-    totalStudents: 147,
-    pendingSubmissions: 23,
-    unreadMessages: 8
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    return new Date(year, month + 1, 0).getDate();
   };
 
-  const mockRecentActivity: RecentActivity[] = [
-    {
-      id: "1",
-      type: "submission",
-      content: "Math Homework Assignment #3",
-      time: "10 minutes ago",
-      studentName: "Sarah Johnson",
-      className: "Algebra I"
-    },
-    {
-      id: "2", 
-      type: "message",
-      content: "New message in General Discussion",
-      time: "25 minutes ago",
-      className: "Biology 101"
-    },
-    {
-      id: "3",
-      type: "enrollment",
-      content: "New student enrolled",
-      time: "1 hour ago",
-      studentName: "Mike Chen",
-      className: "Chemistry"
-    }
-  ];
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
 
-  const mockUpcomingClasses: UpcomingClass[] = [
-    {
-      id: "1",
-      name: "Algebra I",
-      time: "9:00 AM",
-      students: 28,
-      room: "Room 101"
-    },
-    {
-      id: "2", 
-      name: "Biology 101",
-      time: "11:30 AM",
-      students: 35,
-      room: "Lab 203"
-    },
-    {
-      id: "3",
-      name: "Chemistry",
-      time: "2:00 PM", 
-      students: 22,
-      room: "Lab 105"
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      if (direction === 'prev') {
+        newDate.setMonth(newDate.getMonth() - 1);
+      } else {
+        newDate.setMonth(newDate.getMonth() + 1);
+      }
+      return newDate;
+    });
+  };
+
+  const isToday = (day: number) => {
+    const today = new Date();
+    return day === today.getDate() &&
+           currentDate.getMonth() === today.getMonth() &&
+           currentDate.getFullYear() === today.getFullYear();
+  };
+
+  const hasAssignment = (day: number) => {
+    return assignments.some(assignment => {
+      const dueDate = new Date(assignment.dueDate);
+      return day === dueDate.getDate() &&
+             currentDate.getMonth() === dueDate.getMonth() &&
+             currentDate.getFullYear() === dueDate.getFullYear();
+    });
+  };
+
+  useEffect(() => {
+    if (token && isAuthenticated) {
+      fetchDashboardData();
     }
-  ];
+  }, [token, isAuthenticated]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const authHeaders = getAuthHeaders();
+
+      // Fetch teacher's OWN courses only (using /user endpoint for teacher's courses)
+      const coursesRes = await fetch("http://localhost:3001/api/courses/user", {
+        headers: authHeaders,
+      });
+
+      if (!coursesRes.ok) {
+        throw new Error("Failed to fetch courses");
+      }
+
+      const coursesData = await coursesRes.json();
+      const allCourses = Array.isArray(coursesData) ? coursesData : [];
+      setCourses(allCourses);
+
+      // Fetch assignments and calculate stats
+      const allAssignments: Assignment[] = [];
+      const uniqueStudentIds = new Set<string>();
+      let pendingGrading = 0;
+
+      for (const course of allCourses) {
+        // Fetch enrollments to count students
+        try {
+          const enrollmentsRes = await fetch(
+            `http://localhost:3001/api/enrollments/course/${course.id}`,
+            { headers: authHeaders }
+          );
+          if (enrollmentsRes.ok) {
+            const enrollmentData = await enrollmentsRes.json();
+            if (Array.isArray(enrollmentData)) {
+              enrollmentData.forEach((e: any) => {
+                if (e.studentId) uniqueStudentIds.add(e.studentId);
+              });
+            }
+          }
+        } catch (error) {
+          // Silently handle enrollment fetch errors
+        }
+
+        try {
+          const assignmentsRes = await fetch(
+            `http://localhost:3001/api/assignments/courses/${course.id}/assignments`,
+            { headers: authHeaders }
+          );
+          
+          if (assignmentsRes.ok) {
+            const data = await assignmentsRes.json();
+            const courseAssignments = Array.isArray(data) ? data : [];
+            
+            for (const assignment of courseAssignments) {
+              try {
+                const submissionsRes = await fetch(
+                  `http://localhost:3001/api/assignments/${assignment.id}/submissions`,
+                  { headers: authHeaders }
+                );
+                
+                if (submissionsRes.ok) {
+                  const submissionData = await submissionsRes.json();
+                  const submissions = Array.isArray(submissionData) ? submissionData : 
+                                     (submissionData.submissions ? submissionData.submissions : []);
+                  const ungradedCount = submissions.filter((s: any) => !s.grade).length;
+                  pendingGrading += ungradedCount;
+                  
+                  allAssignments.push({
+                    id: assignment.id,
+                    title: assignment.title,
+                    dueDate: assignment.dueDate,
+                    courseId: course.id,
+                    courseName: course.title,
+                    submissionsCount: submissions.length,
+                    totalStudents: submissions.length,
+                  });
+                }
+              } catch (error) {
+                // Silently handle submission fetch errors
+              }
+            }
+          }
+        } catch (error) {
+          // Silently handle assignment fetch errors
+        }
+      }
+
+      allAssignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+      setAssignments(allAssignments.slice(0, 5));
+
+      const totalStudents = uniqueStudentIds.size;
+      setStats({
+        totalCourses: allCourses.length,
+        totalStudents: totalStudents,
+        pendingGrading: pendingGrading,
+        activeStudents: totalStudents,
+      });
+
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIconForCourse = (title: string) => {
+    const lower = title.toLowerCase();
+    if (lower.includes('math') || lower.includes('algebra') || lower.includes('calculus')) {
+      return '📐';
+    }
+    if (lower.includes('science') || lower.includes('chemistry') || lower.includes('physics')) {
+      return '🧪';
+    }
+    if (lower.includes('writing') || lower.includes('english') || lower.includes('literature')) {
+      return '✍️';
+    }
+    if (lower.includes('history')) {
+      return '📜';
+    }
+    return '📚';
+  };
+
+  const formatDueDate = (dueDate: string) => {
+    const date = new Date(dueDate);
+    const now = new Date();
+    const diffTime = date.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Due: Today';
+    if (diffDays === 1) return 'Due: Tomorrow';
+    if (diffDays < 7) return `Due: In ${diffDays} days`;
+    return 'Due: ' + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Teacher Dashboard
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Welcome back! Here's what's happening with your classes today.
-              </p>
+    <DashboardLayout>
+      <div className="space-y-8 pb-10 px-2 relative">
+        {/* Elegant Background Pattern */}
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-blue-50"></div>
+          <div className="absolute top-0 left-0 w-full h-full opacity-30">
+            <div className="absolute top-10 left-10 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+            <div className="absolute top-40 right-20 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute bottom-20 left-1/3 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
+          </div>
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl"></div>
+        </div>
+
+        {/* Enhanced Welcome Header */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-3xl p-8 shadow-xl">
+          <div className="absolute inset-0 bg-black/5"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-20 -translate-y-20"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl transform -translate-x-16 translate-y-10"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                <span className="text-3xl">👋</span>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white leading-tight tracking-tight">
+                  Welcome back, {user?.fullName?.split(' ')[0]}!
+                </h1>
+                <p className="text-white/80 font-medium">
+                  Inspiring minds and shaping futures, one lesson at a time.
+                </p>
+              </div>
             </div>
             
-            {user && (
-              <div className="flex items-center gap-4">
-                {/* User Profile */}
-                <div className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback>
-                      {user.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white text-sm">
-                      {user.name}
+            {/* Action Buttons in Header */}
+            <div className="flex flex-wrap gap-3 mt-6">
+              <Button 
+                className="gap-2 bg-white text-emerald-700 hover:bg-white/90 font-semibold rounded-xl px-6 py-3 h-auto shadow-lg border-0"
+                onClick={() => setLocation('/teacher/courses/create')}
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>Create Course</span>
+              </Button>
+              <Button 
+                className="gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl px-6 py-3 h-auto shadow-lg border-0 backdrop-blur-sm"
+                onClick={() => setLocation('/teacher/assignments')}
+              >
+                <FileText className="h-5 w-5" />
+                <span>Create Assignment</span>
+              </Button>
+              <Button 
+                className="gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl px-6 py-3 h-auto shadow-lg border-0 backdrop-blur-sm"
+                onClick={() => setLocation('/teacher/students')}
+              >
+                <Users className="h-5 w-5" />
+                <span>View Students</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards with Modern Design */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Total Courses */}
+          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wide">Your Courses</p>
+                  <h3 className="text-5xl font-bold text-gray-900 leading-none tracking-tight mb-1">
+                    {stats.totalCourses}
+                  </h3>
+                  <p className="text-sm text-emerald-600 font-medium flex items-center gap-1">
+                    <TrendingUp className="h-4 w-4" />
+                    Active Courses
+                  </p>
+                </div>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="h-8 w-8 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pending Grading */}
+          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wide">Pending Reviews</p>
+                  <h3 className="text-5xl font-bold text-gray-900 leading-none tracking-tight mb-1">
+                    {stats.pendingGrading}
+                  </h3>
+                  <p className="text-sm text-orange-600 font-medium flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    To Grade
+                  </p>
+                </div>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <FileText className="h-8 w-8 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Total Students */}
+          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wide">Your Students</p>
+                  <h3 className="text-5xl font-bold text-gray-900 leading-none tracking-tight mb-1">
+                    {stats.activeStudents}
+                  </h3>
+                  <p className="text-sm text-blue-600 font-medium flex items-center gap-1">
+                    <GraduationCap className="h-4 w-4" />
+                    Enrolled
+                  </p>
+                </div>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Users className="h-8 w-8 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+          {/* My Courses Section */}
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 font-luxury">My Courses</h2>
+              <Button 
+                variant="ghost" 
+                className="text-sm text-gray-600 hover:text-gray-900"
+                onClick={() => setLocation('/teacher/courses')}
+              >
+                View All →
+              </Button>
+            </div>
+
+            {courses.length === 0 ? (
+              <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
+                <CardContent className="pt-6">
+                  <div className="text-center py-12">
+                    <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">
+                      No courses yet. Create your first course to get started!
                     </p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </Badge>
-                      <span className="text-xs text-gray-600 dark:text-gray-400">
-                        {user.department}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Role-based Quick Access */}
-                <div className="flex items-center gap-2">
-                  <ProtectedElement resource="profile" action="read">
-                    <Link href="/teacher/profile">
-                      <Button variant="outline" size="sm" data-testid="button-profile">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </ProtectedElement>
-                  
-                  <RoleGuard allowedRoles={['department_head', 'senior_teacher']}>
-                    <Button variant="outline" size="sm" data-testid="button-admin-tools">
-                      <Crown className="h-4 w-4" />
+                    <Button onClick={() => setLocation('/teacher/courses/create')}>
+                      Create Course
                     </Button>
-                  </RoleGuard>
-                </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {courses.slice(0, 4).map((course) => {
+                  const emoji = getIconForCourse(course.title);
+                  
+                  return (
+                    <Link key={course.id} href={`/teacher/courses/${course.id}`}>
+                      <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl overflow-hidden hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer group h-full">
+                        <CardContent className="p-0">
+                          {/* Course Cover */}
+                          <div className="h-[180px] relative overflow-hidden bg-gradient-to-br from-green-200 to-teal-300">
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-7xl opacity-80">
+                                {emoji}
+                              </div>
+                            </div>
+                            <div className="absolute top-5 left-5">
+                              <p className="text-white/90 text-2xl font-handwriting italic tracking-wide">Course</p>
+                            </div>
+                          </div>
+
+                          {/* Course Info */}
+                          <div className="p-5">
+                            <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-green-600 transition-colors leading-tight">
+                              {course.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                              {course.description || 'No description available'}
+                            </p>
+
+                            {/* Manage Button */}
+                            <Button 
+                              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-lg h-10 shadow-sm border-0"
+                              size="sm"
+                            >
+                              Manage Course
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card data-testid="card-total-classes">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Classes</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-total-classes">
-                {mockStats.totalClasses}
-              </div>
-              <p className="text-xs text-muted-foreground">Active courses</p>
-            </CardContent>
-          </Card>
+          {/* Recent Assignments Sidebar */}
+          <div className="space-y-5">
+            {/* Calendar Widget */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 font-luxury mb-4">Calendar</h2>
+              <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+                <CardContent className="p-5">
+                  {/* Calendar Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-lg">
+                      {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </h3>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => navigateMonth('prev')}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => navigateMonth('next')}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-          <Card data-testid="card-total-students">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" data-testid="text-total-students">
-                {mockStats.totalStudents}
-              </div>
-              <p className="text-xs text-muted-foreground">Across all classes</p>
-            </CardContent>
-          </Card>
+                  {/* Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                      <div key={day} className="text-center text-xs font-semibold text-gray-500 py-2">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
 
-          <Card data-testid="card-pending-submissions">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600" data-testid="text-pending-submissions">
-                {mockStats.pendingSubmissions}
-              </div>
-              <p className="text-xs text-muted-foreground">Submissions to grade</p>
-            </CardContent>
-          </Card>
-
-          <Card data-testid="card-unread-messages">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Messages</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600" data-testid="text-unread-messages">
-                {mockStats.unreadMessages}
-              </div>
-              <p className="text-xs text-muted-foreground">Unread messages</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Today's Schedule */}
-          <Card className="lg:col-span-2" data-testid="card-todays-schedule">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Today's Schedule
-              </CardTitle>
-              <CardDescription>Your upcoming classes for today</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockUpcomingClasses.map((classItem) => (
-                  <div 
-                    key={classItem.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                    data-testid={`class-schedule-${classItem.id}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium text-sm">{classItem.time}</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
-                          {classItem.name}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            {classItem.students} students
-                          </span>
-                          {classItem.room && (
-                            <span>{classItem.room}</span>
+                  <div className="grid grid-cols-7 gap-1">
+                    {Array.from({ length: getFirstDayOfMonth(currentDate) }).map((_, index) => (
+                      <div key={`empty-${index}`} className="aspect-square" />
+                    ))}
+                    {Array.from({ length: getDaysInMonth(currentDate) }).map((_, index) => {
+                      const day = index + 1;
+                      const today = isToday(day);
+                      const hasEvent = hasAssignment(day);
+                      
+                      return (
+                        <button
+                          key={day}
+                          onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
+                          className={`
+                            aspect-square rounded-lg text-sm font-medium transition-all
+                            ${today 
+                              ? 'bg-green-600 text-white hover:bg-green-700' 
+                              : hasEvent
+                              ? 'bg-blue-100 text-blue-900 hover:bg-blue-200'
+                              : 'text-gray-700 hover:bg-gray-100'
+                            }
+                            ${selectedDate?.getDate() === day && !today ? 'ring-2 ring-green-500' : ''}
+                          `}
+                        >
+                          {day}
+                          {hasEvent && !today && (
+                            <div className="w-1 h-1 bg-blue-600 rounded-full mx-auto mt-0.5" />
                           )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Today's Events */}
+                  {assignments.filter(a => {
+                    const dueDate = new Date(a.dueDate);
+                    const today = new Date();
+                    return dueDate.toDateString() === today.toDateString();
+                  }).length > 0 && (
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Today's Deadlines:</p>
+                      <div className="space-y-2">
+                        {assignments.filter(a => {
+                          const dueDate = new Date(a.dueDate);
+                          const today = new Date();
+                          return dueDate.toDateString() === today.toDateString();
+                        }).map(assignment => (
+                          <div key={assignment.id} className="text-xs flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                            <span className="flex-1 font-medium text-gray-900">{assignment.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 font-luxury">Recent Assignments</h2>
+
+            <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl overflow-hidden">
+              <CardContent className="p-5">
+                {assignments.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-sm text-gray-600">No assignments yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {assignments.map((assignment) => {
+                      const submissionRate = assignment.totalStudents 
+                        ? Math.round((assignment.submissionsCount || 0) / assignment.totalStudents * 100)
+                        : 0;
+                      
+                      return (
+                        <div 
+                          key={assignment.id}
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer group"
+                          onClick={() => setLocation(`/teacher/assignments/${assignment.id}`)}
+                        >
+                          <div className="w-12 h-12 rounded-xl bg-[#DBEAFE] flex items-center justify-center flex-shrink-0">
+                            <FileText className="h-5 w-5 text-[#2563EB]" />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm mb-0.5 leading-tight text-gray-900">
+                              {assignment.title}
+                            </h4>
+                            <p className="text-xs text-gray-600 mb-1">
+                              {assignment.courseName}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Progress value={submissionRate} className="h-1 flex-1" />
+                              <span className="text-xs text-gray-500 font-medium">
+                                {assignment.submissionsCount || 0}/{assignment.totalStudents || 0}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" data-testid={`button-join-class-${classItem.id}`}>
-                      Join Class
-                    </Button>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-              <div className="mt-4 pt-4 border-t">
-                <Link href="/teacher/classes">
-                  <Button variant="ghost" className="w-full" data-testid="button-view-all-classes">
-                    <Plus className="h-4 w-4 mr-2" />
-                    View All Classes
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Recent Activity */}
-          <Card data-testid="card-recent-activity">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>Latest updates from your classes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockRecentActivity.map((activity) => (
-                  <div 
-                    key={activity.id}
-                    className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                    data-testid={`activity-${activity.id}`}
-                  >
-                    <div className="flex-shrink-0">
-                      {activity.type === 'submission' && (
-                        <FileText className="h-4 w-4 text-green-600" />
-                      )}
-                      {activity.type === 'message' && (
-                        <MessageSquare className="h-4 w-4 text-blue-600" />
-                      )}
-                      {activity.type === 'enrollment' && (
-                        <Users className="h-4 w-4 text-purple-600" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {activity.content}
-                      </p>
-                      {activity.studentName && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          by {activity.studentName}
-                        </p>
-                      )}
-                      {activity.className && (
-                        <Badge variant="secondary" className="text-xs mt-1">
-                          {activity.className}
-                        </Badge>
-                      )}
-                      <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 pt-4 border-t">
-                <Button variant="ghost" className="w-full text-sm" data-testid="button-view-all-activity">
-                  View All Activity
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <Card data-testid="card-quick-actions">
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Frequently used teacher tools</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Basic Teacher Actions */}
-                <ProtectedElement resource="classes" action="create">
-                  <Link href="/teacher/classes">
-                    <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-manage-classes">
-                      <BookOpen className="h-6 w-6" />
-                      <span className="text-sm">Manage Classes</span>
-                    </Button>
-                  </Link>
-                </ProtectedElement>
-                
-                <ProtectedElement resource="assessments" action="create">
-                  <Link href="/teacher/assessments">
-                    <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-create-assignment">
-                      <FileText className="h-6 w-6" />
-                      <span className="text-sm">Assessments</span>
-                    </Button>
-                  </Link>
-                </ProtectedElement>
-                
-                <ProtectedElement resource="content" action="read">
-                  <Link href="/teacher/content">
-                    <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-content-library">
-                      <BookOpen className="h-6 w-6" />
-                      <span className="text-sm">Content Library</span>
-                    </Button>
-                  </Link>
-                </ProtectedElement>
-                
-                <ProtectedElement resource="analytics" action="view_class_performance">
-                  <Link href="/teacher/analytics">
-                    <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-analytics">
-                      <BarChart3 className="h-6 w-6" />
-                      <span className="text-sm">Analytics</span>
-                    </Button>
-                  </Link>
-                </ProtectedElement>
-                
-                <ProtectedElement resource="students" action="read">
-                  <Link href="/teacher/students">
-                    <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-manage-students">
-                      <Users className="h-6 w-6" />
-                      <span className="text-sm">Students</span>
-                    </Button>
-                  </Link>
-                </ProtectedElement>
-                
-                <ProtectedElement resource="communication" action="send_messages">
-                  <Link href="/teacher/communication">
-                    <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-communication">
-                      <MessageSquare className="h-6 w-6" />
-                      <span className="text-sm">Communication</span>
-                    </Button>
-                  </Link>
-                </ProtectedElement>
-                
-                {/* Administrative Actions for Senior Teachers */}
-                <RoleGuard allowedRoles={['department_head', 'senior_teacher']}>
-                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-department-analytics">
-                    <Crown className="h-6 w-6 text-yellow-600" />
-                    <span className="text-sm">Department Analytics</span>
-                  </Button>
-                </RoleGuard>
-                
-                <RoleGuard allowedRoles={['department_head']}>
-                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2" data-testid="button-manage-teachers">
-                    <UserPlus className="h-6 w-6 text-blue-600" />
-                    <span className="text-sm">Manage Teachers</span>
-                  </Button>
-                </RoleGuard>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Administrative Panel for Senior Teachers and Department Heads */}
-        <RoleGuard allowedRoles={['department_head', 'senior_teacher']}>
-          <div className="mt-8">
-            <Card data-testid="card-admin-panel">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-blue-600" />
-                  Administrative Tools
-                </CardTitle>
-                <CardDescription>Advanced tools for {user?.role === 'department_head' ? 'department heads' : 'senior teachers'}</CardDescription>
+            {/* Quick Stats */}
+            <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-luxury">Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <ProtectedElement resource="admin" action="view_department_analytics">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-center gap-3 mb-2">
-                        <BarChart3 className="h-5 w-5 text-blue-600" />
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">Department Analytics</h4>
-                      </div>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                        View department-wide performance metrics and reports
-                      </p>
-                      <Button size="sm" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-100">
-                        View Reports
-                      </Button>
-                    </div>
-                  </ProtectedElement>
-                  
-                  <RoleGuard allowedRoles={['department_head']}>
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <div className="flex items-center gap-3 mb-2">
-                        <UserPlus className="h-5 w-5 text-green-600" />
-                        <h4 className="font-semibold text-green-900 dark:text-green-100">Teacher Management</h4>
-                      </div>
-                      <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                        Manage teacher roles, permissions, and assignments
-                      </p>
-                      <Button size="sm" variant="outline" className="border-green-300 text-green-700 hover:bg-green-100">
-                        Manage Roles
-                      </Button>
-                    </div>
-                  </RoleGuard>
-                  
-                  <ProtectedElement resource="admin" action="approve_content">
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                      <div className="flex items-center gap-3 mb-2">
-                        <BookOpen className="h-5 w-5 text-purple-600" />
-                        <h4 className="font-semibold text-purple-900 dark:text-purple-100">Content Approval</h4>
-                      </div>
-                      <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
-                        Review and approve shared content from teachers
-                      </p>
-                      <Button size="sm" variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-100">
-                        Review Content
-                      </Button>
-                    </div>
-                  </ProtectedElement>
-                </div>
+              <CardContent className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 bg-white hover:bg-gray-50"
+                  onClick={() => setLocation('/teacher/students')}
+                >
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <span>Manage Students</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 bg-white hover:bg-gray-50"
+                  onClick={() => setLocation('/teacher/calendar')}
+                >
+                  <Calendar className="h-5 w-5 text-green-600" />
+                  <span>View Calendar</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 bg-white hover:bg-gray-50"
+                  onClick={() => setLocation('/teacher/messages')}
+                >
+                  <MessageSquare className="h-5 w-5 text-purple-600" />
+                  <span>Messages</span>
+                </Button>
               </CardContent>
             </Card>
           </div>
-        </RoleGuard>
+        </div>
       </div>
-    </div>
+
+      <VersaFloatingChat />
+    </DashboardLayout>
   );
 }

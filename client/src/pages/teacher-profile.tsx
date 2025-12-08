@@ -315,15 +315,15 @@ export default function TeacherProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Profile & Settings
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Manage your profile, preferences, and account settings
             </p>
           </div>
@@ -375,30 +375,30 @@ export default function TeacherProfile() {
                       />
                     </div>
                     
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-1">
                       {mockProfile.firstName} {mockProfile.lastName}
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">{mockProfile.title}</p>
+                    <p className="text-gray-600 mb-2">{mockProfile.title}</p>
                     <Badge variant="secondary">{mockProfile.department}</Badge>
                     
                     <div className="grid grid-cols-2 gap-4 mt-6 w-full">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">{mockProfile.totalClasses}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Classes</div>
+                        <div className="text-sm text-gray-600">Classes</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">{mockProfile.totalStudents}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Students</div>
+                        <div className="text-sm text-gray-600">Students</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-purple-600">{mockProfile.yearsTeaching}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Years</div>
+                        <div className="text-sm text-gray-600">Years</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-orange-600">
                           {new Date(mockProfile.joinedDate).getFullYear()}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Joined</div>
+                        <div className="text-sm text-gray-600">Joined</div>
                       </div>
                     </div>
                   </div>
@@ -784,7 +784,7 @@ export default function TeacherProfile() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-sm font-medium">Two-Factor Authentication</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         Add an extra layer of security to your account
                       </p>
                     </div>
@@ -804,7 +804,7 @@ export default function TeacherProfile() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-sm font-medium">Active Sessions</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         View and manage your active login sessions
                       </p>
                     </div>
@@ -819,7 +819,7 @@ export default function TeacherProfile() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-sm font-medium">Login History</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600">
                         Review recent login activity
                       </p>
                     </div>
@@ -833,8 +833,8 @@ export default function TeacherProfile() {
                   
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-sm font-medium text-red-600 dark:text-red-400">Delete Account</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <Label className="text-sm font-medium text-red-600">Delete Account</Label>
+                      <p className="text-sm text-gray-600">
                         Permanently delete your account and all data
                       </p>
                     </div>
@@ -871,7 +871,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">Email Notifications</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     Receive notifications via email
                                   </p>
                                 </div>
@@ -893,7 +893,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">Push Notifications</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     Receive browser push notifications
                                   </p>
                                 </div>
@@ -915,7 +915,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">SMS Notifications</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     Receive notifications via text message
                                   </p>
                                 </div>
@@ -944,7 +944,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">New Messages</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     When you receive new messages
                                   </p>
                                 </div>
@@ -966,7 +966,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">Assignment Reminders</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     Reminders for upcoming assignments and deadlines
                                   </p>
                                 </div>
@@ -988,7 +988,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">Grade Updates</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     When grades are submitted or updated
                                   </p>
                                 </div>
@@ -1010,7 +1010,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">System Updates</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     Platform updates and maintenance notifications
                                   </p>
                                 </div>
@@ -1032,7 +1032,7 @@ export default function TeacherProfile() {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <Label className="text-sm font-medium">Weekly Digest</Label>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm text-gray-600">
                                     Weekly summary of activities and updates
                                   </p>
                                 </div>
@@ -1276,22 +1276,22 @@ export default function TeacherProfile() {
                 <div className="bg-white p-4 rounded-lg border">
                   {/* Mock QR Code - In real app, this would be generated with the actual secret */}
                   <div 
-                    className="w-48 h-48 bg-gray-100 dark:bg-gray-800 rounded border-2 border-dashed border-gray-300 flex items-center justify-center"
+                    className="w-48 h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center"
                     data-testid="qr-code"
                   >
                     <div className="text-center">
                       <div className="text-4xl mb-2">📱</div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">QR Code</p>
+                      <p className="text-sm text-gray-600">QR Code</p>
                       <p className="text-xs text-gray-500">Scan with authenticator app</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="text-center">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                  <p className="text-sm font-medium text-gray-900 mb-1">
                     Can't scan the code?
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                  <p className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">
                     JBSWY3DPEHPK3PXP
                   </p>
                 </div>
@@ -1309,7 +1309,7 @@ export default function TeacherProfile() {
                   className="text-center text-lg tracking-widest"
                   data-testid="input-2fa-code"
                 />
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600">
                   Enter the 6-digit code from your authenticator app
                 </p>
               </div>

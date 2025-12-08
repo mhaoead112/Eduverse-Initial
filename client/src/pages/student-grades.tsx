@@ -185,12 +185,12 @@ function CourseGradeCard({ course, expanded, onToggle }: {
   const TrendIcon = course.trend === 'up' ? TrendingUp : course.trend === 'down' ? TrendingDown : TrendingUp;
   
   return (
-    <Card className={`border-l-4 ${getGradeColor(course.currentGrade)} transition-all duration-300 hover:shadow-lg`}>
+    <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg mb-1">{course.course}</CardTitle>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{course.teacher}</p>
+            <p className="text-sm text-gray-600">{course.teacher}</p>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline">{course.credits} Credits</Badge>
               <Badge variant="secondary" className={`${getGradeColor(course.currentGrade)}`}>
@@ -213,7 +213,7 @@ function CourseGradeCard({ course, expanded, onToggle }: {
       <CardContent className="space-y-4">
         <div>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600 dark:text-gray-400">Assignments Progress</span>
+            <span className="text-gray-600">Assignments Progress</span>
             <span className="font-medium">
               {course.assignments.completed}/{course.assignments.total}
             </span>
@@ -230,7 +230,7 @@ function CourseGradeCard({ course, expanded, onToggle }: {
             {Object.entries(course.breakdown).map(([category, data]) => (
               <div key={category}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="capitalize text-gray-600 dark:text-gray-400">
+                  <span className="capitalize text-gray-600">
                     {category} ({data.weight}%)
                   </span>
                   <span className="font-medium">{data.score}%</span>
@@ -272,24 +272,24 @@ export default function StudentGrades() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Grades</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900">Grades</h1>
+            <p className="text-gray-600 mt-2">
               Track your academic performance and progress
             </p>
           </div>
-          <Button variant="outline">
+          <Button className="bg-gray-900 text-white hover:bg-gray-800">
             <Download className="h-4 w-4 mr-2" />
             Download Report
           </Button>
         </div>
 
         {/* Overall Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.08)] bg-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Overall GPA</p>
+                  <p className="text-sm text-gray-600 mb-1">Overall GPA</p>
                   <p className="text-3xl font-bold text-blue-600">{overallStats.gpa}</p>
                 </div>
                 <Trophy className="h-12 w-12 text-blue-600 opacity-20" />
@@ -297,11 +297,11 @@ export default function StudentGrades() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Average Grade</p>
+                  <p className="text-sm text-gray-600 mb-1">Average Grade</p>
                   <p className="text-3xl font-bold text-green-600">{overallStats.averageGrade}%</p>
                 </div>
                 <Award className="h-12 w-12 text-green-600 opacity-20" />
@@ -309,11 +309,11 @@ export default function StudentGrades() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Credits</p>
+                  <p className="text-sm text-gray-600 mb-1">Total Credits</p>
                   <p className="text-3xl font-bold text-purple-600">{overallStats.totalCredits}</p>
                 </div>
                 <BookOpen className="h-12 w-12 text-purple-600 opacity-20" />
@@ -321,11 +321,11 @@ export default function StudentGrades() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200">
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Completed</p>
+                  <p className="text-sm text-gray-600 mb-1">Completed</p>
                   <p className="text-3xl font-bold text-orange-600">
                     {overallStats.completedAssignments}/{overallStats.totalAssignments}
                   </p>
@@ -369,18 +369,18 @@ export default function StudentGrades() {
                   {mockGradeHistory.map((grade, index) => (
                     <div 
                       key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex-1">
                         <h4 className="font-semibold">{grade.assignment}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{grade.course}</p>
+                        <p className="text-sm text-gray-600">{grade.course}</p>
                         <p className="text-xs text-gray-500 mt-1">{grade.date}</p>
                       </div>
                       <div className="text-right">
                         <div className={`text-2xl font-bold ${getGradeColor(grade.percentage).split(' ')[0]}`}>
                           {grade.letterGrade}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600">
                           {grade.points}/{grade.maxPoints} ({grade.percentage}%)
                         </p>
                         <Button variant="ghost" size="sm" className="mt-2">

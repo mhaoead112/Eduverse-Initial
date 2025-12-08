@@ -249,12 +249,12 @@ export default function TeacherAssessments() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'draft': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'closed': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      case 'graded': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'submitted': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'late': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'published': return 'bg-green-100 text-green-800';
+      case 'draft': return 'bg-yellow-100 text-yellow-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
+      case 'graded': return 'bg-blue-100 text-blue-800';
+      case 'submitted': return 'bg-orange-100 text-orange-800';
+      case 'late': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -262,15 +262,15 @@ export default function TeacherAssessments() {
   const pendingGradingCount = mockSubmissions.filter(s => s.status === 'submitted').length;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Assessment Tools
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Create quizzes, manage assignments, and grade student work
             </p>
           </div>
@@ -632,7 +632,7 @@ export default function TeacherAssessments() {
                     {mockAssessments.map((assessment) => (
                       <div 
                         key={assessment.id}
-                        className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                         data-testid={`assessment-item-${assessment.id}`}
                       >
                         <div className="flex items-center gap-3">
@@ -644,10 +644,10 @@ export default function TeacherAssessments() {
                             )}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                            <h3 className="font-semibold text-gray-900">
                               {assessment.title}
                             </h3>
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
                               <span>{assessment.className}</span>
                               <span className="flex items-center gap-1">
                                 <Users className="h-3 w-3" />
@@ -687,15 +687,15 @@ export default function TeacherAssessments() {
                   {mockSubmissions.filter(s => s.status === 'submitted').map((submission) => (
                     <div 
                       key={submission.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                       data-testid={`submission-item-${submission.id}`}
                     >
                       <div className="flex items-center gap-3">
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                          <h3 className="font-semibold text-gray-900">
                             {submission.studentName}
                           </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
                             <span>{submission.assessmentTitle}</span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -719,10 +719,10 @@ export default function TeacherAssessments() {
                   {mockSubmissions.filter(s => s.status === 'submitted').length === 0 && (
                     <div className="text-center py-8" data-testid="empty-grading-queue">
                       <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         All caught up!
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400">
+                      <p className="text-gray-600">
                         No submissions pending review at this time.
                       </p>
                     </div>
@@ -751,15 +751,15 @@ export default function TeacherAssessments() {
                   {mockSubmissions.filter(s => s.status === 'graded').map((submission) => (
                     <div 
                       key={submission.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                       data-testid={`grade-item-${submission.id}`}
                     >
                       <div className="flex items-center gap-3">
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                          <h3 className="font-semibold text-gray-900">
                             {submission.studentName}
                           </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
                             <span>{submission.assessmentTitle}</span>
                             <span>Graded {new Date(submission.submittedAt).toLocaleDateString()}</span>
                           </div>
