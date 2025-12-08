@@ -33,9 +33,9 @@ export function Logo({ className = "", size = "md", showText = true }: LogoProps
           <span className={`${textSizeClasses[size]} font-bold`}>
             <span className="text-eduverse-blue">EDU</span><span className="text-eduverse-gold">VERSE</span>
           </span>
-          {size !== "sm" && (
+          {/* {size !== "sm" && (
             <p className="text-sm text-eduverse-gray">Education Excellence</p>
-          )}
+          )} */}
         </div>
       )}
     </div>

@@ -169,11 +169,11 @@ export default function RoleManagement() {
 
   const getRoleColor = (roleId: string) => {
     switch (roleId) {
-      case 'department_head': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'senior_teacher': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'standard_teacher': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'new_teacher': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'substitute_teacher': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'department_head': return 'bg-yellow-100 text-yellow-800';
+      case 'senior_teacher': return 'bg-blue-100 text-blue-800';
+      case 'standard_teacher': return 'bg-green-100 text-green-800';
+      case 'new_teacher': return 'bg-purple-100 text-purple-800';
+      case 'substitute_teacher': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -204,10 +204,10 @@ export default function RoleManagement() {
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Role Management
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Manage teacher roles and permissions
             </p>
           </div>
@@ -281,10 +281,10 @@ export default function RoleManagement() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                          <h3 className="font-semibold text-gray-900">
                             {teacher.firstName} {teacher.lastName}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-gray-600">
                             {teacher.email}
                           </p>
                         </div>
@@ -301,7 +301,7 @@ export default function RoleManagement() {
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Role:</span>
+                        <span className="text-sm text-gray-600">Role:</span>
                         <Badge className={getRoleColor(teacher.role)}>
                           <div className="flex items-center gap-1">
                             {getRoleIcon(teacher.role)}
@@ -311,17 +311,17 @@ export default function RoleManagement() {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Department:</span>
+                        <span className="text-sm text-gray-600">Department:</span>
                         <span className="text-sm font-medium">{teacher.department}</span>
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Joined:</span>
+                        <span className="text-sm text-gray-600">Joined:</span>
                         <span className="text-sm">{new Date(teacher.joinedDate).toLocaleDateString()}</span>
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Status:</span>
+                        <span className="text-sm text-gray-600">Status:</span>
                         <Switch
                           checked={teacher.isActive}
                           onCheckedChange={() => handleToggleStatus(teacher.id, teacher.isActive)}
@@ -359,10 +359,10 @@ export default function RoleManagement() {
             {filteredTeachers.length === 0 && (
               <div className="text-center py-8" data-testid="empty-teachers-list">
                 <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   No teachers found
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   Try adjusting your search filters.
                 </p>
               </div>
@@ -397,7 +397,7 @@ export default function RoleManagement() {
                           
                           return (
                             <div key={groupName}>
-                              <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                              <h5 className="text-sm font-semibold text-gray-900 mb-2">
                                 {groupName}
                               </h5>
                               <div className="flex flex-wrap gap-1">
@@ -431,10 +431,10 @@ export default function RoleManagement() {
               <CardContent>
                 <div className="text-center py-8">
                   <Shield className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     Audit Log
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600">
                     Audit trail for role assignments and changes would be displayed here.
                   </p>
                 </div>

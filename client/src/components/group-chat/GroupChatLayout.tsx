@@ -37,6 +37,10 @@ export function GroupChatLayout() {
     }
   };
 
+  const handleBackToGroups = () => {
+    setSelectedGroup(null);
+  };
+
   const handleSendMessage = (content: string, messageType: string = 'text', metadata?: any) => {
     if (selectedGroup && user) {
       sendMessage({
@@ -50,18 +54,28 @@ export function GroupChatLayout() {
   };
 
   return (
-    <div className="mx-4 mb-4 h-full luxury-card border-0 shadow-2xl overflow-hidden flex flex-col">
+    <div className="h-full flex flex-col mx-2 sm:mx-4 mb-2 sm:mb-4 luxury-card border-0 shadow-2xl overflow-hidden">
       {/* Offline Banner */}
       {!isConnected && (
-        <div className="bg-red-500 text-white px-4 py-2 text-sm flex items-center justify-center gap-2" data-testid="offline-banner">
-          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-          <span>Connection lost. Attempting to reconnect...</span>
+        <div className="bg-red-500 text-white px-3 sm:px-4 py-2 text-xs sm:text-sm flex items-center justify-center gap-2" data-testid="offline-banner">
+          <div className="animate-spin w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full"></div>
+          <span className="hidden sm:inline">Connection lost. Attempting to reconnect...</span>
+          <span className="sm:hidden">Reconnecting...</span>
         </div>
       )}
       
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className="w-80 bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-sm border-r border-white/30 flex flex-col">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Mobile: Show sidebar OR chat (fullscreen toggle) */}
+        {/* Desktop: Show both side by side */}
+        
+        {/* Sidebar - Fullscreen on mobile when no group selected, side panel on desktop */}
+        <div className={`
+          ${selectedGroup ? 'hidden md:flex' : 'flex'}
+          w-full md:w-72 lg:w-80
+          bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-sm 
+          md:border-r border-white/30 flex-col
+          overflow-hidden
+        `}>
         <GroupSidebar
           user={user}
           selectedGroup={selectedGroup}
@@ -71,8 +85,12 @@ export function GroupChatLayout() {
         />
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Chat Area - Fullscreen on mobile when group selected, side panel on desktop */}
+      <div className={`
+        ${selectedGroup ? 'flex' : 'hidden md:flex'}
+        flex-1 flex-col min-w-0
+        overflow-hidden
+      `}>
         {selectedGroup ? (
           <ChatArea
             group={selectedGroup}
@@ -81,15 +99,16 @@ export function GroupChatLayout() {
             onSendMessage={handleSendMessage}
             typingUsers={typingUsers[selectedGroup.id] || []}
             isConnected={isConnected}
+            onBackToGroups={handleBackToGroups}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-sm">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-sm px-4">
             <div className="text-center">
-              <div className="text-6xl mb-4">💬</div>
-              <h2 className="text-2xl font-luxury text-gray-700 mb-2">
+              <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">💬</div>
+              <h2 className="text-xl sm:text-2xl font-luxury text-gray-700 mb-2">
                 Welcome to EduVerse Group Chat
               </h2>
-              <p className="text-gray-600 font-elegant">
+              <p className="text-sm sm:text-base text-gray-600 font-elegant">
                 Select a group to start chatting with your classmates and teachers
               </p>
             </div>

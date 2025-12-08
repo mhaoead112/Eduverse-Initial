@@ -68,8 +68,6 @@ export function CreateGroupModal({ open, onClose }: CreateGroupModalProps) {
       requireApproval,
       allowMemberInvite
     };
-    
-    console.log('Sending request data:', requestData);
 
     try {
       const response = await fetch('/api/groups', {

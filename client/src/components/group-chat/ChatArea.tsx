@@ -21,7 +21,8 @@ import {
   FileText,
   Image,
   Video as VideoIcon,
-  Music
+  Music,
+  ArrowLeft
 } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
@@ -37,6 +38,7 @@ interface ChatAreaProps {
   onSendMessage: (content: string, messageType?: string, metadata?: any) => void;
   typingUsers: string[];
   isConnected: boolean;
+  onBackToGroups?: () => void;
 }
 
 export function ChatArea({ 
@@ -45,7 +47,8 @@ export function ChatArea({
   messages, 
   onSendMessage, 
   typingUsers,
-  isConnected 
+  isConnected,
+  onBackToGroups
 }: ChatAreaProps) {
   const [messageText, setMessageText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -266,37 +269,48 @@ export function ChatArea({
   return (
     <div className="h-full flex flex-col">
       {/* Chat Header */}
-      <div className="bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-sm border-b border-white/30 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">{getGroupIcon(group.type)}</div>
-            <div>
-              <h2 className="font-luxury text-gray-900 flex items-center gap-2">
-                {group.name}
+      <div className="bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-sm border-b border-white/30 p-2 sm:p-3 md:p-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            {/* Mobile back button */}
+            {onBackToGroups && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBackToGroups}
+                className="md:hidden p-2 h-8 w-8 flex-shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
+            <div className="text-lg sm:text-2xl flex-shrink-0">{getGroupIcon(group.type)}</div>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-luxury text-sm sm:text-base md:text-lg text-gray-900 flex items-center gap-1 sm:gap-2 truncate">
+                <span className="truncate">{group.name}</span>
                 {isConnected ? (
-                  <Wifi className="h-4 w-4 text-green-500" title="Connected" />
+                  <Wifi className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" title="Connected" />
                 ) : (
-                  <WifiOff className="h-4 w-4 text-red-500" title="Disconnected" />
+                  <WifiOff className="h-3 w-3 sm:h-4 sm:w-4 text-red-500 flex-shrink-0" title="Disconnected" />
                 )}
               </h2>
-              <p className="text-sm text-gray-600 font-elegant flex items-center gap-2">
-                <Users className="h-3 w-3" />
-                12 members • {group.description}
+              <p className="text-xs sm:text-sm text-gray-600 font-elegant flex items-center gap-1 sm:gap-2 truncate">
+                <Users className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
+                <span className="truncate">12 members <span className="hidden sm:inline">• {group.description}</span></span>
               </p>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {canRaiseHand && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRaiseHand}
-                className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                className="text-orange-600 border-orange-200 hover:bg-orange-50 h-8 px-2 sm:px-3 text-xs sm:text-sm hidden sm:flex"
                 data-testid="button-raise-hand"
               >
-                <Hand className="h-4 w-4 mr-1" />
-                Raise Hand
+                <Hand className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                <span className="hidden lg:inline">Raise Hand</span>
               </Button>
             )}
             
@@ -305,11 +319,11 @@ export function ChatArea({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowPollModal(true)}
-                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 h-8 px-2 sm:px-3 text-xs sm:text-sm hidden sm:flex"
                 data-testid="button-create-poll"
               >
-                <BarChart3 className="h-4 w-4 mr-1" />
-                Poll
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                <span className="hidden lg:inline">Poll</span>
               </Button>
             )}
             
@@ -317,33 +331,14 @@ export function ChatArea({
               variant="outline" 
               size="sm"
               onClick={() => setShowMembersModal(true)}
-              className="text-purple-600 border-purple-200 hover:bg-purple-50"
+              className="text-purple-600 border-purple-200 hover:bg-purple-50 h-8 px-2 sm:px-3 text-xs sm:text-sm"
               data-testid="button-group-members"
             >
-              <Users className="h-4 w-4 mr-1" />
-              Members
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+              <span className="hidden lg:inline">Members</span>
             </Button>
 
-            {user && (user.role === 'teacher' || user.role === 'admin') && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowSettingsModal(true)}
-                className="text-gray-600 border-gray-200 hover:bg-gray-50"
-                data-testid="button-group-settings"
-              >
-                <Settings className="h-4 w-4 mr-1" />
-                Settings
-              </Button>
-            )}
-            
-            <Button variant="ghost" size="sm">
-              <Phone className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Video className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hidden md:flex">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </div>
@@ -353,7 +348,7 @@ export function ChatArea({
       {/* Messages Area */}
       <div 
         ref={chatContainerRef}
-        className={`flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/90 to-white/90 backdrop-blur-sm p-4 space-y-4 relative transition-all duration-300 ${
+        className={`flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/90 to-white/90 backdrop-blur-sm p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3 md:space-y-4 relative transition-all duration-300 ${
           isDragOver ? 'bg-blue-50/90 border-2 border-dashed border-blue-300' : ''
         }`}
         onDragOver={handleDragOver}
@@ -362,22 +357,22 @@ export function ChatArea({
       >
         {isDragOver && (
           <div className="absolute inset-0 bg-blue-50 bg-opacity-90 flex items-center justify-center z-10">
-            <div className="text-center">
-              <div className="text-4xl mb-2">📁</div>
-              <p className="text-lg font-medium text-blue-700">Drop files to upload</p>
-              <p className="text-sm text-blue-600">Maximum 5 files, 10MB each</p>
+            <div className="text-center px-4">
+              <div className="text-3xl sm:text-4xl mb-2">📁</div>
+              <p className="text-base sm:text-lg font-medium text-blue-700">Drop files to upload</p>
+              <p className="text-xs sm:text-sm text-blue-600">Maximum 5 files, 10MB each</p>
             </div>
           </div>
         )}
 
         {messages.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <div className="text-4xl mb-2">{getGroupIcon(group.type)}</div>
-              <h3 className="font-luxury mb-1">Welcome to {group.name}</h3>
-              <p className="text-sm font-elegant">Start the conversation by sending a message</p>
-              <div className="mt-4 text-xs text-gray-400 space-y-1">
-                <p>💡 You can drag and drop files to share them</p>
+          <div className="flex-1 flex items-center justify-center text-gray-500 h-full">
+            <div className="text-center px-4">
+              <div className="text-3xl sm:text-4xl mb-2">{getGroupIcon(group.type)}</div>
+              <h3 className="font-luxury mb-1 text-sm sm:text-base">Welcome to {group.name}</h3>
+              <p className="text-xs sm:text-sm font-elegant">Start the conversation by sending a message</p>
+              <div className="mt-3 sm:mt-4 text-xs text-gray-400 space-y-1">
+                <p className="hidden sm:block">💡 You can drag and drop files to share them</p>
                 <p>💬 Click reply on any message to start a thread</p>
               </div>
             </div>
@@ -407,10 +402,10 @@ export function ChatArea({
       </div>
 
       {/* Message Input */}
-      <div className="bg-white border-t border-gray-200 p-4">
+      <div className="bg-white border-t border-gray-200 p-2 sm:p-3 md:p-4">
         {/* Reply Preview */}
         {replyToMessage && (
-          <div className="mb-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+          <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-blue-700">
                 Replying to {replyToMessage.senderName || 'Unknown User'}
@@ -419,13 +414,13 @@ export function ChatArea({
                 variant="ghost"
                 size="sm"
                 onClick={clearReply}
-                className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+                className="h-5 w-5 sm:h-6 sm:w-6 p-0 text-blue-600 hover:text-blue-800"
                 data-testid="button-clear-reply"
               >
                 <X className="h-3 w-3" />
               </Button>
             </div>
-            <p className="text-sm text-blue-800 truncate bg-white p-2 rounded">
+            <p className="text-xs sm:text-sm text-blue-800 truncate bg-white p-1.5 sm:p-2 rounded">
               {replyToMessage.content}
             </p>
           </div>
@@ -433,34 +428,34 @@ export function ChatArea({
 
         {/* File Preview Area */}
         {selectedFiles.length > 0 && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
+          <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-gray-50 rounded-lg border">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-xs sm:text-sm font-medium text-gray-700">
                 {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''} selected
               </span>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedFiles([])}
-                className="h-6 w-6 p-0"
+                className="h-5 w-5 sm:h-6 sm:w-6 p-0"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               {selectedFiles.map((file, index) => (
-                <div key={index} className="flex items-center gap-3 p-2 bg-white rounded border">
+                <div key={index} className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 bg-white rounded border">
                   {getFileIcon(file.type)}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{file.name}</p>
                     <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemoveFile(index)}
-                    className="h-6 w-6 p-0"
+                    className="h-5 w-5 sm:h-6 sm:w-6 p-0 flex-shrink-0"
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -469,20 +464,20 @@ export function ChatArea({
             </div>
             
             {isUploading && (
-              <div className="mt-3">
+              <div className="mt-2 sm:mt-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-gray-600">Uploading...</span>
                   <span className="text-xs text-gray-600">{uploadProgress}%</span>
                 </div>
-                <Progress value={uploadProgress} className="h-2" />
+                <Progress value={uploadProgress} className="h-1.5 sm:h-2" />
               </div>
             )}
             
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-2 sm:mt-3">
               <Button
                 onClick={handleUploadFiles}
                 disabled={isUploading || !isConnected}
-                className="bg-eduverse-blue hover:bg-eduverse-dark"
+                className="bg-eduverse-blue hover:bg-eduverse-dark h-8 text-xs sm:text-sm"
                 size="sm"
                 data-testid="button-upload-files"
               >
@@ -493,6 +488,7 @@ export function ChatArea({
                 size="sm"
                 onClick={handleFileSelect}
                 disabled={selectedFiles.length >= 5}
+                className="h-8 text-xs sm:text-sm"
               >
                 Add More
               </Button>
@@ -500,16 +496,16 @@ export function ChatArea({
           </div>
         )}
         
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-1.5 sm:gap-2 md:gap-3">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="mb-2"
+            className="mb-0.5 sm:mb-1 md:mb-2 h-8 w-8 p-0 flex-shrink-0"
             onClick={handleFileSelect}
             disabled={!isConnected}
             data-testid="button-attach-file"
           >
-            <Paperclip className="h-4 w-4" />
+            <Paperclip className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
           
           <input
@@ -521,13 +517,13 @@ export function ChatArea({
             className="hidden"
           />
           
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <Input
               placeholder={`Message ${group.name}...`}
               value={messageText}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              className="min-h-[40px] resize-none"
+              className="min-h-[36px] sm:min-h-[40px] resize-none text-sm"
               data-testid="input-message"
               disabled={!isConnected}
             />
@@ -536,28 +532,29 @@ export function ChatArea({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="mb-2"
+            className="mb-0.5 sm:mb-1 md:mb-2 h-8 w-8 p-0 flex-shrink-0 hidden sm:flex"
             disabled={!isConnected}
             title="Emoji (coming soon)"
           >
-            <Smile className="h-4 w-4" />
+            <Smile className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
           
           <Button
             onClick={handleSendMessage}
             disabled={(!messageText.trim() && selectedFiles.length === 0) || !isConnected || isUploading}
-            className="bg-eduverse-blue hover:bg-eduverse-dark mb-2"
+            className="bg-eduverse-blue hover:bg-eduverse-dark mb-0.5 sm:mb-1 md:mb-2 h-8 w-8 sm:h-9 sm:w-9 p-0 flex-shrink-0"
             size="sm"
             data-testid="button-send"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
         </div>
         
         {!isConnected && (
-          <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
+          <p className="text-xs text-red-500 mt-1.5 sm:mt-2 flex items-center gap-1">
             <WifiOff className="h-3 w-3" />
-            Disconnected. Trying to reconnect...
+            <span className="hidden sm:inline">Disconnected. Trying to reconnect...</span>
+            <span className="sm:hidden">Disconnected</span>
           </p>
         )}
       </div>

@@ -54,11 +54,11 @@ export function ProtectedRoute({
   // Show loading state while checking authentication
   if (requireAuth && isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="w-96">
           <CardContent className="flex flex-col items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Checking authentication...</p>
+            <p className="text-gray-600">Checking authentication...</p>
           </CardContent>
         </Card>
       </div>
@@ -73,16 +73,16 @@ export function ProtectedRoute({
   // Show access denied if user doesn't have required role
   if (isAuthenticated && user && allowedRoles && !allowedRoles.includes(user.role as UserRole)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="w-96">
           <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="h-16 w-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
-              <Shield className="h-8 w-8 text-red-600 dark:text-red-400" />
+            <div className="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <Shield className="h-8 w-8 text-red-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Access Denied
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 mb-4">
               You don't have permission to access this page. You'll be redirected to your dashboard.
             </p>
             <Button 

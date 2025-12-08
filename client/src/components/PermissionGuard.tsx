@@ -28,10 +28,10 @@ function AccessDenied({ reason, canRequest = false, onRequestAccess }: AccessDen
         <div className="mb-4">
           <Shield className="h-16 w-16 mx-auto text-gray-400" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
           Access Restricted
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+        <p className="text-gray-600 mb-6">
           {reason || "You don't have permission to access this feature. Contact your administrator if you need access."}
         </p>
         {canRequest && onRequestAccess && (
@@ -64,7 +64,7 @@ export function PermissionGuard({
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Checking permissions...</p>
+          <p className="text-sm text-gray-600">Checking permissions...</p>
         </div>
       </div>
     );

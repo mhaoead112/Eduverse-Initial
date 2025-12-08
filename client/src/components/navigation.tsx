@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ChevronRight, Home, Bot, Sparkles, Heart, MessageCircle, Palette, TrendingUp, BookOpen, Calendar, Newspaper, Users, GraduationCap, Phone, FileText, Globe, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, ChevronRight, Home, Sparkles, Heart, Palette, BookOpen, Calendar, GraduationCap, Phone, FileText, LogIn, Bot } from "lucide-react";
 import { Logo } from "./logo";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -9,21 +9,12 @@ const navigationItems = [
   { name: "About", href: "/about" },
   { name: "Programs", href: "/programs" },
   { name: "Subjects", href: "/subjects" },
-  { name: "News", href: "/news" },
   { name: "Events", href: "/events" },
-  { name: "Staff", href: "/staff" },
   { name: "Admissions", href: "/admissions" },
   { name: "Contact", href: "/contact" },
 ];
 
 const featureItems = [
-  { 
-    name: "AI Study Assistant", 
-    href: "/ai-chat", 
-    icon: Bot,
-    description: "Get personalized help from our AI tutor",
-    color: "from-yellow-50 to-yellow-100" 
-  },
   { 
     name: "AR Learning", 
     href: "/ar-learning", 
@@ -39,25 +30,11 @@ const featureItems = [
     color: "from-blue-50 to-cyan-100" 
   },
   { 
-    name: "Group Chat", 
-    href: "/group-chat", 
-    icon: MessageCircle,
-    description: "Collaborate with classmates in study groups",
-    color: "from-yellow-50 to-amber-100" 
-  },
-  { 
     name: "Learning Avatars", 
     href: "/avatars", 
     icon: Palette,
     description: "Create your personalized learning character",
     color: "from-amber-50 to-yellow-100" 
-  },
-  { 
-    name: "Progress Tracking", 
-    href: "/lms-structure", 
-    icon: TrendingUp,
-    description: "Monitor your academic achievements",
-    color: "from-yellow-50 to-orange-100" 
   },
   { 
     name: "Study Materials", 
@@ -71,20 +48,6 @@ const featureItems = [
     href: "/events", 
     icon: Calendar,
     description: "Join educational events and workshops",
-    color: "from-yellow-50 to-amber-100" 
-  },
-  { 
-    name: "News & Updates", 
-    href: "/news", 
-    icon: Newspaper,
-    description: "Stay updated with educational news",
-    color: "from-orange-50 to-yellow-100" 
-  },
-  { 
-    name: "Staff Directory", 
-    href: "/staff", 
-    icon: Users,
-    description: "Connect with teachers and staff members",
     color: "from-yellow-50 to-amber-100" 
   },
 ];
@@ -250,18 +213,8 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Community Section - Compact */}
+            {/* Events Section - Compact */}
             <div className="flex items-center space-x-1 bg-purple-50/80 rounded-full px-2.5 md:px-3 py-2">
-              <Link
-                href="/news"
-                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
-                  isActive("/news") 
-                    ? "bg-eduverse-blue text-white shadow-md" 
-                    : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
-                }`}
-              >
-                <Newspaper size={14} /> <span className="hidden xl:inline">News</span>
-              </Link>
               <Link
                 href="/events"
                 className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
@@ -271,16 +224,6 @@ export function Navigation() {
                 }`}
               >
                 <Calendar size={14} /> <span className="hidden xl:inline">Events</span>
-              </Link>
-              <Link
-                href="/staff"
-                className={`px-2.5 md:px-3 lg:px-3.5 py-1.5 md:py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-1.5 text-xs md:text-sm ${
-                  isActive("/staff") 
-                    ? "bg-eduverse-blue text-white shadow-md" 
-                    : "text-gray-700 hover:text-eduverse-blue hover:bg-white/50"
-                }`}
-              >
-                <Users size={14} /> <span className="hidden xl:inline">Staff</span>
               </Link>
             </div>
 
@@ -369,18 +312,6 @@ export function Navigation() {
               </div>
             </div>
             
-            {/* AI Chat Button - Compact */}
-            <Link
-              href="/ai-chat"
-              className="luxury-button flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-white rounded-full font-medium text-xs md:text-sm hover:shadow-xl transform hover:scale-105 border border-yellow-300/40 relative overflow-hidden"
-              data-testid="nav-ai-chat-link"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/20 animate-pulse"></div>
-              <Bot size={16} className="relative z-10" />
-              <span className="relative z-10 hidden xl:inline">Ask AI</span>
-              <div className="absolute top-0.5 right-1.5 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-ping"></div>
-            </Link>
-
             {/* Auth Section - Login Only */}
             {!isAuthenticated ? (
               <Link
@@ -412,111 +343,94 @@ export function Navigation() {
         </div>
         
         {/* Enhanced Mobile Navigation with Animations */}
-        <div className={`md:hidden transition-all duration-500 ease-out ${
+        <div className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${
           isOpen 
-            ? 'max-h-screen opacity-100 translate-y-0' 
-            : 'max-h-0 opacity-0 -translate-y-4 overflow-hidden'
+            ? 'max-h-[2000px] opacity-100 translate-y-0 visible' 
+            : 'max-h-0 opacity-0 -translate-y-4 invisible'
         }`}>
-          <div className="mt-4 pb-4 space-y-4">
-            {/* Quick Navigation Cards */}
-            <div className="grid grid-cols-2 gap-3">
-              {navigationItems.slice(0, 4).map((item, index) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`p-3 rounded-xl border transition-all duration-300 transform hover:scale-105 ${
-                    isActive(item.href) 
-                      ? "bg-eduverse-blue text-white shadow-lg border-eduverse-blue" 
-                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-blue-50"
-                  }`}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="text-center font-medium text-sm">{item.name}</div>
-                </Link>
-              ))}
-            </div>
-            
-            {/* Remaining Navigation */}
-            <div className="space-y-2">
-              {navigationItems.slice(4).map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`block py-2 px-4 rounded-lg transition-colors ${
-                    isActive(item.href) 
-                      ? "text-eduverse-blue bg-blue-50 font-semibold" 
-                      : "text-gray-600 hover:text-eduverse-blue hover:bg-blue-50"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
+          <div className="mt-4 pb-6 px-2 space-y-3">
+            {/* Main Navigation Section */}
+            <div className="bg-gradient-to-br from-blue-50/50 to-purple-50/30 rounded-2xl p-3">
+              <p className="text-xs font-bold text-gray-600 mb-2 px-2 uppercase tracking-wider">
+                Main Menu
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {navigationItems.map((item, index) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`p-3 rounded-xl border transition-all duration-300 ${
+                      isActive(item.href) 
+                        ? "bg-eduverse-blue text-white shadow-lg border-eduverse-blue" 
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-blue-50 active:bg-blue-100"
+                    }`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="text-center font-semibold text-sm leading-tight">{item.name}</div>
+                  </Link>
+                ))}
+              </div>
             </div>
             
             {/* Mobile Features Section with Enhanced Design */}
             <div className="border-t border-gray-200 pt-4 mt-4">
-              <p className="text-sm font-semibold text-eduverse-blue mb-3 flex items-center">
-                <Sparkles size={16} className="mr-1 text-yellow-600" /> 
+              <p className="text-sm font-bold text-eduverse-blue mb-3 flex items-center px-1">
+                <Sparkles size={18} className="mr-2 text-yellow-600" /> 
                 Interactive Features
               </p>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2.5">
                 {featureItems.map((item, index) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`luxury-card flex items-center gap-4 p-4 rounded-xl transition-all duration-400 hover:scale-102 border-0 ${
+                    onClick={() => setIsOpen(false)}
+                    className={`luxury-card flex items-center gap-3.5 p-3.5 rounded-xl transition-all duration-300 active:scale-98 border-0 ${
                       isActive(item.href) 
                         ? "text-gray-800 bg-gradient-to-r from-yellow-50 to-yellow-100 font-premium shadow-lg border border-yellow-300/50" 
-                        : "text-gray-700 hover:text-gray-800 hover:bg-gradient-to-r hover:from-yellow-50/50 hover:to-white"
+                        : "text-gray-700 hover:text-gray-800 hover:bg-gradient-to-r hover:from-yellow-50/50 hover:to-white active:bg-yellow-50"
                     }`}
                     style={{ animationDelay: `${(index + 4) * 100}ms` }}
                   >
-                    <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl shadow-sm">
+                    <div className="w-11 h-11 flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl shadow-sm">
                       {typeof item.icon === 'string' ? (
                         <span className="text-lg">{item.icon}</span>
                       ) : (
                         <item.icon size={20} className="text-gray-700" />
                       )}
                     </div>
-                    <div>
-                      <div className="font-luxury text-base text-gray-800">{item.name}</div>
-                      <div className="text-sm text-gray-600 mt-1 font-elegant">{item.description}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-luxury text-base text-gray-800 leading-tight">{item.name}</div>
+                      <div className="text-xs text-gray-600 mt-0.5 font-elegant line-clamp-1">{item.description}</div>
                     </div>
                   </Link>
                 ))}
               </div>
             </div>
             
-            {/* Enhanced AI Chat Button */}
-            <Link
-              href="/ai-chat"
-              className="luxury-button flex items-center justify-center gap-3 text-white px-8 py-6 rounded-2xl font-luxury text-lg shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-yellow-300/40 relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-yellow-400/20 animate-pulse"></div>
-              <Bot size={24} className="relative z-10" />
-              <span className="relative z-10">Ask EduVerse AI</span>
-              <span className="relative z-10 text-xs bg-yellow-300/30 px-3 py-1 rounded-full font-premium">NEW</span>
-            </Link>
-
             {/* Mobile Auth Button */}
             {!isAuthenticated ? (
               <div className="pt-4 border-t border-gray-200">
                 <Link
                   href="/login"
-                  className="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-medium bg-eduverse-blue text-white hover:bg-eduverse-blue/90 shadow-lg hover:shadow-xl transition-all duration-300 text-lg w-full"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl font-semibold bg-eduverse-blue text-white hover:bg-eduverse-blue/90 active:bg-eduverse-blue/80 shadow-lg hover:shadow-xl transition-all duration-300 text-base w-full"
                 >
-                  <LogIn size={22} />
+                  <LogIn size={20} />
                   <span>Login to Dashboard</span>
                 </Link>
               </div>
             ) : (
-              <Link
-                href={`/${user?.role || 'student'}`}
-                className="flex items-center justify-center gap-3 px-8 py-6 rounded-2xl font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-300 text-lg border-t border-gray-200 mt-4 pt-4"
-              >
-                <GraduationCap size={24} />
-                <span>Go to Dashboard</span>
-              </Link>
+              <div className="pt-4 border-t border-gray-200">
+                <Link
+                  href={`/${user?.role || 'student'}`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 active:from-green-700 active:to-green-800 shadow-lg hover:shadow-xl transition-all duration-300 text-base w-full"
+                >
+                  <GraduationCap size={22} />
+                  <span>Go to Dashboard</span>
+                </Link>
+              </div>
             )}
           </div>
         </div>

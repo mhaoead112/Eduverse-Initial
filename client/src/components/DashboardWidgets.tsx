@@ -41,11 +41,11 @@ export function StatsCard({
   onClick 
 }: StatsCardProps) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
-    green: 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400',
-    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
-    orange: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
-    red: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+    blue: 'bg-blue-50 text-blue-600',
+    green: 'bg-green-50 text-green-600',
+    purple: 'bg-purple-50 text-purple-600',
+    orange: 'bg-orange-50 text-orange-600',
+    red: 'bg-red-50 text-red-600'
   };
 
   return (
@@ -59,14 +59,14 @@ export function StatsCard({
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+            <p className="text-sm font-medium text-gray-600 mb-1">
               {title}
             </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            <p className="text-2xl font-bold text-gray-900 mb-1">
               {value}
             </p>
             {subtitle && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 {subtitle}
               </p>
             )}
@@ -78,11 +78,11 @@ export function StatsCard({
                   <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
                 )}
                 <span className={`text-sm font-medium ${
-                  trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                  trend.isPositive ? 'text-green-600' : 'text-red-600'
                 }`}>
                   {Math.abs(trend.value)}%
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
+                <span className="text-sm text-gray-500 ml-1">
                   vs last week
                 </span>
               </div>
@@ -120,10 +120,10 @@ export function ProgressWidget({
   const percentage = Math.round((current / total) * 100);
   
   const colorClasses = {
-    blue: 'text-blue-600 dark:text-blue-400',
-    green: 'text-green-600 dark:text-green-400', 
-    purple: 'text-purple-600 dark:text-purple-400',
-    orange: 'text-orange-600 dark:text-orange-400'
+    blue: 'text-blue-600',
+    green: 'text-green-600', 
+    purple: 'text-purple-600',
+    orange: 'text-orange-600'
   };
 
   return (
@@ -132,7 +132,7 @@ export function ProgressWidget({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             {Icon && <Icon className={`h-5 w-5 ${colorClasses[color]}`} />}
-            <h3 className="font-medium text-gray-900 dark:text-white">{title}</h3>
+            <h3 className="font-medium text-gray-900">{title}</h3>
           </div>
           {showPercentage && (
             <span className={`text-sm font-medium ${colorClasses[color]}`}>
@@ -147,7 +147,7 @@ export function ProgressWidget({
           data-testid={`progress-${title.toLowerCase().replace(/\s+/g, '-')}`}
         />
         
-        <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex justify-between items-center text-sm text-gray-600">
           <span>{current} of {total}</span>
           {subtitle && <span>{subtitle}</span>}
         </div>
@@ -175,19 +175,19 @@ export function QuickActionCard({
   badge 
 }: QuickActionProps) {
   const colorClasses = {
-    blue: 'border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-blue-800 dark:hover:border-blue-700 dark:hover:bg-blue-900/20',
-    green: 'border-green-200 hover:border-green-300 hover:bg-green-50 dark:border-green-800 dark:hover:border-green-700 dark:hover:bg-green-900/20',
-    purple: 'border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-900/20',
-    orange: 'border-orange-200 hover:border-orange-300 hover:bg-orange-50 dark:border-orange-800 dark:hover:border-orange-700 dark:hover:bg-orange-900/20',
-    red: 'border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:border-red-700 dark:hover:bg-red-900/20'
+    blue: 'border-blue-200 hover:border-blue-300 hover:bg-blue-50',
+    green: 'border-green-200 hover:border-green-300 hover:bg-green-50',
+    purple: 'border-purple-200 hover:border-purple-300 hover:bg-purple-50',
+    orange: 'border-orange-200 hover:border-orange-300 hover:bg-orange-50',
+    red: 'border-red-200 hover:border-red-300 hover:bg-red-50'
   };
 
   const iconColorClasses = {
-    blue: 'text-blue-600 dark:text-blue-400',
-    green: 'text-green-600 dark:text-green-400',
-    purple: 'text-purple-600 dark:text-purple-400',
-    orange: 'text-orange-600 dark:text-orange-400',
-    red: 'text-red-600 dark:text-red-400'
+    blue: 'text-blue-600',
+    green: 'text-green-600',
+    purple: 'text-purple-600',
+    orange: 'text-orange-600',
+    red: 'text-red-600'
   };
 
   return (
@@ -198,7 +198,7 @@ export function QuickActionCard({
     >
       <CardContent className="p-6 text-center">
         <div className="relative mb-4">
-          <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-white dark:bg-gray-800 shadow-sm`}>
+          <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-sm`}>
             <Icon className={`h-6 w-6 ${iconColorClasses[color]}`} />
           </div>
           {badge && (
@@ -207,8 +207,8 @@ export function QuickActionCard({
             </Badge>
           )}
         </div>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+        <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
+        <p className="text-sm text-gray-600">{description}</p>
         <ArrowRight className="h-4 w-4 mx-auto mt-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
       </CardContent>
     </Card>
@@ -234,11 +234,11 @@ export function AchievementBadge({
   color = 'gold' 
 }: AchievementBadgeProps) {
   const colorClasses = {
-    gold: earned ? 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400' : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700',
-    silver: earned ? 'bg-gray-50 border-gray-300 text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700',
-    bronze: earned ? 'bg-orange-50 border-orange-200 text-orange-700 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-400' : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700',
-    blue: earned ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400' : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700',
-    green: earned ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700'
+    gold: earned ? 'bg-yellow-50 border-yellow-200 text-yellow-800' : 'bg-gray-50 border-gray-200 text-gray-400',
+    silver: earned ? 'bg-gray-50 border-gray-300 text-gray-700' : 'bg-gray-50 border-gray-200 text-gray-400',
+    bronze: earned ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-400',
+    blue: earned ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-400',
+    green: earned ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-400'
   };
 
   return (
@@ -304,12 +304,12 @@ export function ActivityFeed({ activities, maxItems = 5 }: ActivityFeedProps) {
 
   const getActivityColor = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'assignment': return 'text-blue-600 dark:text-blue-400';
-      case 'grade': return 'text-green-600 dark:text-green-400';
-      case 'message': return 'text-purple-600 dark:text-purple-400';
-      case 'announcement': return 'text-orange-600 dark:text-orange-400';
-      case 'achievement': return 'text-yellow-600 dark:text-yellow-400';
-      default: return 'text-gray-600 dark:text-gray-400';
+      case 'assignment': return 'text-blue-600';
+      case 'grade': return 'text-green-600';
+      case 'message': return 'text-purple-600';
+      case 'announcement': return 'text-orange-600';
+      case 'achievement': return 'text-yellow-600';
+      default: return 'text-gray-600';
     }
   };
 
@@ -324,25 +324,25 @@ export function ActivityFeed({ activities, maxItems = 5 }: ActivityFeedProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200">
           {displayedActivities.map((activity, index) => {
             const Icon = getActivityIcon(activity.type);
             return (
               <div 
                 key={activity.id} 
-                className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors animate-slide-up"
+                className="p-4 hover:bg-gray-50 transition-colors animate-slide-up"
                 style={{ animationDelay: `${index * 100}ms` }}
                 data-testid={`activity-${activity.id}`}
               >
                 <div className="flex items-start space-x-3">
-                  <div className={`p-2 rounded-full bg-gray-100 dark:bg-gray-700 ${getActivityColor(activity.type)}`}>
+                  <div className={`p-2 rounded-full bg-gray-100 ${getActivityColor(activity.type)}`}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm font-medium text-gray-900">
                       {activity.title}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-gray-600 mt-1">
                       {activity.description}
                     </p>
                     <div className="flex items-center mt-2 space-x-2">
@@ -354,7 +354,7 @@ export function ActivityFeed({ activities, maxItems = 5 }: ActivityFeedProps) {
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-gray-500">
                         {activity.timestamp}
                       </span>
                     </div>
@@ -365,7 +365,7 @@ export function ActivityFeed({ activities, maxItems = 5 }: ActivityFeedProps) {
           })}
         </div>
         {activities.length > maxItems && (
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-t border-gray-200">
             <Button variant="ghost" className="w-full text-sm" data-testid="view-all-activities">
               View all activities
               <ArrowRight className="h-4 w-4 ml-1" />
@@ -405,11 +405,11 @@ export function ScheduleWidget({ title, items, date }: ScheduleWidgetProps) {
   };
 
   const colorClasses = {
-    blue: 'bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400',
-    green: 'bg-green-100 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400',
-    purple: 'bg-purple-100 border-purple-200 text-purple-800 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-400',
-    orange: 'bg-orange-100 border-orange-200 text-orange-800 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400',
-    red: 'bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400'
+    blue: 'bg-blue-100 border-blue-200 text-blue-800',
+    green: 'bg-green-100 border-green-200 text-green-800',
+    purple: 'bg-purple-100 border-purple-200 text-purple-800',
+    orange: 'bg-orange-100 border-orange-200 text-orange-800',
+    red: 'bg-red-100 border-red-200 text-red-800'
   };
 
   return (
@@ -421,13 +421,13 @@ export function ScheduleWidget({ title, items, date }: ScheduleWidgetProps) {
             <span>{title}</span>
           </div>
           {date && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">{date}</span>
+            <span className="text-sm text-gray-600">{date}</span>
           )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {items.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-gray-500">
             <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p>No scheduled items today</p>
           </div>
@@ -519,7 +519,7 @@ export function PerformanceOverview({ title, data, overallGPA }: PerformanceOver
             data-testid={`performance-${key}`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-gray-900">
                 {displayName}
               </span>
               <div className="flex items-center space-x-2">
