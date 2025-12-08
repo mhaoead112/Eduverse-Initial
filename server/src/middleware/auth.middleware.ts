@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey123";
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required!');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 interface AuthenticatedUser {
   id: string;
-  role: "student" | "teacher" | "admin";
+  role: "student" | "teacher" | "admin" | "parent";
 }
 
 declare global {
@@ -37,6 +40,32 @@ export const isAuthenticated = (
     console.error("JWT verification failed:", error);
     return res.status(401).json({ message: "Unauthorized: Invalid token." });
   }
+};
+
+// Optional auth middleware - allows requests without token but parses token if provided
+export const optionalAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // No token provided, but that's OK - continue without user
+    return next();
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+    req.user = decoded;
+  } catch (error) {
+    // Invalid token, but we'll allow the request to continue without user
+    console.warn("Optional auth: invalid token provided");
+  }
+  
+  next();
 };
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
