@@ -44,19 +44,73 @@ import DemoLogin from "@/components/DemoLogin";
 import StudentDashboard from "@/pages/student-dashboard";
 import StudentCoursesPage from "@/pages/student-courses";
 import StudentProgressPage from "@/pages/student-progress";
+import StudentCalendar from "@/pages/student-calendar";
 import TeacherDashboardEnhanced from "@/pages/teacher-dashboard-enhanced";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminAnalytics from "@/pages/admin-analytics";
+import AdminReports from "@/pages/admin-reports";
+import AdminSettings from "@/pages/admin-settings";
 import LessonManagement from "@/pages/lesson-management";
 import CreateCoursePage from "@/pages/create-course";
+import TeacherCourseManage from "@/pages/teacher-course-manage";
+import TeacherCourseLessonCreate from "@/pages/teacher-course-lesson-create";
 import StudentCourseLessons from "@/pages/student-course-lessons";
+import StudentReportCards from "@/pages/student-report-cards";
+import TeacherReportCards from "@/pages/teacher-report-cards";
+import AIStudyBuddy from "@/pages/ai-study-buddy";
 import StudentAssignments from "@/pages/student-assignments";
 import StudentGrades from "@/pages/student-grades";
 import StudentSchedule from "@/pages/student-schedule";
 import AnnouncementsPage from "@/pages/announcements";
 import StudentAnnouncementsPage from "@/pages/student-announcements";
 import StudentAllAnnouncementsPage from "@/pages/student-all-announcements";
+import TeacherAssignments from "@/pages/teacher-assignments";
+import TeacherAssignmentSubmissions from "@/pages/teacher-assignment-submissions";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import StudyGroupsChatPage from "@/pages/study-groups-chat-enhanced";
+import ProfilePage from "@/pages/profile";
+import Settings from "@/pages/settings";
+import TeacherAssignmentDetail from "@/pages/teacher-assignment-detail";
+import TeacherLessonView from "@/pages/teacher-lesson-view";
+// New pages for complete LMS
+import TeacherCalendar from "@/pages/teacher-calendar";
+import AdminUsers from "@/pages/admin-users";
+import AdminCalendar from "@/pages/admin-calendar";
+import AdminAnnouncements from "@/pages/admin-announcements";
+import ParentDashboard from "@/pages/parent-dashboard";
+import ParentDashboardEnhanced from "@/pages/parent-dashboard-enhanced";
+import ParentDashboardModern from "@/pages/parent-dashboard-modern";
+import ParentChildren from "@/pages/parent-children";
+import ParentGrades from "@/pages/parent-grades";
+import ParentAttendance from "@/pages/parent-attendance";
+import ParentMessages from "@/pages/parent-messages";
+import ParentCalendar from "@/pages/parent-calendar";
+import ParentAssignments from "@/pages/parent-assignments";
+import ParentAnalytics from "@/pages/parent-analytics";
+import ParentCourses from "@/pages/parent-courses";
+import ParentLessons from "@/pages/parent-lessons";
+import ParentProgress from "@/pages/parent-progress";
+import ParentReports from "@/pages/parent-reports";
+
+// Parent route protection component
+function ParentRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+  
+  if (!user || user.role !== 'parent') {
+    setLocation('/login');
+    return null;
+  }
+  
+  return <>{children}</>;
+}
+
+import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
   const [location] = useLocation();
@@ -66,7 +120,8 @@ function Router() {
                           location.startsWith('/teacher') || 
                           location.startsWith('/admin') || 
                           location.startsWith('/parent') ||
-                          location.startsWith('/dashboard');
+                          location.startsWith('/dashboard') ||
+                          location === '/settings';
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -139,6 +194,18 @@ function Router() {
             </StudentRoute>
           </Route>
 
+          <Route path="/student/report-cards">
+            <StudentRoute>
+              <StudentReportCards />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/ai-buddy">
+            <StudentRoute>
+              <AIStudyBuddy />
+            </StudentRoute>
+          </Route>
+
           <Route path="/student/schedule">
             <StudentRoute>
               <StudentSchedule />
@@ -156,16 +223,74 @@ function Router() {
               <StudentAllAnnouncementsPage />
             </StudentRoute>
           </Route>
+
+          <Route path="/student/messages">
+            <StudentRoute>
+              <StudyGroupsChatPage />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/calendar">
+            <StudentRoute>
+              <StudentCalendar />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/profile">
+            <StudentRoute>
+              <ProfilePage />
+            </StudentRoute>
+          </Route>
+
+          {/* Universal Settings - All authenticated users */}
+          <Route path="/settings">
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          </Route>
           
           <Route path="/teacher">
             <TeacherRoute>
-              <TeacherDashboardEnhanced />
+              <TeacherDashboard />
             </TeacherRoute>
           </Route>
-          
+
+          <Route path="/teacher/messages">
+            <TeacherRoute>
+              <StudyGroupsChatPage />
+            </TeacherRoute>
+          </Route>
+
+          <Route path="/teacher/profile">
+            <TeacherRoute>
+              <ProfilePage />
+            </TeacherRoute>
+          </Route>
+
           <Route path="/admin">
             <AdminRoute>
               <AdminDashboard />
+            </AdminRoute>
+          </Route>
+
+          {/* Admin Analytics - Admin only */}
+          <Route path="/admin/analytics">
+            <AdminRoute>
+              <AdminAnalytics />
+            </AdminRoute>
+          </Route>
+
+          {/* Admin Reports - Admin only */}
+          <Route path="/admin/reports">
+            <AdminRoute>
+              <AdminReports />
+            </AdminRoute>
+          </Route>
+
+          {/* Admin Settings - Admin only */}
+          <Route path="/admin/settings">
+            <AdminRoute>
+              <AdminSettings />
             </AdminRoute>
           </Route>
 
@@ -187,6 +312,106 @@ function Router() {
             <AdminRoute>
               <LessonManagement />
             </AdminRoute>
+          </Route>
+
+          {/* Admin Users - Admin only */}
+          <Route path="/admin/users">
+            <AdminRoute>
+              <AdminUsers />
+            </AdminRoute>
+          </Route>
+
+          {/* Admin Calendar - Admin only */}
+          <Route path="/admin/calendar">
+            <AdminRoute>
+              <AdminCalendar />
+            </AdminRoute>
+          </Route>
+
+          {/* Admin Announcements - Admin only */}
+          <Route path="/admin/announcements">
+            <AdminRoute>
+              <AdminAnnouncements />
+            </AdminRoute>
+          </Route>
+
+          {/* Parent Routes */}
+          <Route path="/parent">
+            <ParentRoute>
+              <ParentDashboardModern />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/dashboard">
+            <ParentRoute>
+              <ParentDashboardModern />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/children">
+            <ParentRoute>
+              <ParentChildren />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/grades">
+            <ParentRoute>
+              <ParentGrades />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/attendance">
+            <ParentRoute>
+              <ParentAttendance />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/messages">
+            <ParentRoute>
+              <ParentMessages />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/calendar">
+            <ParentRoute>
+              <ParentCalendar />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/assignments/:childId">
+            <ParentRoute>
+              <ParentAssignments />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/analytics/:childId">
+            <ParentRoute>
+              <ParentAnalytics />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/courses">
+            <ParentRoute>
+              <ParentCourses />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/courses/:courseId/lessons">
+            <ParentRoute>
+              <ParentLessons />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/progress">
+            <ParentRoute>
+              <ParentProgress />
+            </ParentRoute>
+          </Route>
+
+          <Route path="/parent/reports">
+            <ParentRoute>
+              <ParentReports />
+            </ParentRoute>
           </Route>
           
           {/* Protected teacher sub-routes */}
@@ -215,9 +440,19 @@ function Router() {
               <TeacherAnalytics />
             </TeacherRoute>
           </Route>
+          <Route path="/teacher/calendar">
+            <TeacherRoute>
+              <TeacherCalendar />
+            </TeacherRoute>
+          </Route>
           <Route path="/teacher/communication">
             <TeacherRoute>
               <TeacherCommunication />
+            </TeacherRoute>
+          </Route>
+          <Route path="/teacher/report-cards">
+            <TeacherRoute>
+              <TeacherReportCards />
             </TeacherRoute>
           </Route>
           <Route path="/teacher/profile">
@@ -227,15 +462,55 @@ function Router() {
           </Route>
 
           {/* Teacher Courses - Teacher/Admin only */}
+          {/* IMPORTANT: More specific routes must come before parameterized routes */}
+          <Route path="/teacher/courses/create">
+            <TeacherRoute>
+              <CreateCoursePage />
+            </TeacherRoute>
+          </Route>
+
+          <Route path="/teacher/courses/:courseId/lessons/create">
+            <TeacherRoute>
+              <TeacherCourseLessonCreate />
+            </TeacherRoute>
+          </Route>
+
+          <Route path="/teacher/courses/:id">
+            <TeacherRoute>
+              <TeacherCourseManage />
+            </TeacherRoute>
+          </Route>
+
           <Route path="/teacher/courses">
             <TeacherRoute>
               <TeacherCourses />
             </TeacherRoute>
           </Route>
 
-          <Route path="/teacher/courses/create">
+          {/* Teacher Assignments - Teacher/Admin only */}
+          <Route path="/teacher/assignments/:id">
             <TeacherRoute>
-              <CreateCoursePage />
+              <TeacherAssignmentDetail />
+            </TeacherRoute>
+          </Route>
+
+          <Route path="/teacher/assignments">
+            <TeacherRoute>
+              <TeacherAssignments />
+            </TeacherRoute>
+          </Route>
+
+          {/* Teacher Assignment Submissions - Teacher/Admin only */}
+          <Route path="/teacher/assignments/:assignmentId/submissions">
+            <TeacherRoute>
+              <TeacherAssignmentSubmissions />
+            </TeacherRoute>
+          </Route>
+
+          {/* Teacher Lesson View - Teacher/Admin only */}
+          <Route path="/teacher/courses/:courseId/lessons/:lessonId">
+            <TeacherRoute>
+              <TeacherLessonView />
             </TeacherRoute>
           </Route>
 

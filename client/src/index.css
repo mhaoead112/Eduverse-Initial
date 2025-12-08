@@ -1,32 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Caveat:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Import chat animations */
+@import './styles/chat-animations.css';
+
 :root {
-  --background: linear-gradient(135deg, hsl(0, 0%, 99%) 0%, hsl(210, 40%, 98%) 100%);
-  --foreground: hsl(224, 71.4%, 4.1%);
-  --muted: hsl(220, 14.3%, 96.5%);
-  --muted-foreground: hsl(220, 8.9%, 46.1%);
+  --background: hsl(0, 0%, 98%);
+  --foreground: hsl(0, 0%, 11%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(224, 71.4%, 4.1%);
+  --popover-foreground: hsl(0, 0%, 11%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(224, 71.4%, 4.1%);
-  --border: hsl(220, 13%, 91%);
-  --input: hsl(220, 13%, 91%);
-  --primary: hsl(222, 72%, 43%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(220, 14.3%, 95.9%);
-  --secondary-foreground: hsl(220.9, 39.3%, 11%);
-  --accent: hsl(42, 90%, 52%);
-  --accent-foreground: hsl(222, 72%, 43%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(222, 72%, 43%);
+  --card-foreground: hsl(0, 0%, 11%);
+  --border: hsl(0, 0%, 93%);
+  --input: hsl(0, 0%, 89%);
+  --primary: hsl(0, 0%, 11%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 11%);
+  --accent: hsl(0, 0%, 96%);
+  --accent-foreground: hsl(0, 0%, 11%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 0%, 11%);
   --radius: 0.75rem;
   
-  /* Luxury EduVerse Color Palette */
+  /* Modern Design System Colors */
   --eduverse-blue: hsl(222, 72%, 43%);
   --eduverse-navy: hsl(225, 83%, 15%);
   --eduverse-royal: hsl(230, 75%, 25%);
@@ -37,39 +40,55 @@
   --eduverse-champagne: hsl(50, 70%, 88%);
   --eduverse-pearl: hsl(210, 30%, 95%);
   --eduverse-light: hsl(210, 40%, 98%);
-  --eduverse-gray: hsl(215, 16%, 47%);
-  --eduverse-dark: hsl(222, 72%, 25%);
+  --eduverse-gray: hsl(0, 0%, 45%);
+  --eduverse-dark: hsl(0, 0%, 11%);
   --eduverse-accent: hsl(265, 85%, 55%);
   --eduverse-accent-light: hsl(265, 75%, 75%);
   
-  /* Luxury Effects */
-  --luxury-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 25px rgba(0, 0, 0, 0.06);
-  --luxury-shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.12), 0 16px 40px rgba(0, 0, 0, 0.08);
-  --luxury-glow: 0 0 30px rgba(42, 90, 52, 0.3);
-  --luxury-gold-glow: 0 0 40px rgba(255, 215, 0, 0.4);
+  /* Modern Shadow System */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 .dark {
-  --background: hsl(224, 71.4%, 4.1%);
-  --foreground: hsl(210, 40%, 98%);
-  --muted: hsl(223, 47%, 11%);
-  --muted-foreground: hsl(215.4, 16.3%, 56.9%);
-  --popover: hsl(224, 71.4%, 4.1%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --card: hsl(224, 71.4%, 4.1%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --border: hsl(216, 12.2%, 16.1%);
-  --input: hsl(216, 12.2%, 16.1%);
-  --primary: hsl(222, 72%, 25%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(223, 47%, 11%);
-  --secondary-foreground: hsl(210, 40%, 98%);
-  --accent: hsl(42, 80%, 45%);
-  --accent-foreground: hsl(210, 40%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(222, 72%, 25%);
-  --radius: 0.5rem;
+  --background: hsl(222, 47%, 8%);
+  --foreground: hsl(60, 30%, 96%);
+  --muted: hsl(223, 47%, 14%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(222, 47%, 10%);
+  --popover-foreground: hsl(60, 30%, 96%);
+  --card: hsl(222, 47%, 10%);
+  --card-foreground: hsl(60, 30%, 96%);
+  --border: hsl(220, 15%, 22%);
+  --input: hsl(220, 15%, 22%);
+  --primary: hsl(42, 85%, 50%);
+  --primary-foreground: hsl(222, 47%, 8%);
+  --secondary: hsl(222, 35%, 18%);
+  --secondary-foreground: hsl(60, 30%, 96%);
+  --accent: hsl(42, 80%, 52%);
+  --accent-foreground: hsl(222, 47%, 8%);
+  --destructive: hsl(0, 62.8%, 45%);
+  --destructive-foreground: hsl(60, 30%, 96%);
+  --ring: hsl(42, 85%, 50%);
+  --radius: 0.75rem;
+  
+  /* Dark mode specific eduverse colors */
+  --eduverse-gold: hsl(42, 85%, 55%);
+  --eduverse-gold-light: hsl(42, 80%, 70%);
+  --eduverse-gold-dark: hsl(42, 90%, 45%);
+  --eduverse-blue: hsl(222, 72%, 55%);
+  --eduverse-navy: hsl(222, 47%, 12%);
+  --eduverse-light: hsl(222, 47%, 12%);
+  --eduverse-dark: hsl(60, 30%, 96%);
+  
+  /* Dark mode shadows with gold glow */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-gold: 0 0 20px rgba(234, 179, 8, 0.15);
 }
 
 @layer base {
@@ -78,11 +97,19 @@
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
+    @apply font-sans antialiased text-foreground bg-background;
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, hsl(0, 0%, 99%) 0%, hsl(210, 40%, 98%) 100%);
-    background-attachment: fixed;
     letter-spacing: -0.01em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .dark body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Smooth transitions for dark mode */
+  *, *::before, *::after {
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
   
   /* Luxury Typography Classes */
@@ -101,6 +128,11 @@
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     letter-spacing: -0.01em;
+  }
+  
+  .font-handwriting {
+    font-family: 'Caveat', cursive;
+    font-weight: 500;
   }
 }
 
@@ -1062,5 +1094,59 @@
     opacity: 0;
     transform: translateY(-20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  /* Dark Mode Enhancements */
+  .dark .eduverse-glass-card {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  
+  .dark .eduverse-code-block {
+    background: #0f172a;
+    border-left-color: var(--eduverse-gold);
+  }
+  
+  .dark .eduverse-math-equation {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-color: var(--eduverse-gold);
+    color: #f8fafc;
+  }
+  
+  .dark .gold-shimmer {
+    background: linear-gradient(135deg, #B8860B 0%, #DAA520 25%, #FFD700 50%, #DAA520 75%, #B8860B 100%);
+  }
+  
+  .dark .luxury-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.03);
+  }
+  
+  .dark .creative-shadow {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.05);
+  }
+  
+  /* Dark mode transitions */
+  .theme-transition {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+  }
+  
+  /* Gold accent glow for dark mode */
+  .dark .gold-glow {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2), 0 0 40px rgba(255, 215, 0, 0.1);
+  }
+  
+  .dark .text-gold-shimmer {
+    background: linear-gradient(90deg, #B8860B 0%, #FFD700 50%, #B8860B 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
   }
 }
