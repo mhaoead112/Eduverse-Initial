@@ -36,7 +36,7 @@ export default function Login() {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(apiEndpoint('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

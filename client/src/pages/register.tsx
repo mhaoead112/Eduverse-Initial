@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useMutation } from '@tanstack/react-query';
+import { apiEndpoint } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,7 +45,7 @@ export default function Register() {
   // Register mutation
   const registerMutation = useMutation({
     mutationFn: async (data: Omit<RegisterData, 'confirmPassword'>) => {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(apiEndpoint('/api/auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
