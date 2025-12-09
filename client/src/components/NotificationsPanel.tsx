@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
-import { apiEndpoint, assetUrl } from '@/lib/config';
+import { apiEndpoint, assetUrl, WS_URL } from '@/lib/config';
 
 interface Notification {
   id: string;
@@ -186,7 +186,7 @@ export function NotificationsPanel() {
   useEffect(() => {
     if (!token) return;
 
-    const wsUrl = `ws://localhost:3001?token=${token}`;
+    const wsUrl = `${WS_URL}?token=${token}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
