@@ -8,6 +8,11 @@ const productionWS = 'wss://eduverse-initial.onrender.com';
 export const API_URL = import.meta.env.VITE_API_URL || (isProduction ? productionAPI : 'http://localhost:3001');
 export const WS_URL = import.meta.env.VITE_WS_URL || (isProduction ? productionWS : 'ws://localhost:3001');
 
+// Debug log to verify production detection
+if (typeof window !== 'undefined') {
+  console.log('Environment:', { isProduction, API_URL, WS_URL });
+}
+
 // Helper function to build API endpoints
 export const apiEndpoint = (path: string): string => {
   // Remove leading slash if present to avoid double slashes
