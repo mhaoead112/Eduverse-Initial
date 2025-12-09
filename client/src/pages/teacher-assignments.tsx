@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import {
   Select,
   SelectContent,
@@ -100,7 +101,7 @@ export default function TeacherAssignmentsPage() {
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:3001/api/courses/user", {
+      const res = await fetch(apiEndpoint("/api/courses/user"), {
         headers: getAuthHeaders()
       });
 
@@ -125,7 +126,7 @@ export default function TeacherAssignmentsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:3001/api/assignments/teacher", {
+      const res = await fetch(apiEndpoint("/api/assignments/teacher"), {
         headers: getAuthHeaders()
       });
 
@@ -164,7 +165,7 @@ export default function TeacherAssignmentsPage() {
     setIsCreating(true);
 
     try {
-      const res = await fetch(`http://localhost:3001/api/assignments/courses/${newAssignment.courseId}/assignments`, {
+      const res = await fetch(apiEndpoint(`/api/assignments/courses/${newAssignment.courseId}/assignments`), {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -212,7 +213,7 @@ export default function TeacherAssignmentsPage() {
   const handleTogglePublish = async (assignmentId: string, currentStatus: boolean) => {
     setPublishingId(assignmentId);
     try {
-      const res = await fetch(`http://localhost:3001/api/assignments/${assignmentId}/publish`, {
+      const res = await fetch(apiEndpoint(`/api/assignments/${assignmentId}/publish`), {
         method: 'PATCH',
         headers: getAuthHeaders(),
         body: JSON.stringify({ isPublished: !currentStatus })
@@ -248,7 +249,7 @@ export default function TeacherAssignmentsPage() {
 
     setDeletingId(assignmentToDelete.id);
     try {
-      const res = await fetch(`http://localhost:3001/api/assignments/${assignmentToDelete.id}`, {
+      const res = await fetch(apiEndpoint(`/api/assignments/${assignmentToDelete.id}`), {
         method: 'DELETE',
         headers: getAuthHeaders()
       });

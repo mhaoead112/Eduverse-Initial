@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { 
   Upload, 
   FileText, 
@@ -72,24 +73,34 @@ export default function TeacherReportCards() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetchStudents();
-    fetchReportCards();
-  }, []);
+    if (token) {
+      fetchStudents();
+      fetchReportCards();
+    }
+  }, [token]);
 
   const fetchStudents = async () => {
     if (!token) return;
     
     try {
-      const response = await fetch('http://localhost:3001/api/users/students', {
+      const response = await fetch(apiEndpoint('/api/users/students'), {
         headers: getAuthHeaders()
       });
 
-      if (!response.ok) throw new Error('Failed to fetch students');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch students');
+      }
 
       const data = await response.json();
       setStudents(data);
     } catch (err) {
       console.error('Failed to fetch students:', err);
+      toast({
+        title: "Error",
+        description: "Failed to load students list",
+        variant: "destructive"
+      });
     }
   };
 
@@ -99,7 +110,7 @@ export default function TeacherReportCards() {
     setLoading(true);
     
     try {
-      const response = await fetch('http://localhost:3001/api/report-cards/all', {
+      const response = await fetch(apiEndpoint('/api/report-cards/all'), {
         headers: getAuthHeaders()
       });
 
@@ -162,7 +173,7 @@ export default function TeacherReportCards() {
       formData.append('period', selectedPeriod);
       formData.append('academicYear', selectedYear);
 
-      const response = await fetch('http://localhost:3001/api/report-cards/upload', {
+      const response = await fetch(apiEndpoint('/api/report-cards/upload'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -200,7 +211,7 @@ export default function TeacherReportCards() {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/report-cards/${reportId}`, {
+      const response = await fetch(apiEndpoint(`/api/report-cards/${reportId}`), {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
@@ -219,7 +230,7 @@ export default function TeacherReportCards() {
     
     try {
       const response = await fetch(
-        `http://localhost:3001/api/report-cards/${reportCard.id}/view`,
+        apiEndpoint(`/api/report-cards/${reportCard.id}/view`),
         {
           headers: getAuthHeaders()
         }

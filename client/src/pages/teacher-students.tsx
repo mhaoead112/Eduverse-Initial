@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,7 +64,7 @@ export default function TeacherStudents() {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/api/enrollments/students/all', {
+      const response = await fetch(apiEndpoint('/api/enrollments/students/all'), {
         headers: getAuthHeaders(),
       });
 
@@ -285,7 +286,7 @@ export default function TeacherStudents() {
                   <div className="flex items-start gap-4 mb-4">
                     <Avatar className="h-20 w-20 ring-4 ring-blue-50 group-hover:ring-blue-100 transition-all">
                       <AvatarImage 
-                        src={student.profilePicture ? `http://localhost:3001${student.profilePicture}` : ''} 
+                        src={student.profilePicture ? `${apiEndpoint()}${student.profilePicture}` : ''} 
                         alt={student.fullName || student.username} 
                       />
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-xl font-bold">

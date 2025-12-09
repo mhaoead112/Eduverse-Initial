@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ export default function AIStudyBuddy() {
 
   const fetchPersonas = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/ai-chat/personas');
+      const response = await fetch(apiEndpoint('/api/ai-chat/personas'));
       if (response.ok) {
         const data = await response.json();
         setPersonas(data);
@@ -76,7 +77,7 @@ export default function AIStudyBuddy() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/ai-chat/chat', {
+      const response = await fetch(apiEndpoint('/api/ai-chat/chat'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ export default function Events() {
   const { data: events, isLoading } = useQuery<PublicEvent[]>({
     queryKey: ['/api/events'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/events');
+      const response = await fetch(apiEndpoint('/api/events'));
       if (!response.ok) throw new Error('Failed to fetch events');
       return response.json();
     }

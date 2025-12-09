@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import VersaFloatingChat from "@/components/VersaFloatingChat";
+import { apiEndpoint } from "@/lib/config";
 
 interface Course {
   id: string;
@@ -101,7 +102,7 @@ export default function TeacherDashboard() {
       const authHeaders = getAuthHeaders();
 
       // Fetch teacher's OWN courses only (using /user endpoint for teacher's courses)
-      const coursesRes = await fetch("http://localhost:3001/api/courses/user", {
+      const coursesRes = await fetch(apiEndpoint("/api/courses/user"), {
         headers: authHeaders,
       });
 
@@ -122,7 +123,7 @@ export default function TeacherDashboard() {
         // Fetch enrollments to count students
         try {
           const enrollmentsRes = await fetch(
-            `http://localhost:3001/api/enrollments/course/${course.id}`,
+            apiEndpoint(`/api/enrollments/course/${course.id}`),
             { headers: authHeaders }
           );
           if (enrollmentsRes.ok) {
@@ -139,7 +140,7 @@ export default function TeacherDashboard() {
 
         try {
           const assignmentsRes = await fetch(
-            `http://localhost:3001/api/assignments/courses/${course.id}/assignments`,
+            apiEndpoint(`/api/assignments/courses/${course.id}/assignments`),
             { headers: authHeaders }
           );
           
@@ -150,7 +151,7 @@ export default function TeacherDashboard() {
             for (const assignment of courseAssignments) {
               try {
                 const submissionsRes = await fetch(
-                  `http://localhost:3001/api/assignments/${assignment.id}/submissions`,
+                  apiEndpoint(`/api/assignments/${assignment.id}/submissions`),
                   { headers: authHeaders }
                 );
                 

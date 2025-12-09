@@ -23,6 +23,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Logo } from "./logo";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { assetUrl } from "@/lib/config";
+import VersaFloatingChat from "./VersaFloatingChat";
 
 interface NavigationItem {
   id: string;
@@ -89,12 +90,6 @@ const navigationConfig: Record<string, NavigationItem[]> = {
       label: 'Courses',
       href: '/teacher/courses',
       icon: BookOpen
-    },
-    {
-      id: 'create-course',
-      label: 'Create Course',
-      href: '/teacher/courses/create',
-      icon: PlusCircle
     },
     {
       id: 'assignments',
@@ -457,7 +452,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Sidebar header */}
           <div className="flex items-center justify-between h-16 sm:h-20 px-4 sm:px-6 border-b border-gray-100">
             <div className="flex items-center gap-2.5">
-              <Logo className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0" />
+<div className="mb-6 mt-10">
+            <img 
+              src="/nies-logo.png" 
+              alt="NIES Logo" 
+              className="w-400 h-200 object-contain drop-shadow-2xl"
+            />              </div>
             </div>
             <Button
               variant="ghost"
@@ -594,6 +594,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </main>
       </div>
+
+      {/* Floating Versa Chat - Show for students only */}
+      {user?.role === 'student' && <VersaFloatingChat />}
     </div>
   );
 }

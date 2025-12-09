@@ -4,6 +4,7 @@ import { useRoute, useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -77,7 +78,7 @@ export default function TeacherAssignmentSubmissions() {
   const { data, isLoading, error } = useQuery<AssignmentSubmissionsData>({
     queryKey: ['assignmentSubmissions', assignmentId],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:3001/api/assignments/${assignmentId}/submissions`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/${assignmentId}/submissions`), {
         headers: getAuthHeaders()
       });
 
@@ -93,7 +94,7 @@ export default function TeacherAssignmentSubmissions() {
   // Grade submission mutation
   const gradeMutation = useMutation({
     mutationFn: async ({ submissionId, score, feedback }: { submissionId: string; score: string; feedback: string }) => {
-      const response = await fetch(`http://localhost:3001/api/assignments/submissions/${submissionId}/grade`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/submissions/${submissionId}/grade`), {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ grade: score, feedback })
@@ -147,7 +148,7 @@ export default function TeacherAssignmentSubmissions() {
 
   const handleDownload = async (submissionId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/assignments/submissions/${submissionId}/download`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/submissions/${submissionId}/download`), {
         headers: getAuthHeaders()
       });
 

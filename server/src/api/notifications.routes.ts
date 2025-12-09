@@ -14,7 +14,14 @@ router.get('/', isAuthenticated, async (req, res) => {
     const userId = req.user!.id;
     const { unreadOnly = 'false' } = req.query;
 
-    let query = db
+    const whereCondition = unreadOnly === 'true'
+      ? and(
+          eq(notifications.userId, userId),
+          eq(notifications.isRead, false)
+        )
+      : eq(notifications.userId, userId);
+
+    const userNotifications = await db
       .select({
         id: notifications.id,
         type: notifications.type,
@@ -30,20 +37,10 @@ router.get('/', isAuthenticated, async (req, res) => {
       })
       .from(notifications)
       .leftJoin(users, eq(users.id, notifications.senderId))
-      .where(eq(notifications.userId, userId))
+      .where(whereCondition)
       .orderBy(desc(notifications.createdAt))
       .limit(50);
 
-    if (unreadOnly === 'true') {
-      query = query.where(
-        and(
-          eq(notifications.userId, userId),
-          eq(notifications.isRead, false)
-        )
-      );
-    }
-
-    const userNotifications = await query;
     res.json(userNotifications);
   } catch (error) {
     console.error('Error fetching notifications:', error);

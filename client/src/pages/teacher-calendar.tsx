@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { 
   Calendar as CalendarIcon, Plus, ChevronLeft, ChevronRight,
   Clock, MapPin, Users, BookOpen, Trash2
@@ -30,7 +31,7 @@ interface CalendarEvent {
   date: string;
   startTime: string;
   endTime: string;
-  type: 'class' | 'meeting' | 'office_hours' | 'deadline' | 'event';
+  type: 'class' | 'meeting' | 'holiday' | 'exam' | 'announcement';
   location?: string;
   courseName?: string;
 }
@@ -75,7 +76,7 @@ export default function TeacherCalendar() {
       const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
       
       const response = await fetch(
-        `http://localhost:3001/api/schedule/me?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`,
+        apiEndpoint(`/api/schedule/me?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -99,7 +100,7 @@ export default function TeacherCalendar() {
             date: startDateTime.toISOString().split('T')[0],
             startTime: startDateTime.toTimeString().slice(0, 5),
             endTime: endDateTime.toTimeString().slice(0, 5),
-            type: e.eventType || 'event',
+            type: e.eventType || 'class',
             location: e.location,
             courseName: e.courseName
           };
@@ -136,7 +137,7 @@ export default function TeacherCalendar() {
       const startDateTime = new Date(`${newEvent.date}T${newEvent.startTime}:00`);
       const endDateTime = new Date(`${newEvent.date}T${newEvent.endTime}:00`);
       
-      const response = await fetch('http://localhost:3001/api/schedule/event', {
+      const response = await fetch(apiEndpoint('/api/schedule/event'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -216,8 +217,9 @@ export default function TeacherCalendar() {
     switch (type) {
       case 'class': return 'bg-blue-100 text-blue-800 border-l-4 border-l-blue-500';
       case 'meeting': return 'bg-purple-100 text-purple-800 border-l-4 border-l-purple-500';
-      case 'office_hours': return 'bg-green-100 text-green-800 border-l-4 border-l-green-500';
-      case 'deadline': return 'bg-red-100 text-red-800 border-l-4 border-l-red-500';
+      case 'exam': return 'bg-red-100 text-red-800 border-l-4 border-l-red-500';
+      case 'announcement': return 'bg-yellow-100 text-yellow-800 border-l-4 border-l-yellow-500';
+      case 'holiday': return 'bg-green-100 text-green-800 border-l-4 border-l-green-500';
       case 'event': return 'bg-orange-100 text-orange-800 border-l-4 border-l-orange-500';
       default: return 'bg-gray-100 text-gray-800 border-l-4 border-l-gray-500';
     }
@@ -317,9 +319,9 @@ export default function TeacherCalendar() {
                       <SelectContent>
                         <SelectItem value="class">Class</SelectItem>
                         <SelectItem value="meeting">Meeting</SelectItem>
-                        <SelectItem value="office_hours">Office Hours</SelectItem>
-                        <SelectItem value="deadline">Deadline</SelectItem>
-                        <SelectItem value="event">Event</SelectItem>
+                        <SelectItem value="exam">Exam</SelectItem>
+                        <SelectItem value="announcement">Announcement</SelectItem>
+                        <SelectItem value="holiday">Holiday</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -506,12 +508,12 @@ export default function TeacherCalendar() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
+                <CardTitle className="text-lg">Upcoming Exams</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {events
-                    .filter(e => e.type === 'deadline' && new Date(e.date) >= new Date())
+                    .filter(e => e.type === 'exam' && new Date(e.date) >= new Date())
                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                     .slice(0, 3)
                     .map((event) => (

@@ -53,7 +53,7 @@ export default function ParentDashboard() {
     
     try {
       // Fetch children linked to this parent
-      const response = await fetch('http://localhost:3001/api/parent/children', {
+      const response = await fetch(apiEndpoint('/api/parent/children'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -171,7 +171,7 @@ export default function ParentDashboard() {
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={child.profilePicture} />
                       <AvatarFallback className="bg-pink-100 text-pink-600">
-                        {child.name.split(' ').map(n => n[0]).join('')}
+                        {child.name?.split(' ').map(n => n[0]).filter(Boolean).join('') || child.name?.[0] || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-left">

@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Mail, Lock, LogIn, AlertCircle, Loader2 } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import { Eye, EyeOff, Mail, Lock, LogIn, AlertCircle, Loader2, GraduationCap, BookOpen, Users, Award } from 'lucide-react';
+import { apiEndpoint } from '@/lib/config';
 
 interface LoginCredentials {
   email: string;
@@ -59,7 +59,7 @@ export default function Login() {
 
       // Track login streak for students
       if (data.user.role === 'student') {
-        fetch('http://localhost:3001/api/streaks/login', {
+        fetch(apiEndpoint('/api/streaks/login'), {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${data.token}`,
@@ -127,34 +127,100 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-3 sm:p-4 md:p-6 pt-20 sm:pt-24">
-      <div className="w-full max-w-md">
-        {/* Logo and Header */}
-        <div className="text-center mb-4 sm:mb-6">
-          <div className="flex justify-center mb-2 sm:mb-3">
-          </div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-            <span className="text-eduverse-blue">EDU</span><span className='text-eduverse-gold'>VERSE</span>
-          </h1>
-          <p className="text-gray-600 mt-1 text-xs sm:text-sm">Education Excellence</p>
+    <div className="min-h-screen flex">
+      {/* Left Panel - Decorative */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#003366] via-[#004080] to-[#0055aa] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-white/5 rounded-full blur-2xl animate-pulse delay-500"></div>
         </div>
+        
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
+          {/* School Logo */}
+          <div className="mb-8">
+            <img 
+              src="/nies-logo.png" 
+              alt="NIES Logo" 
+              className="w-400 h-2000 object-contain drop-shadow-2xl"
+            />
+          </div>
+          
+          {/* <h1 className="text-4xl font-bold mb-4 text-center">
+            مدارس النيل المصرية الدولية
+          </h1> */}
+          {/* <h2 className="text-2xl font-semibold mb-2 text-[#D4AF37]">
+            Nile Egyptian International Schools
+          </h2> */}
+          
+          {/* Features */}
+          <div className="grid grid-cols-2 gap-6 mt-8 max-w-md">
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+                <GraduationCap className="h-5 w-5 text-[#D4AF37]" />
+              </div>
+              <span className="text-sm font-medium">Excellence in Education</span>
+            </div>
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-[#D4AF37]" />
+              </div>
+              <span className="text-sm font-medium">Smart Learning</span>
+            </div>
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+                <Users className="h-5 w-5 text-[#D4AF37]" />
+              </div>
+              <span className="text-sm font-medium">Connected Community</span>
+            </div>
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+                <Award className="h-5 w-5 text-[#D4AF37]" />
+              </div>
+              <span className="text-sm font-medium">Achieve More</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        {/* Login Card */}
-        <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1 p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl font-bold text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center text-xs sm:text-sm">
-              Sign in to your account to continue
-            </CardDescription>
-          </CardHeader>
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-gray-50 to-white">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-6">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/nies-logo.png" 
+                alt="NIES Logo" 
+                className="w-24 h-24 object-contain"
+              />
+            </div>
+            <h1 className="text-xl font-bold text-[#003366]">
+              Nile Egyptian International Schools
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">فرع أسيوط الجديدة</p>
+          </div>
 
-          <CardContent className="p-4 sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          {/* Login Card */}
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="space-y-1 p-6 pb-4">
+              <CardTitle className="text-2xl sm:text-3xl font-bold text-center text-[#003366]">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-center text-sm sm:text-base text-gray-600">
+                Sign in to access your learning portal
+              </CardDescription>
+            </CardHeader>
+
+          <CardContent className="p-6 pt-2">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="email" className="text-sm">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#003366] transition-colors" />
                   <Input
                     id="email"
                     name="email"
@@ -162,7 +228,7 @@ export default function Login() {
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-8 sm:pl-10 h-10 sm:h-11 text-sm sm:text-base"
+                    className="pl-10 h-12 text-base border-gray-200 focus:border-[#003366] focus:ring-[#003366]/20 rounded-xl transition-all"
                     disabled={loginMutation.isPending}
                     autoComplete="email"
                   />
@@ -170,19 +236,19 @@ export default function Login() {
               </div>
 
               {/* Password Field */}
-              <div className="space-y-1.5 sm:space-y-2">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm">Password</Label>
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
                   <button
                     type="button"
                     onClick={() => setLocation('/forgot-password')}
-                    className="text-xs sm:text-sm text-eduverse-blue hover:underline"
+                    className="text-sm text-[#003366] hover:text-[#D4AF37] font-medium transition-colors"
                   >
                     Forgot password?
                   </button>
                 </div>
-                <div className="relative">
-                  <Lock className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                <div className="relative group">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#003366] transition-colors" />
                   <Input
                     id="password"
                     name="password"
@@ -190,19 +256,19 @@ export default function Login() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-8 sm:pl-10 pr-10 h-10 sm:h-11 text-sm sm:text-base"
+                    className="pl-10 pr-12 h-12 text-base border-gray-200 focus:border-[#003366] focus:ring-[#003366]/20 rounded-xl transition-all"
                     disabled={loginMutation.isPending}
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#003366] transition-colors"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <EyeOff className="h-5 w-5" />
                     ) : (
-                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <Eye className="h-5 w-5" />
                     )}
                   </button>
                 </div>
@@ -210,9 +276,9 @@ export default function Login() {
 
               {/* Error Display */}
               {loginMutation.isError && (
-                <div className="p-2.5 sm:p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs sm:text-sm text-red-700">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">
                     {loginMutation.error?.message || 'An error occurred during login'}
                   </p>
                 </div>
@@ -221,31 +287,31 @@ export default function Login() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-eduverse-blue hover:bg-eduverse-blue/90 h-10 sm:h-11"
+                className="w-full bg-gradient-to-r from-[#003366] to-[#004080] hover:from-[#002244] hover:to-[#003366] h-12 rounded-xl text-base font-semibold shadow-lg shadow-[#003366]/25 transition-all duration-300 hover:shadow-xl hover:shadow-[#003366]/30 hover:-translate-y-0.5"
                 size="lg"
                 disabled={loginMutation.isPending}
               >
                 {loginMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
-                    <span className="text-sm sm:text-base">Signing in...</span>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Signing in...
                   </>
                 ) : (
                   <>
-                    <LogIn className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    <span className="text-sm sm:text-base">Sign In</span>
+                    <LogIn className="h-5 w-5 mr-2" />
+                    Sign In
                   </>
                 )}
               </Button>
             </form>
 
             {/* Divider */}
-            <div className="relative my-4 sm:my-6">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-gray-200"></div>
               </div>
-              <div className="relative flex justify-center text-xs sm:text-sm">
-                <span className="px-2 bg-white text-gray-500">Or</span>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-white text-gray-500">Or continue with</span>
               </div>
             </div>
 
@@ -253,19 +319,20 @@ export default function Login() {
             <Button
               type="button"
               variant="outline"
-              className="w-full h-10 sm:h-11 text-sm sm:text-base"
+              className="w-full h-12 rounded-xl text-base font-medium border-2 border-gray-200 hover:border-[#D4AF37] hover:bg-[#D4AF37]/5 transition-all"
               onClick={() => setLocation('/demo')}
             >
+              <GraduationCap className="h-5 w-5 mr-2 text-[#D4AF37]" />
               Try Demo Login
             </Button>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-3 sm:space-y-4 p-4 sm:p-6">
-            <div className="text-xs sm:text-sm text-center text-gray-600">
+          <CardFooter className="flex flex-col space-y-4 p-6 pt-2 border-t border-gray-100">
+            <div className="text-sm text-center text-gray-600">
               Need help accessing your account?{' '}
               <button
                 onClick={() => setLocation('/contact')}
-                className="text-eduverse-blue font-semibold hover:underline"
+                className="text-[#003366] font-semibold hover:text-[#D4AF37] transition-colors"
               >
                 Contact Support
               </button>
@@ -274,13 +341,14 @@ export default function Login() {
         </Card>
 
         {/* Footer Links */}
-        <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-600">
+        <div className="mt-8 text-center">
           <button
             onClick={() => setLocation('/')}
-            className="hover:text-eduverse-blue hover:underline"
+            className="text-sm text-gray-600 hover:text-[#003366] transition-colors inline-flex items-center gap-2"
           >
-            Back to Home
+            ← Back to Home
           </button>
+        </div>
         </div>
       </div>
     </div>

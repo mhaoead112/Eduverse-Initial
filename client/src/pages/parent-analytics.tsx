@@ -63,7 +63,7 @@ export default function ParentAnalytics() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3001/api/parent/children/${childId}/analytics?period=${period}`,
+        apiEndpoint(`/api/parent/children/${childId}/analytics?period=${period}`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,

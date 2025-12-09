@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -143,7 +144,7 @@ export default function TeacherAnalytics() {
       const courseParam = selectedCourse !== "all" ? `?courseId=${selectedCourse}` : "";
 
       // Fetch courses
-      const coursesRes = await fetch("http://localhost:3001/api/courses/user", { 
+      const coursesRes = await fetch(apiEndpoint("/api/courses/user"), { 
         headers,
         credentials: "include"
       });
@@ -153,7 +154,7 @@ export default function TeacherAnalytics() {
       }
 
       // Fetch analytics overview
-      const overviewRes = await fetch(`http://localhost:3001/api/analytics/overview${courseParam}`, { 
+      const overviewRes = await fetch(apiEndpoint(`/api/analytics/overview${courseParam}`), { 
         headers,
         credentials: "include"
       });
@@ -163,7 +164,7 @@ export default function TeacherAnalytics() {
       }
 
       // Fetch student analytics
-      const studentsRes = await fetch(`http://localhost:3001/api/analytics/students${courseParam}`, { 
+      const studentsRes = await fetch(apiEndpoint(`/api/analytics/students${courseParam}`), { 
         headers,
         credentials: "include"
       });
@@ -174,7 +175,7 @@ export default function TeacherAnalytics() {
 
       // Fetch course analytics
       if (selectedCourse === "all") {
-        const courseAnalyticsRes = await fetch("http://localhost:3001/api/analytics/courses", { 
+        const courseAnalyticsRes = await fetch(apiEndpoint("/api/analytics/courses"), { 
           headers,
           credentials: "include"
         });
@@ -569,7 +570,7 @@ export default function TeacherAnalytics() {
                     <div className="flex items-start gap-4">
                       <Avatar className="h-16 w-16 ring-4 ring-gray-100 shadow-md">
                         <AvatarImage 
-                          src={student.profilePicture ? `http://localhost:3001${student.profilePicture}` : ''} 
+                          src={student.profilePicture ? `${apiEndpoint()}${student.profilePicture}` : ''} 
                           alt={student.fullName} 
                         />
                         <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-500 text-white font-bold text-lg">

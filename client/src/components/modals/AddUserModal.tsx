@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { apiEndpoint } from "@/lib/config";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -39,10 +40,19 @@ export default function AddUserModal({ isOpen, onClose }: AddUserModalProps) {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: typeof formData) => {
-      const response = await fetch("/api/auth/register", {
+      // Transform data to match API expectations
+      const apiData = {
+        email: userData.email,
+        password: userData.password,
+        name: userData.fullName || userData.username, // API expects 'name' not 'fullName'
+        role: userData.role,
+        username: userData.username,
+      };
+      
+      const response = await fetch(apiEndpoint("/api/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(apiData),
         credentials: "include",
       });
 

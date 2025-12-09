@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +57,7 @@ export default function TeacherAssignmentDetail() {
   // Export grades to CSV
   const handleExportGrades = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/assignments/${assignmentId}/submissions`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/${assignmentId}/submissions`), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -115,7 +116,7 @@ export default function TeacherAssignmentDetail() {
   const fetchAssignment = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/assignments/${assignmentId}`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/${assignmentId}`), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -143,7 +144,7 @@ export default function TeacherAssignmentDetail() {
 
   const handleUpdateAssignment = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/assignments/${assignmentId}`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/${assignmentId}`), {
         method: "PUT",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -176,7 +177,7 @@ export default function TeacherAssignmentDetail() {
 
   const handleDeleteAssignment = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/assignments/${assignmentId}`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/${assignmentId}`), {
         method: "DELETE",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -202,7 +203,7 @@ export default function TeacherAssignmentDetail() {
 
   const handleTogglePublish = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/assignments/${assignmentId}/publish`, {
+      const response = await fetch(apiEndpoint(`/api/assignments/${assignmentId}/publish`), {
         method: "PATCH",
         headers: getAuthHeaders(),
         credentials: "include",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { ArrowLeft, Upload, FileText, Video, Link as LinkIcon, Loader2 } from "lucide-react";
+import { apiEndpoint } from "@/lib/config";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export default function TeacherCourseLessonCreate() {
         formData.append('file', file);
       }
 
-      const response = await fetch('http://localhost:3001/api/lessons/upload', {
+      const response = await fetch(apiEndpoint('/api/lessons/upload'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
