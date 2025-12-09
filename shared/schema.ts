@@ -229,14 +229,16 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
 
 // --- ZOD SCHEMAS & TYPES ---
 // User schemas
-export const insertUserSchema = createInsertSchema(users).omit({
+export const insertUserSchema = createInsertSchema(users, {
+  id: z.string().optional(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
+  isActive: z.boolean().optional(),
+  emailVerified: z.boolean().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  // lastLogin: true,
-  // passwordResetToken: true,
-  // passwordResetExpires: true,
-  // emailVerificationToken: true,
 }).extend({
   username: z.string().min(1, "Username is required"),
   fullName: z.string().min(1, "Full name is required"),
@@ -250,7 +252,9 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
 // Course schemas
-export const insertCourseSchema = createInsertSchema(courses).omit({
+export const insertCourseSchema = createInsertSchema(courses, {
+  isPublished: z.boolean().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -279,7 +283,9 @@ export const insertLessonSchema = createInsertSchema(lessons).omit({
   order: z.string().optional().default('0'),
 });
 
-export const insertAssignmentSchema = createInsertSchema(assignments).omit({
+export const insertAssignmentSchema = createInsertSchema(assignments, {
+  isPublished: z.boolean().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -319,7 +325,9 @@ export const insertGradeSchema = createInsertSchema(grades).omit({
   gradedBy: z.string().optional(),
 });
 
-export const insertAnnouncementSchema = createInsertSchema(announcements).omit({
+export const insertAnnouncementSchema = createInsertSchema(announcements, {
+  isPinned: z.boolean().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -330,7 +338,10 @@ export const insertAnnouncementSchema = createInsertSchema(announcements).omit({
   content: z.string().min(1, "Content is required"),
 });
 
-export const insertEventSchema = createInsertSchema(events).omit({
+export const insertEventSchema = createInsertSchema(events, {
+  isPublic: z.boolean().optional(),
+  isAllDay: z.boolean().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

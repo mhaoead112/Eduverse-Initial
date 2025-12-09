@@ -26,6 +26,10 @@ const pool = new Pool({
 // Initialize Drizzle with our schema
 export const db = drizzle(pool, { schema });
 
+// Export pool for raw SQL queries (used by legacy code)
+export { pool };
+export default pool;
+
 // Optional: test connection
 (async () => {
   try {
