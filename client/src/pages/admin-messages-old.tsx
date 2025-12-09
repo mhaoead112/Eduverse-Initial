@@ -8,7 +8,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/hooks/useAuth';
+import { apiEndpoint } from '@/lib/config';
 import { useToast } from "@/hooks/use-toast";
 import { 
   MessageCircle, Send, Search, Plus, Users, 
@@ -96,7 +97,7 @@ export default function AdminMessages() {
   const fetchData = async () => {
     try {
       // Fetch announcements
-      const announcementsResponse = await fetch('http://localhost:3001/api/admin/announcements', {
+      const announcementsResponse = await fetch(apiEndpoint('/api/admin/announcements'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

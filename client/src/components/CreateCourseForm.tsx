@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { apiEndpoint } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -84,7 +85,7 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
 
     try {
       const port = '3001';
-      const response = await fetch(`http://localhost:${port}/api/courses`, {
+      const response = await fetch(apiEndpoint('/api/courses'), {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({

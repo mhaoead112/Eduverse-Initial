@@ -137,7 +137,7 @@ export default function StudyGroupsPage() {
   const fetchMessages = async (conversationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/conversations/${conversationId}/messages`,
+        apiEndpoint(`/api/study-groups/conversations/${conversationId}/messages`),
         { headers: getAuthHeaders() }
       );
 
@@ -193,7 +193,7 @@ export default function StudyGroupsPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch("http://localhost:3001/api/study-groups/upload", {
+      const response = await fetch(apiEndpoint("/api/study-groups/upload"), {
         method: "POST",
         headers: getAuthHeaders(),
         body: formData
@@ -456,7 +456,7 @@ export default function StudyGroupsPage() {
                                 )}
                                 {message.type === 'file' && (
                                   <a 
-                                    href={`http://localhost:3001${message.fileUrl}`}
+                                    href={assetUrl(message.fileUrl)}
                                     download={message.fileName}
                                     className="flex items-center gap-2"
                                   >

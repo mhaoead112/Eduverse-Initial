@@ -208,7 +208,7 @@ export default function StudyGroupsPage() {
 
   const fetchGroupDetails = async (groupId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/study-groups/${groupId}`, {
+      const response = await fetch(apiEndpoint(`/api/study-groups/${groupId}`), {
         headers: getAuthHeaders()
       });
 
@@ -224,7 +224,7 @@ export default function StudyGroupsPage() {
   const fetchMessages = async (conversationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/conversations/${conversationId}/messages`,
+        apiEndpoint(`/api/study-groups/conversations/${conversationId}/messages`),
         { headers: getAuthHeaders() }
       );
 
@@ -246,7 +246,7 @@ export default function StudyGroupsPage() {
   const fetchReadReceipts = async (conversationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/conversations/${conversationId}/read-receipts`,
+        apiEndpoint(`/api/study-groups/conversations/${conversationId}/read-receipts`),
         { headers: getAuthHeaders() }
       );
 
@@ -320,7 +320,7 @@ export default function StudyGroupsPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch("http://localhost:3001/api/study-groups/upload", {
+      const response = await fetch(apiEndpoint("/api/study-groups/upload"), {
         method: "POST",
         headers: getAuthHeaders(),
         body: formData
@@ -406,7 +406,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/members/${memberId}`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/members/${memberId}`),
         {
           method: 'DELETE',
           headers: getAuthHeaders()
@@ -435,7 +435,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/moderate`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/moderate`),
         {
           method: 'POST',
           headers: {
@@ -468,7 +468,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/members/${memberId}/promote`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/members/${memberId}/promote`),
         {
           method: 'POST',
           headers: getAuthHeaders()
@@ -497,7 +497,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/messages/${messageId}`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/messages/${messageId}`),
         {
           method: 'DELETE',
           headers: getAuthHeaders()
@@ -738,7 +738,7 @@ export default function StudyGroupsPage() {
                             ) : message.type === 'image' ? (
                               <div>
                                 <img
-                                  src={`http://localhost:3001${message.fileUrl}`}
+                                  src={assetUrl(message.fileUrl)}
                                   alt={message.fileName}
                                   className="max-w-sm rounded-lg mb-1"
                                 />

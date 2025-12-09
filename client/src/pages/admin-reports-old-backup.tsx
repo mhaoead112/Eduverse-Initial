@@ -23,7 +23,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/hooks/useAuth';
+import { apiEndpoint } from '@/lib/config';
 import { 
   Flag, AlertTriangle, CheckCircle, Clock, Eye, 
   MessageSquare, User, Ban, Trash2, XCircle, Loader2
@@ -62,7 +63,7 @@ export default function AdminReports() {
   const { data: reportsData, isLoading } = useQuery({
     queryKey: ['admin-reports', filter],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/admin/reports', {
+      const response = await fetch(apiEndpoint('/api/admin/reports'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -83,7 +84,7 @@ export default function AdminReports() {
   // Update report status mutation
   const updateStatusMutation = useMutation({
     mutationFn: async ({ reportId, status }: { reportId: string; status: string }) => {
-      const response = await fetch(`http://localhost:3001/api/admin/reports/${reportId}`, {
+      const response = await fetch(apiEndpoint(`/api/admin/reports/${reportId}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

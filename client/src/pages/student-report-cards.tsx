@@ -3,7 +3,8 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/hooks/useAuth';
+import { apiEndpoint } from '@/lib/config';
 import { 
   FileText, 
   Download, 
@@ -92,7 +93,7 @@ export default function StudentReportCards() {
     
     try {
       const response = await fetch(
-        `http://localhost:3001/api/report-cards/${reportCard.id}/view`,
+        apiEndpoint(`/api/report-cards/${reportCard.id}/view`),
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -114,7 +115,7 @@ export default function StudentReportCards() {
     
     try {
       const response = await fetch(
-        `http://localhost:3001/api/report-cards/${reportCard.id}/download`,
+        apiEndpoint(`/api/report-cards/${reportCard.id}/download`),
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
