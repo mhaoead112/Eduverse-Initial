@@ -16,8 +16,10 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config({ path: path.resolve(__dirname, '../.env') });
 }
 
-import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
+// Sentry will be loaded dynamically so that missing runtime dependencies
+// (e.g. on Render) do not crash the server process.
+let Sentry: any = null;
+let nodeProfilingIntegration: any = null;
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -78,8 +80,19 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Initialize Sentry for error tracking (production only or if DSN is set)
+// Attempt to load Sentry dynamically when DSN is provided
 if (process.env.SENTRY_DSN) {
+  try {
+    Sentry = await import('@sentry/node');
+    const profilingModule = await import('@sentry/profiling-node');
+    nodeProfilingIntegration = profilingModule.nodeProfilingIntegration;
+  } catch (error) {
+    logger.error('Failed to load Sentry modules; continuing without Sentry', error);
+  }
+}
+
+// Initialize Sentry for error tracking (production only or if DSN is set)
+if (process.env.SENTRY_DSN && Sentry && nodeProfilingIntegration) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || 'development',
@@ -91,12 +104,12 @@ if (process.env.SENTRY_DSN) {
     tracesSampleRate: isProduction ? 0.1 : 1.0, // 10% in prod, 100% in dev
     profilesSampleRate: isProduction ? 0.1 : 1.0,
   });
-  
+
   // Sentry request handler must be the first middleware
   app.use(Sentry.expressErrorHandler());
-  
+
   logger.info('✅ Sentry error tracking initialized');
-} else {
+} else if (!process.env.SENTRY_DSN) {
   logger.warn('⚠️  Sentry DSN not configured - error tracking disabled');
 }
 
