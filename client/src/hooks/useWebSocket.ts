@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { WS_URL } from '@/lib/config';
 
 interface WSMessage {
   type: string;
@@ -28,9 +29,9 @@ export function useWebSocket(onMessage?: (data: any) => void): UseWebSocketRetur
     if (socket?.readyState === WebSocket.OPEN) return;
 
     try {
-      // Connect to WebSocket server
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//localhost:3001`;
+      // Connect to WebSocket server using configured WS_URL
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('eduverse_token');
+      const wsUrl = token ? `${WS_URL}/?token=${token}` : WS_URL;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {

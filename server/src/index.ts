@@ -191,7 +191,11 @@ app.use('/api/auth/register', authLimiter);
 // CORS configuration - use environment variable for production
 const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',') 
-  : ['http://localhost:5173'];
+  : [
+      'http://localhost:5173',
+      'https://eduverse-initial.vercel.app',
+      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app'
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
