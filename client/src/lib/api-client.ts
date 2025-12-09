@@ -3,6 +3,8 @@
  * Automatically adds authentication headers to API requests
  */
 
+import { apiEndpoint } from '@/lib/config';
+
 interface RequestOptions extends RequestInit {
   requiresAuth?: boolean;
 }
@@ -181,7 +183,7 @@ export async function refreshTokenIfNeeded(): Promise<boolean> {
   }
 
   try {
-    const response = await fetch('/api/auth/refresh', {
+    const response = await fetch(apiEndpoint('/api/auth/refresh'), {
       method: 'POST',
       credentials: 'include',
     });

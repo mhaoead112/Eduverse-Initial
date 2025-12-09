@@ -126,7 +126,7 @@ export function useAuth() {
     });
     
     // Optional: Call logout API endpoint
-    fetch('/api/auth/logout', {
+    fetch(apiEndpoint('/api/auth/logout'), {
       method: 'POST',
       credentials: 'include'
     }).catch(() => {
