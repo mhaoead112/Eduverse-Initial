@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
 import { users, enrollments, courses, grades, submissions, assignments, parentChildren, attendance, lessons, announcements, events, reportCards, eventParticipants, parentTeacherMessages, parentTeacherConversations } from '../db/schema.js';
-import { studyStreaks } from '../../../shared/schema.js';
+import { studyStreaks } from '../db/schema.js';
 import { eq, and, sql, desc, gte, lte, gt, lt, asc } from 'drizzle-orm';
 import { createId } from '@paralleldrive/cuid2';
 

@@ -6,7 +6,7 @@ import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { createCourse, getCoursesByTeacher, getPublishedCourses, getCourseById, updateCoursePublishStatus, deleteCourse } from '../services/course.service.js';
 import { getLessonById, updateLesson, deleteLesson } from '../services/lesson.service.js';
 import { db } from '../db/index.js';
-import { courses, lessons } from '../../../shared/schema.js';
+import { courses, lessons } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 
 const router = express.Router();

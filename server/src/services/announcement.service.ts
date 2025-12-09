@@ -1,7 +1,7 @@
 // server/src/services/announcement.service.ts
 
 import { db } from '../db/index.js';
-import { announcements, courses } from '../../../shared/schema.js';
+import { announcements, courses } from '../db/schema.js';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface CreateAnnouncementDto {

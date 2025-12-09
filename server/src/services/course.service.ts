@@ -3,7 +3,7 @@
 import { db } from '../db/index.js';
 // We use the relative path. It's more robust than an alias.
 // Path from server/src/services/ -> server/ -> / -> shared/
-import { courses, users } from '../../../shared/schema.js'; 
+import { courses, users } from '../db/schema.js'; 
 import { and, eq } from 'drizzle-orm';
 
 export interface CreateCourseDto {
