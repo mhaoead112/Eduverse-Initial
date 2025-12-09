@@ -1,7 +1,7 @@
 // server/src/services/lesson.service.ts
 
 import { db } from '../db/index.js';
-import { lessons, courses } from '../../../shared/schema.js';
+import { lessons, courses } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 
 export interface CreateLessonDto {

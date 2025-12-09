@@ -1,6 +1,6 @@
 import express from 'express';
 import { db } from '../../db.js';
-import { events, eventParticipants, users, courses } from '../../../shared/schema.js';
+import { events, eventParticipants, users, courses } from '../db/schema.js';
 import { eq, and, gte, lte, or, inArray, sql } from 'drizzle-orm';
 import { isAuthenticated, optionalAuth } from '../middleware/auth.middleware.js';
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { db } from '../db/index.js';
-import { users, enrollments, assignments, submissions, courses, grades } from '../../../shared/schema.js';
+import { users, enrollments, assignments, submissions, courses, grades } from '../db/schema.js';
 import { eq, and, sql, avg, count, inArray } from 'drizzle-orm';
 
 const router = express.Router();

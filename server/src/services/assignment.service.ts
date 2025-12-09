@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { assignments, submissions, courses, grades } from "../../../shared/schema.js";
+import { assignments, submissions, courses, grades } from "../db/schema.js";
 import { and, desc, eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 
