@@ -1,5 +1,5 @@
 
-import pool from '../utils/db';
+import pool from '../db/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';

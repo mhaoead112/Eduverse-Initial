@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http';
 import jwt from 'jsonwebtoken';
 import { db } from './db/index.js';
 import { messages, conversationParticipants, conversations, users, messageReadReceipts, userPresence, notifications } from './db/schema.js';
-import { eq, and, desc, inArray } from 'drizzle-orm';
+import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 import { createId } from '@paralleldrive/cuid2';
 
 // JWT secret must be set in environment variables
@@ -217,12 +217,14 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: WSMessage) {
       conversationId: message.conversationId,
       senderId: ws.userId,
       type: message.messageType || 'text',
-      content: message.content,
-      fileUrl: message.fileUrl,
-      fileName: message.fileName,
-      fileSize: message.fileSize,
-      fileType: message.fileType,
+      content: message.content || null,
+      fileUrl: message.fileUrl || null,
+      fileName: message.fileName || null,
+      fileSize: message.fileSize || null,
+      fileType: message.fileType || null,
       deliveredAt: isDelivered ? new Date() : null,
+      isEdited: false,
+      isDeleted: false,
     }).returning();
 
     // Get sender info
@@ -262,6 +264,7 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: WSMessage) {
             message: message.content?.substring(0, 100) || '',
             senderId: ws.userId,
             conversationId: message.conversationId,
+            isRead: false,
           });
 
           // Broadcast notification to mentioned user if online
@@ -290,15 +293,13 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: WSMessage) {
           message: message.content?.substring(0, 100) || 'Sent a file',
           senderId: ws.userId,
           conversationId: message.conversationId,
+          isRead: false,
         });
       }
     }
 
-    // Update conversation updated_at
-    await db
-      .update(conversations)
-      .set({ updatedAt: new Date() })
-      .where(eq(conversations.id, message.conversationId));
+    // Update conversation updated_at (using sql since updatedAt has $onUpdate)
+    await db.execute(sql`UPDATE conversations SET updated_at = NOW() WHERE id = ${message.conversationId}`);
 
     // Broadcast to all conversation participants
     broadcastToConversation(message.conversationId, {
@@ -378,7 +379,7 @@ async function handleRead(ws: AuthenticatedWebSocket, message: WSMessage) {
       .where(
         and(
           eq(conversationParticipants.conversationId, message.conversationId),
-          eq(conversationParticipants.userId, ws.userId)
+          eq(conversationParticipants.userId, ws.userId!)
         )
       );
 
@@ -465,7 +466,7 @@ async function handleDelivered(ws: AuthenticatedWebSocket, message: WSMessage) {
       .where(
         and(
           inArray(messages.id, message.messageIds),
-          eq(messages.deliveredAt, null as any)
+          sql`${messages.deliveredAt} IS NULL`
         )
       );
 
@@ -529,7 +530,6 @@ async function updateUserPresence(userId: string, status: string) {
         .set({ 
           status, 
           lastSeen: new Date(),
-          updatedAt: new Date()
         })
         .where(eq(userPresence.userId, userId));
     } else {
