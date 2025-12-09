@@ -1,7 +1,16 @@
 // API Configuration
 // Uses environment variables with production fallback for Vercel deployments
 
-const isProduction = import.meta.env.PROD;
+// More robust production detection - check at runtime
+const getIsProduction = () => {
+  if (import.meta.env.VITE_API_URL) return true; // Explicit env var means production
+  if (import.meta.env.PROD) return true;
+  if (import.meta.env.MODE === 'production') return true;
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') return true;
+  return false;
+};
+
+const isProduction = getIsProduction();
 const productionAPI = 'https://eduverse-initial.onrender.com';
 const productionWS = 'wss://eduverse-initial.onrender.com';
 
@@ -10,7 +19,7 @@ export const WS_URL = import.meta.env.VITE_WS_URL || (isProduction ? productionW
 
 // Debug log to verify production detection
 if (typeof window !== 'undefined') {
-  console.log('Environment:', { isProduction, API_URL, WS_URL });
+  console.log('Environment:', { isProduction, API_URL, WS_URL, mode: import.meta.env.MODE, prod: import.meta.env.PROD });
 }
 
 // Helper function to build API endpoints
