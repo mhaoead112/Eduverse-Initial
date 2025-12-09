@@ -29,7 +29,6 @@ const registerSchema = insertUserSchema.extend({
   password: z.string().min(6, "Password must be at least 6 characters long"),
   confirmPassword: z.string().optional(),
 }).omit({
-  passwordHash: true,
   emailVerificationToken: true,
   role: true, // SECURITY: Users cannot choose their own role
 }).refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
@@ -130,7 +129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email,
         fullName,
         role,
-        passwordHash,
+        password: passwordHash,
+        isActive: true,
+        emailVerified: false,
         emailVerificationToken: hashedVerificationToken,
         preferredRole: role
       });
@@ -148,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Don't return password hash or token in response
-      const { passwordHash: _, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
 
       res.status(201).json({
         message: "User created successfully",
@@ -189,7 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Verify password
-      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -201,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = generateToken(user.id, user.role);
 
       // Don't return password hash
-      const { passwordHash: _, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
 
       res.json({
         message: "Login successful",
@@ -369,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Don't return password hash
-      const { passwordHash: _, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       
       res.json(userWithoutPassword);
     } catch (error) {
@@ -411,7 +412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get updated user (without password)
       const updatedUser = await storage.getUser(userId);
-      const { passwordHash: _, ...userWithoutPassword } = updatedUser!;
+      const { password: _, ...userWithoutPassword } = updatedUser!;
 
       res.json({
         message: `User role successfully updated to ${newRole}`,
@@ -439,7 +440,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create demo users for development
   app.post("/api/auth/create-demo-users", async (req, res) => {
     try {
-      const demoUsers = [
+      const demoUsers: Array<{
+        username: string;
+        email: string;
+        fullName: string;
+        role: "student" | "teacher" | "admin" | "parent";
+        password: string;
+      }> = [
         {
           username: "student_demo",
           email: "student@eduverse.demo",
@@ -515,12 +522,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             email: demoUser.email,
             fullName: demoUser.fullName,
             role: demoUser.role,
-            passwordHash,
+            password: passwordHash,
+            isActive: true,
             emailVerified: true,
             preferredRole: demoUser.role
           });
 
-          const { passwordHash: _, ...userWithoutPassword } = user;
+          const { password: _, ...userWithoutPassword } = user;
           createdUsers.push(userWithoutPassword);
         } catch (error) {
           console.error(`Failed to create demo user ${demoUser.username}:`, error);
@@ -911,6 +919,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get users by role (students, teachers, parents)
+  app.get("/api/users/role/:role", async (req, res) => {
+    try {
+      const { role } = req.params;
+      const validRoles = ['student', 'teacher', 'parent', 'admin'];
+      
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid role. Must be one of: student, teacher, parent, admin" });
+      }
+      
+      const allUsers = await storage.getUsers();
+      const filteredUsers = allUsers.filter(user => user.role === role);
+      
+      // Remove sensitive data
+      const safeUsers = filteredUsers.map(({ password, ...user }) => user);
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users by role", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Convenience endpoint for students specifically
+  app.get("/api/users/students", async (req, res) => {
+    try {
+      const allUsers = await storage.getUsers();
+      const students = allUsers.filter(user => user.role === 'student');
+      
+      // Remove sensitive data
+      const safeStudents = students.map(({ password, ...user }) => user);
+      res.json(safeStudents);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch students", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   app.get("/api/users/:id/groups", async (req, res) => {
     try {
       const groups = await storage.getUserGroups(req.params.id);
@@ -1175,7 +1218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Broadcast file upload to group via WebSocket
       if (wsService) {
         const message = await storage.getGroupMessage(messageId);
-        if (message) {
+        if (message && message.groupId) {
           wsService.broadcastToGroupExternal(message.groupId, 'file_uploaded', {
             messageId,
             attachments,
@@ -1200,6 +1243,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has access to the message/group
+      if (!attachment.messageId) {
+        return res.status(404).json({ message: "File has no associated message" });
+      }
       const message = await storage.getGroupMessage(attachment.messageId);
       if (!message) {
         return res.status(404).json({ message: "Message not found" });
@@ -1240,8 +1286,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has access to the message/group
+      if (!attachment.messageId) {
+        return res.status(404).json({ message: "File has no associated message" });
+      }
       const message = await storage.getGroupMessage(attachment.messageId);
-      if (!message) {
+      if (!message || !message.groupId) {
         return res.status(404).json({ message: "Message not found" });
       }
 
@@ -1260,7 +1309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/messages/:messageId/attachments", async (req: AuthenticatedRequest, res) => {
     try {
       const message = await storage.getGroupMessage(req.params.messageId);
-      if (!message) {
+      if (!message || !message.groupId) {
         return res.status(404).json({ message: "Message not found" });
       }
 
@@ -1404,7 +1453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/courses/user", authMiddleware, async (req: AuthenticatedRequest, res) => {
     try {
       const userRole = req.userRole;
-      let courses = [];
+      let courses: any[] = [];
       
       if (userRole === 'teacher' || userRole === 'admin') {
         courses = await storage.getCoursesByTeacher(req.userId!);
@@ -1415,6 +1464,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(courses);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch user courses", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Get lessons for a course (must be before /api/courses/:id)
+  app.get("/api/courses/:courseId/lessons", async (req, res) => {
+    try {
+      const { courseId } = req.params;
+
+      if (!courseId) {
+        return res.status(400).json({ message: "Course ID is required" });
+      }
+
+      // Check if course exists
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Fetch lessons from database
+      const lessons = await storage.getLessonsByCourse(courseId);
+
+      res.json({
+        lessons,
+        message: "Lessons retrieved successfully"
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to retrieve lessons", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Get enrolled students for a course (must be before /api/courses/:id)
+  app.get("/api/courses/:courseId/students", authMiddleware, requireRole(['teacher', 'admin']), async (req: AuthenticatedRequest, res) => {
+    try {
+      const { courseId } = req.params;
+
+      if (!courseId) {
+        return res.status(400).json({ message: "Course ID is required" });
+      }
+
+      // Check if course exists
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      // Fetch enrolled students with full details
+      const students = await storage.getEnrolledStudents(courseId);
+
+      res.json({
+        students,
+        count: students.length,
+        message: "Students retrieved successfully"
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to retrieve students", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
     }
   });
 
@@ -1633,18 +1743,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Teacher: Enroll a specific student in course
+  app.post("/api/courses/:courseId/enroll-student", authMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      const courseId = req.params.courseId;
+      const { studentId } = req.body;
+      const teacherId = req.userId!;
+
+      if (!studentId) {
+        return res.status(400).json({ message: "Student ID is required" });
+      }
+
+      // Check if course exists and belongs to this teacher
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      if (course.teacherId !== teacherId) {
+        return res.status(403).json({ message: "You can only enroll students in your own courses" });
+      }
+
+      // Check if student exists and is actually a student
+      const student = await storage.getUser(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+      if (student.role !== 'student') {
+        return res.status(400).json({ message: "User is not a student" });
+      }
+
+      // Check if already enrolled
+      const isEnrolled = await storage.isStudentEnrolled(studentId, courseId);
+      if (isEnrolled) {
+        return res.status(400).json({ message: "Student is already enrolled in this course" });
+      }
+
+      // Create enrollment record
+      const enrollment = await storage.enrollStudent({
+        studentId,
+        courseId
+      });
+
+      res.status(201).json({
+        message: "Student successfully enrolled",
+        enrollment,
+        student: {
+          id: student.id,
+          fullName: student.fullName,
+          email: student.email
+        }
+      });
+    } catch (error) {
+      res.status(400).json({ 
+        message: "Failed to enroll student", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Teacher: Unenroll a specific student from course
+  app.delete("/api/courses/:courseId/unenroll-student/:studentId", authMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { courseId, studentId } = req.params;
+      const teacherId = req.userId!;
+
+      // Check if course exists and belongs to this teacher
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      if (course.teacherId !== teacherId) {
+        return res.status(403).json({ message: "You can only manage enrollments in your own courses" });
+      }
+
+      // Check if enrollment exists
+      const isEnrolled = await storage.isStudentEnrolled(studentId, courseId);
+      if (!isEnrolled) {
+        return res.status(404).json({ message: "Student is not enrolled in this course" });
+      }
+
+      // Delete enrollment record
+      const success = await storage.unenrollStudent(studentId, courseId);
+      
+      if (!success) {
+        return res.status(500).json({ message: "Failed to unenroll student" });
+      }
+
+      res.json({ 
+        message: "Student successfully unenrolled",
+        courseId,
+        studentId
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to unenroll student", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Upload lesson document to course
   app.post("/api/lessons/upload", authMiddleware, requireRole(['teacher', 'admin']), upload.single('file'), async (req: AuthenticatedRequest, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file provided" });
-      }
-
-      const { courseId, lessonTitle } = req.body;
+      const { courseId, lessonTitle, content, videoUrl } = req.body;
 
       // Validate required fields
       if (!courseId || !lessonTitle) {
-        fs.unlinkSync(req.file.path); // Delete uploaded file on validation error
+        if (req.file) {
+          fs.unlinkSync(req.file.path); // Delete uploaded file on validation error
+        }
         return res.status(400).json({ 
           message: "Validation failed", 
           errors: { 
@@ -1656,39 +1865,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate lesson title length
       if (lessonTitle.length < 1 || lessonTitle.length > 255) {
-        fs.unlinkSync(req.file.path);
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
         return res.status(400).json({ 
           message: "Lesson title must be between 1 and 255 characters" 
         });
       }
 
-      // In production, verify that the teacher owns this course
-      // const course = await db.query.courses.findFirst({ where: eq(courses.id, courseId) });
-      // if (!course || course.teacherId !== req.userId) {
-      //   fs.unlinkSync(req.file.path);
-      //   return res.status(403).json({ message: "You don't have permission to add lessons to this course" });
-      // }
+      // Verify that the course exists
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(404).json({ message: "Course not found" });
+      }
 
-      // Create lesson record
-      const lessonData = {
+      // Create lesson record in database
+      const lessonData: any = {
         courseId,
         title: lessonTitle,
-        fileName: req.file.originalname,
-        filePath: req.file.path,
-        fileType: req.file.mimetype,
-        fileSize: req.file.size.toString()
+        content: content || '',
+        videoUrl: videoUrl || null
       };
 
-      // For now, return success response (in production, save to database)
-      const lesson = {
-        id: Math.random().toString(36).substring(2, 15),
-        ...lessonData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // Add file info if file was uploaded
+      if (req.file) {
+        lessonData.fileName = req.file.originalname;
+        lessonData.filePath = req.file.path;
+        lessonData.fileType = req.file.mimetype;
+        lessonData.fileSize = req.file.size.toString();
+      }
+
+      // Save to database
+      const lesson = await storage.createLesson(lessonData);
 
       res.status(201).json({
-        message: "Lesson uploaded successfully",
+        message: "Lesson created successfully",
         lesson
       });
     } catch (error) {
@@ -1703,37 +1917,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.error("Lesson upload error:", error);
       res.status(500).json({ 
-        message: "Failed to upload lesson", 
-        error: error instanceof Error ? error.message : "Unknown error" 
-      });
-    }
-  });
-
-  // Get lessons for a course
-  app.get("/api/courses/:courseId/lessons", async (req, res) => {
-    try {
-      const { courseId } = req.params;
-
-      if (!courseId) {
-        return res.status(400).json({ message: "Course ID is required" });
-      }
-
-      // Check if course exists
-      const course = await storage.getCourse(courseId);
-      if (!course) {
-        return res.status(404).json({ message: "Course not found" });
-      }
-
-      // Fetch lessons from database
-      const lessons = await storage.getLessonsByCourse(courseId);
-
-      res.json({
-        lessons,
-        message: "Lessons retrieved successfully"
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        message: "Failed to retrieve lessons", 
+        message: "Failed to create lesson", 
         error: error instanceof Error ? error.message : "Unknown error" 
       });
     }
@@ -1790,7 +1974,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (process.env.NODE_ENV !== 'production') {
           console.log('Error searching users by email:', error);
         } else {
-          console.log('Error searching users:', error.message || 'Unknown error');
+          console.log('Error searching users:', (error instanceof Error ? error.message : 'Unknown error'));
         }
       }
     }
@@ -1840,11 +2024,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get message to find group for broadcasting
       const message = await storage.getGroupMessage(req.params.messageId);
-      if (message) {
+      if (message && message.groupId) {
         wsService.broadcastToGroupExternal(message.groupId, 'message_reaction', {
           messageId: req.params.messageId,
           userId: req.userId,
-          emoji: validatedData.emoji,
+          emoji: validatedData.reaction,
           action: 'add',
           timestamp: new Date().toISOString()
         });

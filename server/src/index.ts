@@ -18,7 +18,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+// @ts-ignore - missing type definitions
 import morgan from 'morgan';
+// @ts-ignore - missing type definitions
 import xss from 'xss-clean';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -77,8 +79,8 @@ if (process.env.SENTRY_DSN) {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || 'development',
     integrations: [
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Sentry.Integrations.Express({ app }),
+      Sentry.httpIntegration({ tracing: true }),
+      Sentry.expressIntegration({ app }),
       nodeProfilingIntegration(),
     ],
     tracesSampleRate: isProduction ? 0.1 : 1.0, // 10% in prod, 100% in dev
@@ -86,8 +88,7 @@ if (process.env.SENTRY_DSN) {
   });
   
   // Sentry request handler must be the first middleware
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
+  app.use(Sentry.expressErrorHandler());
   
   logger.info('✅ Sentry error tracking initialized');
 } else {
@@ -272,7 +273,7 @@ app.get('/api/health', (req, res) => {
 
 // Sentry error handler must be after all controllers and before other error middleware
 if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.errorHandler());
+  // Sentry error handler is already added in init above
 }
 
 // Global error handler

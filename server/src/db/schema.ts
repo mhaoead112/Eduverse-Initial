@@ -318,3 +318,101 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
 });
+
+// --- STUDY ACTIVITIES (for tracking daily learning activities) ---
+export const studyActivities = pgTable("study_activities", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  activityDate: timestamp("activity_date").notNull(), // Date of the activity (normalized to start of day)
+  activityType: text("activity_type").notNull(), // 'lesson_view', 'assignment_submit', 'quiz_complete', etc.
+  durationMinutes: text("duration_minutes"), // Optional: time spent
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// --- STUDY STREAKS (for gamification and tracking consistency) ---
+export const studyStreaks = pgTable("study_streaks", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  currentStreak: text("current_streak").default('0').notNull(), // Current consecutive days
+  longestStreak: text("longest_streak").default('0').notNull(), // Best streak ever
+  lastActivityDate: timestamp("last_activity_date"), // Last date user was active
+  totalActiveDays: text("total_active_days").default('0').notNull(), // Total days with activity
+  weeklyGoalHours: text("weekly_goal_hours").default('10').notNull(), // User's weekly goal
+  currentWeekHours: text("current_week_hours").default('0').notNull(), // Hours this week
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+});
+
+// --- LEGACY/STUB TABLES (for storage.ts compatibility) ---
+export const applications = pgTable("applications", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  message: text("message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const contacts = pgTable("contacts", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  senderId: text("sender_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content: text("content").notNull(),
+  conversationId: text("conversation_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const newsArticles = pgTable("news_articles", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  authorId: text("author_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  imageUrl: text("image_url"),
+  category: text("category"),
+  isPublished: boolean("is_published").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+});
+
+export const newsComments = pgTable("news_comments", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  articleId: text("article_id").notNull().references(() => newsArticles.id, { onDelete: 'cascade' }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const staffProfiles = pgTable("staff_profiles", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  userId: text("user_id").references(() => users.id, { onDelete: 'set null' }),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  title: text("title").notNull(),
+  department: text("department").notNull(),
+  bio: text("bio"),
+  imageUrl: text("image_url"),
+  email: text("email"),
+  phone: text("phone"),
+  officeLocation: text("office_location"),
+  officeHours: text("office_hours"),
+  displayOrder: text("display_order").default('0'),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
+});
+
+export const staffAchievements = pgTable("staff_achievements", {
+  id: text("id").primaryKey().$defaultFn(() => createId()),
+  staffId: text("staff_id").notNull().references(() => staffProfiles.id, { onDelete: 'cascade' }),
+  title: text("title").notNull(),
+  description: text("description"),
+  year: text("year"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

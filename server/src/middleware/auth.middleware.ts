@@ -9,6 +9,11 @@ const JWT_SECRET = process.env.JWT_SECRET;
 interface AuthenticatedUser {
   id: string;
   role: "student" | "teacher" | "admin" | "parent";
+  email?: string;
+  fullName?: string;
+  phone?: string | null;
+  bio?: string | null;
+  profilePicture?: string | null;
 }
 
 declare global {

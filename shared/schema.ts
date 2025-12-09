@@ -24,12 +24,12 @@ export const users = pgTable('users', {
     bio: text('bio'),
     grade: varchar('grade', { length: 50 }), // For students: "Grade 1", "Grade 2", etc.
     isActive: boolean('is_active').default(true).notNull(),
-    // emailVerified: boolean('email_verified').default(false).notNull(),
-    // emailVerificationToken: text('email_verification_token'),
-    // passwordResetToken: text('password_reset_token'),
-    // passwordResetExpires: timestamp('password_reset_expires'),
-    // preferredRole: userRoleEnum('preferred_role'),
-    // lastLogin: timestamp('last_login'),
+    emailVerified: boolean('email_verified').default(false).notNull(),
+    emailVerificationToken: text('email_verification_token'),
+    passwordResetToken: text('password_reset_token'),
+    passwordResetExpires: timestamp('password_reset_expires'),
+    preferredRole: userRoleEnum('preferred_role'),
+    lastLoginAt: timestamp('last_login_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
 });
@@ -163,6 +163,8 @@ export const reportCards = pgTable("report_cards", {
 export const staffProfiles = pgTable("staff_profiles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
   title: text("title").notNull(),
   bio: text("bio"),
   email: text("email").unique(),
@@ -171,6 +173,8 @@ export const staffProfiles = pgTable("staff_profiles", {
   photoUrl: text("photo_url"),
   department: text("department"),
   isPublic: boolean("is_public").default(true),
+  isActive: boolean("is_active").default(true).notNull(),
+  displayOrder: text("display_order").default('0'),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -237,10 +241,8 @@ export const insertUserSchema = createInsertSchema(users).omit({
   username: z.string().min(1, "Username is required"),
   fullName: z.string().min(1, "Full name is required"),
   email: z.string().email("Valid email is required"),
-  passwordHash: z.string().min(1, "Password hash is required"),
+  password: z.string().min(1, "Password is required"),
   role: z.enum(['student', 'teacher', 'admin', 'parent']).optional(),
-  isActive: z.boolean().optional().default(true),
-  emailVerified: z.boolean().optional().default(false),
   preferredRole: z.enum(['student', 'teacher', 'admin', 'parent']).optional(),
 });
 
@@ -256,7 +258,6 @@ export const insertCourseSchema = createInsertSchema(courses).omit({
   title: z.string().min(3, "Course title must be at least 3 characters").max(255),
   description: z.string().min(10, "Course description must be at least 10 characters").max(2000),
   teacherId: z.string().min(1, "Teacher ID is required"),
-  isPublished: z.boolean().optional().default(false),
 });
 
 export const insertEnrollmentSchema = createInsertSchema(enrollments).omit({
@@ -289,7 +290,6 @@ export const insertAssignmentSchema = createInsertSchema(assignments).omit({
   description: z.string().optional(),
   dueDate: z.date().optional(),
   maxScore: z.string().optional().default('100'),
-  isPublished: z.boolean().optional().default(false),
 });
 
 export const insertSubmissionSchema = createInsertSchema(submissions).omit({
@@ -328,7 +328,6 @@ export const insertAnnouncementSchema = createInsertSchema(announcements).omit({
   teacherId: z.string().min(1, "Teacher ID is required"),
   title: z.string().min(1, "Title is required").max(255),
   content: z.string().min(1, "Content is required"),
-  isPinned: z.boolean().optional().default(false),
 });
 
 export const insertEventSchema = createInsertSchema(events).omit({
@@ -345,7 +344,6 @@ export const insertEventSchema = createInsertSchema(events).omit({
   meetingLink: z.string().optional(),
   courseId: z.string().optional(),
   createdBy: z.string().min(1, "Creator ID is required"),
-  isPublic: z.boolean().optional().default(true),
   maxParticipants: z.string().optional(),
 });
 
@@ -395,48 +393,423 @@ export type InsertReportCard = z.infer<typeof insertReportCardSchema>;
 export type ReportPeriod = 'Q1' | 'Q2' | 'Q3' | 'Q4' | 'S1' | 'S2' | 'FINAL';
 export type EventType = 'assignment' | 'exam' | 'class' | 'event' | 'deadline' | 'meeting';
 
-// Staff schemas
-export const insertStaffProfileSchema = createInsertSchema(staffProfiles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Staff schemas (stub - actual tables in server schema)
+export const insertStaffProfileSchema = z.object({
+  userId: z.string(),
+  department: z.string().optional(),
+  position: z.string().optional(),
+  bio: z.string().optional(),
+  specialization: z.string().optional(),
+  qualifications: z.string().optional(),
+  yearsOfExperience: z.number().optional(),
 });
 
-export const insertStaffAchievementSchema = createInsertSchema(staffAchievements).omit({
-  id: true,
-  createdAt: true,
+export const insertStaffAchievementSchema = z.object({
+  staffId: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  date: z.date().optional(),
 });
 
-export type StaffProfile = typeof staffProfiles.$inferSelect;
+export type StaffProfile = {
+  id: string;
+  userId: string;
+  department?: string | null;
+  position?: string | null;
+  bio?: string | null;
+  specialization?: string | null;
+  qualifications?: string | null;
+  yearsOfExperience?: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 export type InsertStaffProfile = z.infer<typeof insertStaffProfileSchema>;
 
-export type StaffAchievement = typeof staffAchievements.$inferSelect;
+export type StaffAchievement = {
+  id: string;
+  staffId: string;
+  title: string;
+  description?: string | null;
+  date?: Date | null;
+  createdAt: Date;
+};
 export type InsertStaffAchievement = z.infer<typeof insertStaffAchievementSchema>;
 
-// Study activity schemas
-export const insertStudyActivitySchema = createInsertSchema(studyActivity).omit({
-  id: true,
-  createdAt: true,
+// Study activity schemas (stub - actual tables in server schema)
+export const insertStudyActivitySchema = z.object({
+  userId: z.string(),
+  activityType: z.string(),
+  duration: z.number(),
+  courseId: z.string().optional(),
+  metadata: z.any().optional(),
 });
 
-export const insertStudyStreakSchema = createInsertSchema(studyStreaks).omit({
-  id: true,
-  updatedAt: true,
+export const insertStudyStreakSchema = z.object({
+  userId: z.string(),
+  currentStreak: z.number().default(0),
+  longestStreak: z.number().default(0),
+  lastActivityDate: z.date(),
 });
 
-export type StudyActivity = typeof studyActivity.$inferSelect;
+export type StudyActivity = {
+  id: string;
+  userId: string;
+  activityType: string;
+  duration: number;
+  courseId?: string | null;
+  metadata?: any;
+  createdAt: Date;
+};
 export type InsertStudyActivity = z.infer<typeof insertStudyActivitySchema>;
-export type StudyStreak = typeof studyStreaks.$inferSelect;
+export type StudyStreak = {
+  id: string;
+  userId: string;
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate: Date;
+  updatedAt: Date;
+};
 export type InsertStudyStreak = z.infer<typeof insertStudyStreakSchema>;
 
-// Push subscription schemas
-export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Push subscription schemas (stub - actual tables in server schema)
+export const insertPushSubscriptionSchema = z.object({
+  userId: z.string(),
+  endpoint: z.string(),
+  p256dh: z.string(),
+  auth: z.string(),
+  userAgent: z.string().optional(),
 });
 
-export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type PushSubscription = {
+  id: string;
+  userId: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  userAgent?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
 
 export type UserRole = 'student' | 'teacher' | 'admin' | 'parent';
+
+// Group Chat Types (for client compatibility - actual tables in server/src/db/schema.ts)
+export type Group = {
+  id: string;
+  name: string;
+  description: string | null;
+  avatarUrl: string | null;
+  creatorId: string;
+  createdAt: Date;
+  conversationId: string;
+  type?: 'group' | 'direct';
+  privacy?: 'public' | 'private';
+  memberLimit?: number | null;
+  requireApproval?: boolean;
+  allowMemberInvite?: boolean;
+};
+
+export type GroupMember = {
+  id: string;
+  groupId: string;
+  userId: string;
+  role: 'admin' | 'moderator' | 'member';
+  joinedAt: Date;
+};
+
+export type GroupMessage = {
+  id: string;
+  conversationId: string;
+  groupId: string | null;
+  senderId: string;
+  userId?: string; // alias for senderId (for backward compatibility)
+  content: string;
+  messageType: 'text' | 'file' | 'image' | 'video';
+  metadata: any | null;
+  replyToId: string | null;
+  replyTo?: GroupMessage | null;
+  senderName?: string;
+  createdAt: Date;
+};
+
+// InsertGroupMessage matches the actual 'messages' table structure in server/src/db/schema.ts
+export type InsertGroupMessage = {
+  conversationId: string;
+  senderId: string;
+  type?: 'text' | 'file' | 'image' | 'video';
+  content?: string | null;
+  fileUrl?: string | null;
+  fileName?: string | null;
+  fileSize?: string | null;
+  fileType?: string | null;
+  isEdited?: boolean;
+  isDeleted?: boolean;
+};
+
+// ========== STUB VALIDATION SCHEMAS FOR LEGACY/EXTERNAL FEATURES ==========
+// These are minimal schemas for features that may not have database tables yet
+// but are referenced in server routes. Replace with proper table-based schemas when needed.
+
+export const insertApplicationSchema = z.object({
+  fullName: z.string().min(1),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  message: z.string().optional(),
+});
+
+export const insertContactSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  subject: z.string().min(1),
+  message: z.string().min(1),
+});
+
+export const insertChatMessageSchema = z.object({
+  senderId: z.string(),
+  content: z.string(),
+  conversationId: z.string().optional(),
+});
+
+export const insertGroupSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  creatorId: z.string(),
+  avatarUrl: z.string().optional(),
+  privacy: z.enum(['public', 'private']).optional(),
+  memberLimit: z.number().optional(),
+  requireApproval: z.boolean().optional(),
+  allowMemberInvite: z.boolean().optional(),
+});
+
+export const insertGroupMemberSchema = z.object({
+  groupId: z.string(),
+  userId: z.string(),
+  role: z.enum(['admin', 'moderator', 'member']).optional(),
+});
+
+export const insertGroupMessageSchema = z.object({
+  conversationId: z.string(),
+  groupId: z.string().optional(),
+  senderId: z.string(),
+  content: z.string(),
+  messageType: z.enum(['text', 'file', 'image', 'video']).optional(),
+  metadata: z.any().optional(),
+  replyToId: z.string().optional(),
+});
+
+export const insertMessageReactionSchema = z.object({
+  messageId: z.string(),
+  userId: z.string(),
+  reaction: z.string(),
+});
+
+export const insertGroupPollSchema = z.object({
+  groupId: z.string(),
+  question: z.string().min(1),
+  options: z.array(z.string()),
+  createdBy: z.string(),
+  expiresAt: z.date().optional(),
+});
+
+export const insertPollVoteSchema = z.object({
+  pollId: z.string(),
+  userId: z.string(),
+  optionIndex: z.number(),
+});
+
+export const insertRaiseHandRequestSchema = z.object({
+  userId: z.string(),
+  groupId: z.string().optional(),
+  reason: z.string().optional(),
+});
+
+export const insertFileAttachmentSchema = z.object({
+  fileName: z.string(),
+  filePath: z.string(),
+  fileSize: z.string(),
+  fileType: z.string(),
+  uploadedBy: z.string(),
+});
+
+export const insertClassSchema = z.object({
+  name: z.string().min(1),
+  teacherId: z.string(),
+  description: z.string().optional(),
+  schedule: z.string().optional(),
+});
+
+export const insertClassEnrollmentSchema = z.object({
+  classId: z.string(),
+  studentId: z.string(),
+});
+
+export const insertNewsArticleSchema = z.object({
+  title: z.string().min(1),
+  content: z.string().min(1),
+  authorId: z.string(),
+  imageUrl: z.string().optional(),
+  category: z.string().optional(),
+  isPublished: z.boolean().optional(),
+});
+
+export const insertEventRegistrationSchema = z.object({
+  eventId: z.string(),
+  userId: z.string(),
+  status: z.enum(['registered', 'pending', 'declined']).optional(),
+});
+
+export const insertNewsCommentSchema = z.object({
+  articleId: z.string(),
+  userId: z.string(),
+  content: z.string().min(1),
+});
+
+// ========== LEGACY TYPE EXPORTS FOR STORAGE.TS COMPATIBILITY ==========
+// These types are for features that may be partially implemented or planned
+
+export type Application = {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  message?: string | null;
+  createdAt: Date;
+};
+
+export type InsertApplication = Omit<Application, 'id' | 'createdAt'>;
+
+export type Contact = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  createdAt: Date;
+};
+
+export type InsertContact = Omit<Contact, 'id' | 'createdAt'>;
+
+export type ChatMessage = {
+  id: string;
+  senderId: string;
+  content: string;
+  message?: string; // alias for content
+  response?: string; // for AI responses
+  conversationId?: string | null;
+  createdAt: Date;
+};
+
+export type InsertChatMessage = Omit<ChatMessage, 'id' | 'createdAt'>;
+
+export type FileAttachment = {
+  id: string;
+  fileName: string;
+  filePath: string;
+  fileSize: string;
+  fileType: string;
+  fileUrl?: string | null;
+  originalName?: string | null;
+  mimeType?: string | null;
+  messageId?: string | null;
+  uploadedBy: string;
+  scanStatus?: string | null;
+  createdAt: Date;
+};
+
+export type InsertFileAttachment = Omit<FileAttachment, 'id' | 'createdAt'>;
+
+export type MessageReaction = {
+  id: string;
+  messageId: string;
+  userId: string;
+  reaction: string;
+  createdAt: Date;
+};
+
+export type InsertMessageReaction = Omit<MessageReaction, 'id' | 'createdAt'>;
+
+export type GroupPoll = {
+  id: string;
+  groupId: string;
+  question: string;
+  options: string[];
+  createdBy: string;
+  expiresAt?: Date | null;
+  createdAt: Date;
+};
+
+export type InsertGroupPoll = Omit<GroupPoll, 'id' | 'createdAt'>;
+
+export type PollVote = {
+  id: string;
+  pollId: string;
+  userId: string;
+  optionIndex: number;
+  createdAt: Date;
+};
+
+export type InsertPollVote = Omit<PollVote, 'id' | 'createdAt'>;
+
+export type RaiseHandRequest = {
+  id: string;
+  userId: string;
+  groupId?: string | null;
+  reason?: string | null;
+  status: 'pending' | 'acknowledged' | 'dismissed';
+  createdAt: Date;
+};
+
+export type InsertRaiseHandRequest = Omit<RaiseHandRequest, 'id' | 'createdAt' | 'status'>;
+
+export type NewsArticle = {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  slug?: string | null;
+  imageUrl?: string | null;
+  category?: string | null;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt?: Date | null;
+};
+
+export type InsertNewsArticle = Omit<NewsArticle, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type EventRegistration = {
+  id: string;
+  eventId: string;
+  userId: string;
+  status: 'registered' | 'pending' | 'declined';
+  createdAt: Date;
+};
+
+export type InsertEventRegistration = Omit<EventRegistration, 'id' | 'createdAt'>;
+
+export type InsertGroup = {
+  name: string;
+  description?: string | null;
+  creatorId: string;
+  avatarUrl?: string | null;
+  privacy?: 'public' | 'private';
+  memberLimit?: number | null;
+  requireApproval?: boolean;
+  allowMemberInvite?: boolean;
+};
+
+export type InsertGroupMember = {
+  groupId: string;
+  userId: string;
+  role?: 'admin' | 'moderator' | 'member';
+};
+
+export type NewsComment = {
+  id: string;
+  articleId: string;
+  userId: string;
+  content: string;
+  createdAt: Date;
+};
+
+export type InsertNewsComment = Omit<NewsComment, 'id' | 'createdAt'>;

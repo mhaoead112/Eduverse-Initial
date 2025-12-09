@@ -115,7 +115,7 @@ router.get('/student', isAuthenticated, async (req, res) => {
         const courseIds = studentEnrollments.map(e => e.courseId);
 
         // Fetch all announcements for these courses
-        const allAnnouncements = [];
+        const allAnnouncements: any[] = [];
         for (const courseId of courseIds) {
             const courseAnns = await getAnnouncementsByCourse(courseId);
             

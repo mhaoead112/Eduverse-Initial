@@ -1,37 +1,90 @@
-import { 
-  type Application, type InsertApplication, 
-  type Contact, type InsertContact, 
-  type ChatMessage, type InsertChatMessage,
-  type User, type InsertUser,
-  type Group, type InsertGroup,
-  type GroupMember, type InsertGroupMember,
-  type GroupMessage, type InsertGroupMessage,
-  type MessageReaction, type InsertMessageReaction,
-  type GroupPoll, type InsertGroupPoll,
-  type PollVote, type InsertPollVote,
-  type RaiseHandRequest, type InsertRaiseHandRequest,
-  type FileAttachment, type InsertFileAttachment,
-  type NewsArticle, type InsertNewsArticle,
-  type Event, type InsertEvent,
-  type EventRegistration, type InsertEventRegistration,
-  type NewsComment, type InsertNewsComment,
-  type StaffProfile, type InsertStaffProfile,
-  type StaffAchievement, type InsertStaffAchievement,
-  type Course, type InsertCourse,
-  type Enrollment, type InsertEnrollment,
-  type Lesson, type InsertLesson,
-  applications, contacts, chatMessages, users, groups, groupMembers, 
-  groupMessages, messageReactions, groupPolls, pollVotes, 
-  raiseHandRequests, fileAttachments, newsArticles, events, 
-  eventRegistrations, newsComments, staffProfiles, staffAchievements,
-  courses, enrollments, lessons,
-  // Teacher portal tables
-  classes, classEnrollments, assignments, assignmentSubmissions, 
-  quizzes, quizAttempts, contentLibrary, contentBookmarks, 
-  attendance, teacherProfiles, announcements
+// Import all table definitions from server schema (actual DB tables)
+import {
+  users,
+  courses,
+  enrollments,
+  lessons,
+  assignments,
+  submissions,
+  grades,
+  announcements,
+  reportCards,
+  studyGroups as groups,
+  groupMembers,
+  conversations,
+  conversationParticipants,
+  messages as groupMessages,
+  messageReadReceipts,
+  userPresence,
+  notifications,
+  blockedUsers,
+  reportedUsers,
+  parentChildren,
+  events,
+  eventParticipants,
+  attendance,
+  parentTeacherMessages,
+  parentTeacherConversations,
+  pushSubscriptions,
+  studyActivities,
+  studyStreaks,
+  applications,
+  contacts,
+  chatMessages,
+  newsArticles,
+  newsComments,
+  staffProfiles,
+  staffAchievements
+} from "./src/db/schema.js";
+
+// Import types from shared schema (for client compatibility)
+import type {
+  User,
+  InsertUser,
+  Course,
+  InsertCourse,
+  Enrollment,
+  InsertEnrollment,
+  Lesson,
+  InsertLesson,
+  Group,
+  GroupMember,
+  GroupMessage,
+  InsertGroupMessage,
+  Application,
+  InsertApplication,
+  Contact,
+  InsertContact,
+  ChatMessage,
+  InsertChatMessage,
+  FileAttachment,
+  InsertFileAttachment,
+  MessageReaction,
+  InsertMessageReaction,
+  GroupPoll,
+  InsertGroupPoll,
+  PollVote,
+  InsertPollVote,
+  RaiseHandRequest,
+  InsertRaiseHandRequest,
+  NewsArticle,
+  InsertNewsArticle,
+  EventRegistration,
+  InsertEventRegistration,
+  InsertGroup,
+  InsertGroupMember,
+  Event,
+  InsertEvent,
+  StaffProfile,
+  InsertStaffProfile,
+  StaffAchievement,
+  InsertStaffAchievement,
+  NewsComment,
+  InsertNewsComment
 } from "@shared/schema";
+
 import { eq, and, inArray, asc, sql } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "./db/index.js";
 
 export interface IStorage {
   // Applications
@@ -60,7 +113,7 @@ export interface IStorage {
   getUserByResetToken(token: string): Promise<User | undefined>;
   getUsersWithActiveResetTokens(): Promise<User[]>;
   clearPasswordResetToken(userId: string): Promise<boolean>;
-  updatePassword(userId: string, passwordHash: string): Promise<boolean>;
+  updatePassword(userId: string, password: string): Promise<boolean>;
   getUserByVerificationToken(token: string): Promise<User | undefined>;
   getUsersWithActiveVerificationTokens(): Promise<User[]>;
   verifyEmail(userId: string): Promise<boolean>;
@@ -304,11 +357,11 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
-  async updatePassword(userId: string, passwordHash: string): Promise<boolean> {
+  async updatePassword(userId: string, password: string): Promise<boolean> {
     const result = await db
       .update(users)
       .set({ 
-        passwordHash,
+        password,
         passwordResetToken: null,
         passwordResetExpires: null,
         updatedAt: new Date()
@@ -741,15 +794,15 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(events)
-      .orderBy(asc(events.startDate));
+      .orderBy(asc(events.startTime));
   }
 
   async getPublishedEvents(): Promise<Event[]> {
     return await db
       .select()
       .from(events)
-      .where(eq(events.isPublished, true))
-      .orderBy(asc(events.startDate));
+      .where(eq(events.isPublic, true))
+      .orderBy(asc(events.startTime));
   }
 
   async getUpcomingEvents(): Promise<Event[]> {
@@ -758,10 +811,10 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(events)
       .where(and(
-        eq(events.isPublished, true),
-        sql`${events.startDate} >= ${now}`
+        eq(events.isPublic, true),
+        sql`${events.startTime} >= ${now}`
       ))
-      .orderBy(asc(events.startDate));
+      .orderBy(asc(events.startTime));
   }
 
   async getEvent(id: string): Promise<Event | undefined> {
@@ -791,11 +844,11 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(events)
       .where(and(
-        eq(events.isPublished, true),
-        sql`${events.startDate} >= ${startDate}`,
-        sql`${events.startDate} <= ${endDate}`
+        eq(events.isPublic, true),
+        sql`${events.startTime} >= ${startDate}`,
+        sql`${events.startTime} <= ${endDate}`
       ))
-      .orderBy(asc(events.startDate));
+      .orderBy(asc(events.startTime));
   }
 
   // === EVENT REGISTRATIONS METHODS ===
@@ -1124,6 +1177,23 @@ export class DatabaseStorage implements IStorage {
       .from(enrollments)
       .where(eq(enrollments.courseId, courseId));
     return result[0]?.count ?? 0;
+  }
+
+  async getEnrolledStudents(courseId: string): Promise<any[]> {
+    const result = await db
+      .select({
+        enrollmentId: enrollments.id,
+        enrolledAt: enrollments.enrolledAt,
+        studentId: users.id,
+        studentName: users.name,
+        studentEmail: users.email,
+        studentRole: users.role
+      })
+      .from(enrollments)
+      .innerJoin(users, eq(enrollments.studentId, users.id))
+      .where(eq(enrollments.courseId, courseId))
+      .orderBy(sql`${enrollments.enrolledAt} DESC`);
+    return result;
   }
 
   // ==================== LESSON MANAGEMENT ====================
