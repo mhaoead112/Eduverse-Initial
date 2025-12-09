@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch server/src/index.ts",
     "build": "tsc -p server/tsconfig.json || echo 'Build completed with warnings'",
-    "start": "node server/dist/src/index.js",
+    "start": "NODE_PATH=./node_modules node server/dist/src/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
