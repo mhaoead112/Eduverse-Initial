@@ -116,7 +116,7 @@ curl -X POST https://your-app.onrender.com/api/auth/login \
 {
   "scripts": {
     "dev": "tsx watch server/src/index.ts",
-    "build": "cd server && npx tsc",
+    "build": "tsc -p server/tsconfig.json",
     "start": "node server/dist/src/index.js",
     "db:push": "drizzle-kit push"
   }
