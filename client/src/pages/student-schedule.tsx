@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -181,7 +182,7 @@ export default function StudentSchedule() {
     try {
       const { start, end } = getDateRange();
       const response = await fetch(
-        `http://localhost:3001/api/schedule/me?startDate=${start.toISOString()}&endDate=${end.toISOString()}`,
+        apiEndpoint(`/api/schedule/me?startDate=${start.toISOString()}&endDate=${end.toISOString()}`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,

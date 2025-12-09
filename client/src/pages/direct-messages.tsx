@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
@@ -94,7 +95,7 @@ export default function DirectMessagesPage() {
   const fetchConversations = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:3001/api/study-groups", {
+      const response = await fetch(apiEndpoint("/api/study-groups"), {
         headers: getAuthHeaders()
       });
       
@@ -123,7 +124,7 @@ export default function DirectMessagesPage() {
 
   const fetchAllUsers = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/users", {
+      const response = await fetch(apiEndpoint("/api/users"), {
         headers: getAuthHeaders()
       });
       
@@ -141,7 +142,7 @@ export default function DirectMessagesPage() {
     try {
       const statuses = await Promise.all(
         userIds.map(userId =>
-          fetch(`http://localhost:3001/api/study-groups/presence/${userId}`, {
+          fetch(apiEndpoint(`/api/study-groups/presence/${userId}`), {
             headers: getAuthHeaders()
           }).then(r => r.json()).catch(() => null)
         )
@@ -161,7 +162,7 @@ export default function DirectMessagesPage() {
   const fetchMessages = async (conversationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${conversationId}/messages`,
+        apiEndpoint(`/api/study-groups/${conversationId}/messages`),
         { headers: getAuthHeaders() }
       );
 
@@ -186,7 +187,7 @@ export default function DirectMessagesPage() {
     setIsSending(true);
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedConversation.conversationId}/messages`,
+        apiEndpoint(`/api/study-groups/${selectedConversation.conversationId}/messages`),
         {
           method: "POST",
           headers: {
@@ -229,7 +230,7 @@ export default function DirectMessagesPage() {
   const handleStartDM = async (targetUserId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/direct/${targetUserId}`,
+        apiEndpoint(`/api/study-groups/direct/${targetUserId}`),
         { headers: getAuthHeaders() }
       );
 
@@ -262,7 +263,7 @@ export default function DirectMessagesPage() {
 
   const handleBlockUser = async (userId: string) => {
     try {
-      const response = await fetch('http://localhost:3001/api/notifications/block', {
+      const response = await fetch(apiEndpoint('/api/notifications/block'), {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -289,7 +290,7 @@ export default function DirectMessagesPage() {
 
   const handleReportUser = async (userId: string, reason: string) => {
     try {
-      const response = await fetch('http://localhost:3001/api/notifications/report', {
+      const response = await fetch(apiEndpoint('/api/notifications/report'), {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),

@@ -1,5 +1,5 @@
-import { db } from "../db";
-import { grades, submissions, assignments, courses } from "../../shared/schema";
+import { db } from "../db/index.js";
+import { grades, submissions, assignments, courses } from "../db/schema.js";
 import { eq, and, sql } from "drizzle-orm";
 
 export interface ProgressData {

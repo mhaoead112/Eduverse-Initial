@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
+import { apiEndpoint } from "@/lib/config";
 import { ArrowLeft, Megaphone, Pin, PinOff, Edit2, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -80,7 +81,7 @@ export default function AnnouncementsPage() {
   const fetchCourse = async () => {
     try {
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/courses/${courseId}`, {
+      const response = await fetch(apiEndpoint(`/api/courses/${courseId}`), {
         headers: authHeaders,
       });
       if (response.ok) {
@@ -96,7 +97,7 @@ export default function AnnouncementsPage() {
     try {
       setLoading(true);
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/announcements/course/${courseId}`, {
+      const response = await fetch(apiEndpoint(`/api/announcements/course/${courseId}`), {
         headers: authHeaders,
       });
       
@@ -133,7 +134,7 @@ export default function AnnouncementsPage() {
     try {
       setSubmitting(true);
       const authHeaders = getAuthHeaders();
-      const response = await fetch("http://localhost:3001/api/announcements", {
+      const response = await fetch(apiEndpoint("/api/announcements"), {
         method: "POST",
         headers: {
           ...authHeaders,
@@ -182,7 +183,7 @@ export default function AnnouncementsPage() {
     try {
       setSubmitting(true);
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/announcements/${editingAnnouncement.id}`, {
+      const response = await fetch(apiEndpoint(`/api/announcements/${editingAnnouncement.id}`), {
         method: "PATCH",
         headers: {
           ...authHeaders,
@@ -218,7 +219,7 @@ export default function AnnouncementsPage() {
   const handleTogglePin = async (announcement: Announcement) => {
     try {
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/announcements/${announcement.id}`, {
+      const response = await fetch(apiEndpoint(`/api/announcements/${announcement.id}`), {
         method: "PATCH",
         headers: {
           ...authHeaders,
@@ -253,7 +254,7 @@ export default function AnnouncementsPage() {
 
     try {
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`http://localhost:3001/api/announcements/${deletingId}`, {
+      const response = await fetch(apiEndpoint(`/api/announcements/${deletingId}`), {
         method: "DELETE",
         headers: authHeaders,
       });

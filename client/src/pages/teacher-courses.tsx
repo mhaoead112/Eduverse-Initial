@@ -52,8 +52,8 @@ export default function TeacherCoursesPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:3001/api/courses/user", {
-        headers: getAuthHeaders()
+      const res = await fetch(apiEndpoint("/api/courses/user"), {
+        headers: getAuthHeaders(),
       });
       
       if (!res.ok) {
@@ -88,7 +88,7 @@ export default function TeacherCoursesPage() {
   const handleTogglePublish = async (courseId: string, currentStatus: boolean) => {
     setPublishingId(courseId);
     try {
-      const res = await fetch(`http://localhost:3001/api/courses/${courseId}/publish`, {
+      const res = await fetch(apiEndpoint(`/api/courses/${courseId}/publish`), {
         method: 'PATCH',
         headers: getAuthHeaders(),
         body: JSON.stringify({ isPublished: !currentStatus })

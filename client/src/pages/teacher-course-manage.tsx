@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useRoute, useLocation } from "wouter";
 import { 
   BookOpen, Users, FileText, Settings, Trash2, Edit, Plus,
-  ArrowLeft, Calendar, Clock, TrendingUp, CheckCircle2, Loader2
+  ArrowLeft, Calendar, Clock, TrendingUp, CheckCircle2, Loader2,
+  UserPlus, X, Search
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { 
   Dialog, 
   DialogContent, 
@@ -22,6 +24,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Course {
   id: string;
@@ -57,6 +66,13 @@ interface Enrollment {
   studentRole: string;
 }
 
+interface Student {
+  id: string;
+  fullName: string;
+  email: string;
+  username: string;
+}
+
 export default function TeacherCourseManage() {
   const [, params] = useRoute("/teacher/courses/:id");
   const [, setLocation] = useLocation();
@@ -70,6 +86,14 @@ export default function TeacherCourseManage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  
+  // Enrollment states
+  const [isEnrollDialogOpen, setIsEnrollDialogOpen] = useState(false);
+  const [availableStudents, setAvailableStudents] = useState<Student[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [enrolling, setEnrolling] = useState(false);
+  const [studentSearchTerm, setStudentSearchTerm] = useState("");
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
   const courseId = params?.id;
 
@@ -94,7 +118,7 @@ export default function TeacherCourseManage() {
       const headers = getAuthHeaders();
 
       // Fetch course details
-      const courseRes = await fetch(`http://localhost:3001/api/courses/${courseId}`, { headers });
+      const courseRes = await fetch(apiEndpoint(`/api/courses/${courseId}`), { headers });
       if (courseRes.ok) {
         const courseData = await courseRes.json();
         setCourse(courseData);
@@ -103,21 +127,21 @@ export default function TeacherCourseManage() {
       }
 
       // Fetch lessons
-      const lessonsRes = await fetch(`http://localhost:3001/api/lessons/course/${courseId}`, { headers });
+      const lessonsRes = await fetch(apiEndpoint(`/api/lessons/course/${courseId}`), { headers });
       if (lessonsRes.ok) {
         const lessonsData = await lessonsRes.json();
         setLessons(Array.isArray(lessonsData.lessons) ? lessonsData.lessons : []);
       }
 
       // Fetch assignments
-      const assignmentsRes = await fetch(`http://localhost:3001/api/assignments/courses/${courseId}/assignments`, { headers });
+      const assignmentsRes = await fetch(apiEndpoint(`/api/assignments/courses/${courseId}/assignments`), { headers });
       if (assignmentsRes.ok) {
         const assignmentsData = await assignmentsRes.json();
         setAssignments(Array.isArray(assignmentsData) ? assignmentsData : []);
       }
 
       // Fetch enrolled students
-      const studentsRes = await fetch(`http://localhost:3001/api/enrollments/course/${courseId}`, { headers });
+      const studentsRes = await fetch(apiEndpoint(`/api/enrollments/course/${courseId}`), { headers });
       if (studentsRes.ok) {
         const studentsData = await studentsRes.json();
         setEnrollments(Array.isArray(studentsData) ? studentsData : []);
@@ -136,7 +160,7 @@ export default function TeacherCourseManage() {
 
   const handleUpdateCourse = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/courses/${courseId}`, {
+      const response = await fetch(apiEndpoint(`/api/courses/${courseId}`), {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify({ title: editTitle, description: editDescription }),
@@ -153,6 +177,133 @@ export default function TeacherCourseManage() {
       toast({ title: "Error", description: "Failed to update course", variant: "destructive" });
     }
   };
+
+  // Fetch available students (not already enrolled)
+  const fetchAvailableStudents = async () => {
+    if (!token || !courseId) return;
+    
+    setLoadingStudents(true);
+    try {
+      // Use the enrollment API that already filters out enrolled students
+      const response = await fetch(apiEndpoint(`/api/enrollments/students/available/${courseId}`), {
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch students');
+
+      const availableStudentsList = await response.json();
+      
+      // Map to expected format (API returns id, username, email)
+      const available = availableStudentsList.map((s: any) => ({
+        id: s.id,
+        fullName: s.username, // Use username as display name
+        email: s.email,
+        username: s.username
+      }));
+      
+      setAvailableStudents(available);
+    } catch (err) {
+      console.error('Failed to fetch students:', err);
+      toast({
+        title: "Error",
+        description: "Failed to load students list",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  // Enroll selected student
+  const handleEnrollStudent = async () => {
+    if (!selectedStudentId || !courseId) {
+      toast({
+        title: "Error",
+        description: "Please select a student",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setEnrolling(true);
+    try {
+      // Use the enrollment API endpoint
+      const response = await fetch(apiEndpoint('/api/enrollments/enroll'), {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ studentId: selectedStudentId, courseId })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to enroll student');
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Success",
+        description: `${data.student?.fullName || 'Student'} has been enrolled in this course`
+      });
+      
+      setIsEnrollDialogOpen(false);
+      setSelectedStudentId("");
+      setStudentSearchTerm("");
+      fetchCourseData(); // Refresh enrollment list
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to enroll student",
+        variant: "destructive"
+      });
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  // Unenroll student
+  const handleUnenrollStudent = async (enrollmentId: string, studentName: string) => {
+    if (!confirm(`Are you sure you want to remove ${studentName} from this course?`)) return;
+
+    try {
+      // Use the enrollment API endpoint with enrollmentId
+      const response = await fetch(apiEndpoint(`/api/enrollments/${enrollmentId}`), {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to unenroll student');
+      }
+
+      toast({
+        title: "Success",
+        description: `${studentName} has been removed from this course`
+      });
+      
+      fetchCourseData(); // Refresh enrollment list
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to unenroll student",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Open enroll dialog and fetch students
+  const openEnrollDialog = () => {
+    setIsEnrollDialogOpen(true);
+    fetchAvailableStudents();
+  };
+
+  // Filter students by search term
+  const filteredStudents = availableStudents.filter(student =>
+    student.fullName?.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.email?.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.username?.toLowerCase().includes(studentSearchTerm.toLowerCase())
+  );
 
   if (loading && courseId !== 'create') {
     return (
@@ -393,11 +544,23 @@ export default function TeacherCourseManage() {
           </TabsContent>
 
           <TabsContent value="students" className="space-y-4">
+            {/* Enroll Student Button */}
+            <div className="flex justify-end">
+              <Button onClick={openEnrollDialog} className="bg-blue-600 hover:bg-blue-700">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Enroll Student
+              </Button>
+            </div>
+
             {enrollments.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No students enrolled yet.</p>
+                  <p className="text-gray-600 mb-4">No students enrolled yet.</p>
+                  <Button onClick={openEnrollDialog}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Enroll Your First Student
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -418,9 +581,19 @@ export default function TeacherCourseManage() {
                             </p>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">
-                          View Progress
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            View Progress
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleUnenrollStudent(enrollment.enrollmentId, enrollment.studentName)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -461,6 +634,94 @@ export default function TeacherCourseManage() {
                 Cancel
               </Button>
               <Button onClick={handleUpdateCourse}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Enroll Student Dialog */}
+        <Dialog open={isEnrollDialogOpen} onOpenChange={setIsEnrollDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Enroll Student</DialogTitle>
+              <DialogDescription>
+                Select a student to enroll in this course
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search students..."
+                  value={studentSearchTerm}
+                  onChange={(e) => setStudentSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Student Selection */}
+              {loadingStudents ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                  <span className="ml-2 text-gray-600">Loading students...</span>
+                </div>
+              ) : filteredStudents.length === 0 ? (
+                <div className="py-8 text-center text-gray-500">
+                  {studentSearchTerm ? "No students match your search" : "No available students to enroll"}
+                </div>
+              ) : (
+                <div className="max-h-64 overflow-y-auto border rounded-lg divide-y">
+                  {filteredStudents.map((student) => (
+                    <div
+                      key={student.id}
+                      className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-3 ${
+                        selectedStudentId === student.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                      }`}
+                      onClick={() => setSelectedStudentId(student.id)}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                        {student.fullName?.charAt(0) || 'S'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{student.fullName}</p>
+                        <p className="text-sm text-gray-500 truncate">{student.email}</p>
+                      </div>
+                      {selectedStudentId === student.id && (
+                        <CheckCircle2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsEnrollDialogOpen(false);
+                  setSelectedStudentId("");
+                  setStudentSearchTerm("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleEnrollStudent}
+                disabled={!selectedStudentId || enrolling}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {enrolling ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Enrolling...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Enroll Student
+                  </>
+                )}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

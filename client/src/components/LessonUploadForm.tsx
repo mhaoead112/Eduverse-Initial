@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -165,7 +166,7 @@ export function LessonUploadForm({ courses = [] }: { courses?: Course[] }) {
         throw new Error("Network error during upload");
       });
 
-      xhr.open("POST", "http://localhost:3001/api/lessons/upload");
+      xhr.open("POST", apiEndpoint("/api/lessons/upload"));
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
       xhr.send(formData);
     } catch (error) {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +83,7 @@ export default function AdminMessages() {
   const { data: announcementsData, isLoading: loadingAnnouncements } = useQuery({
     queryKey: ['admin-announcements'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/admin/announcements', {
+      const response = await fetch(apiEndpoint('/api/admin/announcements'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -103,7 +104,7 @@ export default function AdminMessages() {
   // Create announcement mutation
   const createAnnouncementMutation = useMutation({
     mutationFn: async (data: { title: string; content: string; audience: string }) => {
-      const response = await fetch('http://localhost:3001/api/admin/announcements', {
+      const response = await fetch(apiEndpoint('/api/admin/announcements'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -141,7 +142,7 @@ export default function AdminMessages() {
   // Toggle pin mutation
   const togglePinMutation = useMutation({
     mutationFn: async ({ id, isPinned }: { id: string; isPinned: boolean }) => {
-      const response = await fetch(`http://localhost:3001/api/admin/announcements/${id}`, {
+      const response = await fetch(apiEndpoint(`/api/admin/announcements/${id}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -172,7 +173,7 @@ export default function AdminMessages() {
   // Delete announcement mutation
   const deleteAnnouncementMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`http://localhost:3001/api/admin/announcements/${id}`, {
+      const response = await fetch(apiEndpoint(`/api/admin/announcements/${id}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

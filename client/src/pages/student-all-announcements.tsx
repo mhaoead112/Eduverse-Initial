@@ -74,7 +74,7 @@ export default function StudentAllAnnouncementsPage() {
           const courseName = course.title || "Unknown Course";
 
           const announcementsRes = await fetch(
-            `http://localhost:3001/api/announcements/course/${courseId}`,
+            apiEndpoint(`/api/announcements/course/${courseId}`),
             { headers: authHeaders }
           );
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +61,7 @@ export default function ParentGrades() {
     
     try {
       // Fetch children
-      const childrenResponse = await fetch('http://localhost:3001/api/parent/children', {
+      const childrenResponse = await fetch(apiEndpoint('/api/parent/children'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -94,7 +95,7 @@ export default function ParentGrades() {
 
       // Fetch grades for selected child
       if (selectedChild) {
-        const gradesResponse = await fetch(`http://localhost:3001/api/parent/children/${selectedChild}/grades`, {
+        const gradesResponse = await fetch(apiEndpoint(`/api/parent/children/${selectedChild}/grades`), {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

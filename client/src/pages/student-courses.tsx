@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { apiEndpoint } from "@/lib/config";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export default function StudentCoursesPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch("http://localhost:3001/api/enrollments/student", {
+        const res = await fetch(apiEndpoint("/api/enrollments/student"), {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

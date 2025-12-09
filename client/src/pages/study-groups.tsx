@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
@@ -241,7 +242,7 @@ export default function StudyGroupsPage() {
   const fetchGroups = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:3001/api/study-groups", {
+      const response = await fetch(apiEndpoint("/api/study-groups"), {
         headers: getAuthHeaders()
       });
 
@@ -263,7 +264,7 @@ export default function StudyGroupsPage() {
 
   const fetchGroupDetails = async (groupId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/study-groups/${groupId}`, {
+      const response = await fetch(apiEndpoint(`/api/study-groups/${groupId}`), {
         headers: getAuthHeaders()
       });
 
@@ -279,7 +280,7 @@ export default function StudyGroupsPage() {
   const fetchMessages = async (conversationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/conversations/${conversationId}/messages`,
+        apiEndpoint(`/api/study-groups/conversations/${conversationId}/messages`),
         { headers: getAuthHeaders() }
       );
 
@@ -309,7 +310,7 @@ export default function StudyGroupsPage() {
   const fetchReadReceipts = async (conversationId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/conversations/${conversationId}/read-receipts`,
+        apiEndpoint(`/api/study-groups/conversations/${conversationId}/read-receipts`),
         { headers: getAuthHeaders() }
       );
 
@@ -338,7 +339,7 @@ export default function StudyGroupsPage() {
 
   const fetchAvailableUsers = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/users", {
+      const response = await fetch(apiEndpoint("/api/users"), {
         headers: getAuthHeaders()
       });
 
@@ -364,7 +365,7 @@ export default function StudyGroupsPage() {
     setIsAddingMembers(true);
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/members`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/members`),
         {
           method: "POST",
           headers: {
@@ -444,7 +445,7 @@ export default function StudyGroupsPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch("http://localhost:3001/api/study-groups/upload", {
+      const response = await fetch(apiEndpoint("/api/study-groups/upload"), {
         method: "POST",
         headers: getAuthHeaders(),
         body: formData
@@ -495,7 +496,7 @@ export default function StudyGroupsPage() {
       const name = formData.get('name') as string;
       const description = formData.get('description') as string;
 
-      const response = await fetch("http://localhost:3001/api/study-groups", {
+      const response = await fetch(apiEndpoint("/api/study-groups"), {
         method: "POST",
         headers: {
           ...getAuthHeaders(),
@@ -530,7 +531,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/members/${memberId}`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/members/${memberId}`),
         {
           method: 'DELETE',
           headers: getAuthHeaders()
@@ -559,7 +560,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/moderate`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/moderate`),
         {
           method: 'POST',
           headers: {
@@ -592,7 +593,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/members/${memberId}/promote`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/members/${memberId}/promote`),
         {
           method: 'POST',
           headers: getAuthHeaders()
@@ -621,7 +622,7 @@ export default function StudyGroupsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/messages/${messageId}`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/messages/${messageId}`),
         {
           method: 'DELETE',
           headers: getAuthHeaders()
@@ -665,7 +666,7 @@ export default function StudyGroupsPage() {
       formData.append('avatar', e.target.files[0]);
 
       const response = await fetch(
-        `http://localhost:3001/api/study-groups/${selectedGroup.id}/avatar`,
+        apiEndpoint(`/api/study-groups/${selectedGroup.id}/avatar`),
         {
           method: 'POST',
           headers: getAuthHeaders(),
@@ -821,7 +822,7 @@ export default function StudyGroupsPage() {
                     >
                       <Avatar className="h-12 w-12 flex-shrink-0">
                         {group.avatarUrl ? (
-                          <AvatarImage src={`http://localhost:3001${group.avatarUrl}`} alt={group.name} />
+                          <AvatarImage src={`${apiEndpoint()}${group.avatarUrl}`} alt={group.name} />
                         ) : null}
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
                           {group.name.substring(0, 2).toUpperCase()}
@@ -858,7 +859,7 @@ export default function StudyGroupsPage() {
                   <div className="relative">
                     <Avatar className="h-10 w-10">
                       {selectedGroup.avatarUrl ? (
-                        <AvatarImage src={`http://localhost:3001${selectedGroup.avatarUrl}`} alt={selectedGroup.name} />
+                        <AvatarImage src={`${apiEndpoint()}${selectedGroup.avatarUrl}`} alt={selectedGroup.name} />
                       ) : null}
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                         {selectedGroup.name.substring(0, 2).toUpperCase()}
@@ -959,7 +960,7 @@ export default function StudyGroupsPage() {
                             ) : message.type === 'image' ? (
                               <div>
                                 <img
-                                  src={`http://localhost:3001${message.fileUrl}`}
+                                  src={`${apiEndpoint()}${message.fileUrl}`}
                                   alt={message.fileName}
                                   className="max-w-sm rounded-lg mb-1"
                                 />
@@ -1103,7 +1104,7 @@ export default function StudyGroupsPage() {
                 <div className="text-center">
                   <Avatar className="h-24 w-24 mx-auto mb-3">
                     {selectedGroup?.avatarUrl ? (
-                      <AvatarImage src={`http://localhost:3001${selectedGroup.avatarUrl}`} alt={selectedGroup?.name} />
+                      <AvatarImage src={`${apiEndpoint()}${selectedGroup.avatarUrl}`} alt={selectedGroup?.name} />
                     ) : null}
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-3xl">
                       {selectedGroup?.name.substring(0, 2).toUpperCase()}

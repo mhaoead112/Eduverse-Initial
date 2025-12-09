@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,7 +79,7 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/admin/users', {
+      const response = await fetch(apiEndpoint('/api/admin/users'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -128,7 +129,7 @@ export default function AdminUsers() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/admin/users', {
+      const response = await fetch(apiEndpoint('/api/admin/users'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -205,7 +206,7 @@ export default function AdminUsers() {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/users/${userId}`, {
+      const response = await fetch(apiEndpoint(`/api/admin/users/${userId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -231,7 +232,7 @@ export default function AdminUsers() {
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/users/${userId}/status`, {
+      const response = await fetch(apiEndpoint(`/api/admin/users/${userId}/status`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

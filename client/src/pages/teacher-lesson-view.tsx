@@ -4,6 +4,7 @@ import {
   ArrowLeft, FileText, Video, Download, Edit, 
   Trash2, Loader2, Clock, Calendar, BookOpen
 } from "lucide-react";
+import { apiEndpoint } from "@/lib/config";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,10 +60,10 @@ export default function TeacherLessonView() {
     const uploadsIndex = filePath.indexOf('uploads');
     if (uploadsIndex !== -1) {
       const relativePath = filePath.substring(uploadsIndex);
-      return `http://localhost:3001/${relativePath.replace(/\\/g, '/')}`;
+      return `${apiEndpoint()}/${relativePath.replace(/\\/g, '/')}`;
     }
     // Fallback: assume it's already a relative path
-    return `http://localhost:3001${filePath}`;
+    return `${apiEndpoint()}${filePath}`;
   };
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function TeacherLessonView() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3001/api/courses/${courseId}/lessons/${lessonId}`,
+        apiEndpoint(`/api/courses/${courseId}/lessons/${lessonId}`),
         {
           headers: getAuthHeaders(),
           credentials: "include",
@@ -103,7 +104,7 @@ export default function TeacherLessonView() {
   const handleUpdateLesson = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/courses/${courseId}/lessons/${lessonId}`,
+        apiEndpoint(`/api/courses/${courseId}/lessons/${lessonId}`),
         {
           method: "PUT",
           headers: getAuthHeaders(),
@@ -136,7 +137,7 @@ export default function TeacherLessonView() {
   const handleDeleteLesson = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/courses/${courseId}/lessons/${lessonId}`,
+        apiEndpoint(`/api/courses/${courseId}/lessons/${lessonId}`),
         {
           method: "DELETE",
           headers: getAuthHeaders(),
@@ -165,7 +166,7 @@ export default function TeacherLessonView() {
   const handleTogglePublish = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/courses/${courseId}/lessons/${lessonId}/publish`,
+        apiEndpoint(`/api/courses/${courseId}/lessons/${lessonId}/publish`),
         {
           method: "PATCH",
           headers: getAuthHeaders(),

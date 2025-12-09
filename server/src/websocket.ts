@@ -213,7 +213,6 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: WSMessage) {
 
     // Save message to database
     const [newMessage] = await db.insert(messages).values({
-      id: createId(),
       conversationId: message.conversationId,
       senderId: ws.userId,
       type: message.messageType || 'text',
@@ -257,7 +256,6 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: WSMessage) {
       for (const mentionedUser of mentionedUsers) {
         if (mentionedUser.id !== ws.userId) {
           await db.insert(notifications).values({
-            id: createId(),
             userId: mentionedUser.id,
             type: 'mention',
             title: `${sender.username} mentioned you`,
@@ -286,7 +284,6 @@ async function handleMessage(ws: AuthenticatedWebSocket, message: WSMessage) {
     for (const participant of participants) {
       if (participant.userId !== ws.userId && !conversationUsers?.has(participant.userId)) {
         await db.insert(notifications).values({
-          id: createId(),
           userId: participant.userId,
           type: 'new_message',
           title: `New message from ${sender.username}`,
@@ -537,7 +534,7 @@ async function updateUserPresence(userId: string, status: string) {
         .insert(userPresence)
         .values({
           userId,
-          status,
+          status: status as 'online' | 'offline' | 'away',
           lastSeen: new Date()
         });
     }

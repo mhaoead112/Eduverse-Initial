@@ -9,23 +9,23 @@ import { parseStringPromise } from "xml2js";
 import dotenv from "dotenv";
 import axios from "axios";
 
-dotenv.config();
+dotenv.config({ path: '.env.ai' });
 
 // --------------------------- CONFIG ---------------------------
 const LESSON_FOLDER = process.env.LESSON_FOLDER || "lessons";
-const EMBED_MODEL = process.env.EMBED_MODEL || "gemini-embedding-001";
+const EMBED_MODEL = process.env.EMBED_MODEL || "text-embedding-004";
 const CHUNK_SIZE = parseInt(process.env.CHUNK_SIZE || "1000");
 const CHUNK_OVERLAP = parseInt(process.env.CHUNK_OVERLAP || "200");
 const DELAY_BETWEEN_EMBEDS = parseFloat(process.env.DELAY_BETWEEN_EMBEDS || "0.2");
 
 // PostgreSQL Pool for Neon DB
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || "5432"),
-  user: String(process.env.DB_USER),
-  password: String(process.env.DB_PASSWORD),
-  database: String(process.env.DB_NAME),
-  ssl: { rejectUnauthorized: false },
+  host: process.env.AI_DB_HOST,
+  port: parseInt(process.env.AI_DB_PORT || "5432"),
+  user: process.env.AI_DB_USER,
+  password: process.env.AI_DB_PASSWORD,
+  database: process.env.AI_DB_NAME,
+  ssl: process.env.AI_DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 // ------------------------- HELPERS ----------------------------

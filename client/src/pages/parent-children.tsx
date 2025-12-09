@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +61,7 @@ export default function ParentChildren() {
     }
     
     try {
-      const response = await fetch('http://localhost:3001/api/parent/children', {
+      const response = await fetch(apiEndpoint('/api/parent/children'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -135,7 +136,7 @@ export default function ParentChildren() {
 
     setLinking(true);
     try {
-      const response = await fetch('http://localhost:3001/api/parent/link-child', {
+      const response = await fetch(apiEndpoint('/api/parent/link-child'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -176,7 +177,7 @@ export default function ParentChildren() {
     if (!confirm("Are you sure you want to unlink this child?")) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/parent/children/${childId}`, {
+      const response = await fetch(apiEndpoint(`/api/parent/children/${childId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

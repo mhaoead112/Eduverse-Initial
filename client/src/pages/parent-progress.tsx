@@ -99,7 +99,7 @@ export default function ParentProgress() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3001/api/parent/children/${selectedChild}/progress`,
+        apiEndpoint(`/api/parent/children/${selectedChild}/progress`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,

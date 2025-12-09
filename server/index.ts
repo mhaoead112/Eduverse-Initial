@@ -2,23 +2,15 @@ import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
+import { registerRoutes as registerApiRoutes } from "./src/api/index";
 import { setupVite, serveStatic, log } from "./vite";
 import { db } from "./db";
-import { staff, users } from "@shared/schema";
+import { staffProfiles, users } from "@shared/schema";
 import { eq, ilike, and, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        role: string;
-      };
-    }
-  }
-}
+// Request user type is defined in src/middleware/auth.middleware.ts
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
@@ -82,21 +74,21 @@ app.get("/api/staff", async (req, res) => {
     if (search) {
       const term = `%${search}%`;
       whereClause = or(
-        ilike(staff.firstName, term),
-        ilike(staff.lastName, term),
-        ilike(staff.title, term),
-        ilike(staff.department, term)
+        ilike(staffProfiles.firstName, term),
+        ilike(staffProfiles.lastName, term),
+        ilike(staffProfiles.title, term),
+        ilike(staffProfiles.department, term)
       );
     }
 
     // Add department filter if needed
     if (department) {
-      const deptCondition = eq(staff.department, department as string);
+      const deptCondition = eq(staffProfiles.department, department as string);
       whereClause = whereClause ? and(whereClause, deptCondition) : deptCondition;
     }
 
     // Build the final query only once
-    const results = await db.select().from(staff).where(whereClause);
+    const results = await db.select().from(staffProfiles).where(whereClause);
 
     res.json(results);
   } catch (err) {
@@ -196,7 +188,7 @@ app.post("/api/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
 
     const user = result[0];
-    const match = await bcrypt.compare(password, user.passwordHash);
+    const match = await bcrypt.compare(password, user.password);
     if (!match)
       return res.status(401).json({ error: "Invalid credentials" });
 
@@ -259,6 +251,9 @@ app.use((req, res, next) => {
   }
 
   const server = await registerRoutes(app);
+  
+  // Register modular API routes (analytics, etc.)
+  registerApiRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

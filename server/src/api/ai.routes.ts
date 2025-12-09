@@ -1,6 +1,6 @@
 import express from 'express';
-import { getRagResponse } from '../services/ai.service.ts';
-import { isAuthenticated } from '../middleware/auth.middleware.ts';
+import { getRagResponse } from '../services/ai.service.js';
+import { isAuthenticated } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 

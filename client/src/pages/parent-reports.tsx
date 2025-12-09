@@ -78,7 +78,7 @@ export default function ParentReports() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3001/api/parent/children/${selectedChild}/reports`,
+        apiEndpoint(`/api/parent/children/${selectedChild}/reports`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,

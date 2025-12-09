@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { studyStreaks } from "../../../shared/schema";
+import { studyStreaks } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -142,7 +143,7 @@ export default function ParentCalendar() {
     }
     
     try {
-      const response = await fetch('http://localhost:3001/api/parent/children', {
+      const response = await fetch(apiEndpoint('/api/parent/children'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -171,7 +172,7 @@ export default function ParentCalendar() {
     try {
       const { start, end } = getDateRange();
       const response = await fetch(
-        `http://localhost:3001/api/schedule/${selectedChild}?startDate=${start.toISOString()}&endDate=${end.toISOString()}`,
+        apiEndpoint(`/api/schedule/${selectedChild}?startDate=${start.toISOString()}&endDate=${end.toISOString()}`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -202,7 +203,7 @@ export default function ParentCalendar() {
     try {
       const { start, end } = getDateRange();
       const response = await fetch(
-        `http://localhost:3001/api/events?startDate=${start.toISOString()}&endDate=${end.toISOString()}`,
+        apiEndpoint(`/api/events?startDate=${start.toISOString()}&endDate=${end.toISOString()}`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -17,6 +17,7 @@ export interface RegisterUserDto {
     email: string;
     password: string;
     name: string;
+    username?: string;
     // Role is optional, defaults to 'student' if not provided
     role?: 'student' | 'teacher' | 'admin';
 }
@@ -48,13 +49,22 @@ export interface AuthResponse {
  * @returns The newly created user's public information.
  */
 export const registerUser = async (userData: RegisterUserDto) => {
-    const { email, password, name, role = 'student' } = userData;
+    const { email, password, name, username, role = 'student' } = userData;
+
+    // Generate username from email if not provided
+    const finalUsername = username || email.split('@')[0] + '_' + Date.now().toString(36);
 
     // 1. Check if a user with that email already exists
     const existingUser = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
     if (existingUser.length > 0) {
         // Use a generic error to prevent email enumeration
-        throw new Error("Invalid credentials.");
+        throw new Error("A user with this email already exists.");
+    }
+
+    // Check if username already exists
+    const existingUsername = await db.select().from(users).where(eq(users.username, finalUsername));
+    if (existingUsername.length > 0) {
+        throw new Error("This username is already taken.");
     }
 
     // 2. Hash the password securely
@@ -64,11 +74,13 @@ export const registerUser = async (userData: RegisterUserDto) => {
     const newUser = await db.insert(users).values({
         email: email.toLowerCase(),
         password: hashedPassword,
-        name,
+        fullName: name, // Use 'name' as fullName
+        username: finalUsername,
         role,
     }).returning({
         id: users.id,
-        name: users.name,
+        fullName: users.fullName,
+        username: users.username,
         email: users.email,
         role: users.role,
     });

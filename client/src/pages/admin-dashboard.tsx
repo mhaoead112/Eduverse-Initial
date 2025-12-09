@@ -47,8 +47,9 @@ import { Progress } from "@/components/ui/progress";
 import AddUserModal from "@/components/modals/AddUserModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = apiEndpoint('/api').replace('/api', '');
 
 interface SystemStats {
   totalUsers: number;
@@ -281,7 +282,7 @@ function UserManagementTable({ users, onRefresh }: { users: User[]; onRefresh: (
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10 ring-2 ring-offset-2 ring-gray-200">
                         <AvatarFallback className={`${roleConfig.bg} ${roleConfig.text} font-semibold`}>
-                          {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          {user.fullName?.split(' ').map(n => n[0]).filter(Boolean).join('').toUpperCase() || user.username?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <div>

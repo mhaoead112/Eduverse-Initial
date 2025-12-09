@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,7 @@ export default function AdminSettings() {
   const { data: settingsData, isLoading, refetch } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/api/admin/settings', {
+      const response = await fetch(apiEndpoint('/api/admin/settings'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -120,7 +121,7 @@ export default function AdminSettings() {
 
   const saveSettingsMutation = useMutation({
     mutationFn: async ({ category, data }: { category: string; data: any }) => {
-      const response = await fetch(`http://localhost:3001/api/admin/settings/${category}`, {
+      const response = await fetch(apiEndpoint(`/api/admin/settings/${category}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -150,7 +151,7 @@ export default function AdminSettings() {
 
   const resetSettingsMutation = useMutation({
     mutationFn: async (category?: string) => {
-      const response = await fetch('http://localhost:3001/api/admin/settings/reset', {
+      const response = await fetch(apiEndpoint('/api/admin/settings/reset'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

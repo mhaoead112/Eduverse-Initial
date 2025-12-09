@@ -80,7 +80,7 @@ export default function AdminCalendar() {
       const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
       
       const response = await fetch(
-        `http://localhost:3001/api/events?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
+        apiEndpoint(`/api/events?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`),
         {
           headers: {
             'Authorization': `Bearer ${token}`,

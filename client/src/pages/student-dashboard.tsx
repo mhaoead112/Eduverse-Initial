@@ -133,7 +133,7 @@ export default function StudentDashboard() {
       for (const course of enrolledCourses) {
         try {
           const announcementsRes = await fetch(
-            `http://localhost:3001/api/announcements/course/${course.id}`,
+            apiEndpoint(`/api/announcements/course/${course.id}`),
             { headers: authHeaders, credentials: "include" }
           );
 
@@ -167,7 +167,7 @@ export default function StudentDashboard() {
       for (const course of enrolledCourses) {
         try {
           const assignmentsRes = await fetch(
-            `http://localhost:3001/api/assignments/courses/${course.id}/assignments`,
+            apiEndpoint(`/api/assignments/courses/${course.id}/assignments`),
             { headers: authHeaders, credentials: "include" }
           );
           if (assignmentsRes.ok) {
@@ -178,7 +178,7 @@ export default function StudentDashboard() {
             for (const assignment of courseAssignments) {
               try {
                 const submissionRes = await fetch(
-                  `http://localhost:3001/api/assignments/${assignment.id}/my-submission`,
+                  apiEndpoint(`/api/assignments/${assignment.id}/my-submission`),
                   { headers: authHeaders, credentials: "include" }
                 );
                 
@@ -276,7 +276,7 @@ export default function StudentDashboard() {
       for (const course of enrolledCourses) {
         try {
           const lessonsRes = await fetch(
-            `http://localhost:3001/api/lessons/course/${course.id}`,
+            apiEndpoint(`/api/lessons/course/${course.id}`),
             { headers: authHeaders, credentials: "include" }
           );
           if (lessonsRes.ok) {
@@ -653,11 +653,12 @@ export default function StudentDashboard() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
                 {enrollments.slice(0, 4).map((enrollment) => {
+                  if (!enrollment.course) return null;
                   const Icon = getIconForCourse(enrollment.course.title);
                   const progress = courseProgress[enrollment.courseId] || 0;
                   
-                  const isMath = enrollment.course.title.toLowerCase().includes('math') || 
-                                 enrollment.course.title.toLowerCase().includes('algebra');
+                  const isMath = enrollment.course.title?.toLowerCase().includes('math') || 
+                                 enrollment.course.title?.toLowerCase().includes('algebra');
                   const isWriting = enrollment.course.title.toLowerCase().includes('writing') || 
                                    enrollment.course.title.toLowerCase().includes('creative');
                   

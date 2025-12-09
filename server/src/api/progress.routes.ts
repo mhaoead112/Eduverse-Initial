@@ -75,7 +75,7 @@ router.get('/overall', isAuthenticated, async (req, res) => {
     // Calculate totals with bonus
     for (const assignment of allAssignments) {
       const submission = studentSubmissions.find(s => s.assignmentId === assignment.id);
-      const maxScore = parseFloat(assignment.maxScore);
+      const maxScore = parseFloat(assignment.maxScore || '100');
       totalMaxScore += maxScore;
 
       if (submission && submission.score) {
@@ -167,7 +167,7 @@ router.get('/courses', isAuthenticated, async (req, res) => {
 
         for (const assignment of courseAssignments) {
           const submission = courseSubmissions.find(s => s.assignmentId === assignment.id);
-          const maxScore = parseFloat(assignment.maxScore);
+          const maxScore = parseFloat(assignment.maxScore || '100');
           totalMaxScore += maxScore;
 
           if (submission && submission.score) {
@@ -280,7 +280,7 @@ router.get('/course/:courseId', isAuthenticated, async (req, res) => {
           const submittedAt = new Date(submission.submittedAt);
           
           if (submittedAt < dueDate) {
-            const maxScore = parseFloat(assignment.maxScore);
+            const maxScore = parseFloat(assignment.maxScore || '100');
             bonusPoints = calculateBonusPoints(dueDate, submittedAt, maxScore);
             bonusPercentage = Math.round((bonusPoints / maxScore) * 100);
           }
@@ -308,7 +308,7 @@ router.get('/course/:courseId', isAuthenticated, async (req, res) => {
     let gradedCount = 0;
 
     assignmentDetails.forEach(detail => {
-      const maxScore = parseFloat(detail.maxScore);
+      const maxScore = parseFloat(detail.maxScore || '100');
       totalMaxScore += maxScore;
 
       if (detail.score) {
