@@ -1,8 +1,12 @@
 // API Configuration
-// Uses environment variables with localhost fallback for development
+// Uses environment variables with production fallback for Vercel deployments
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
+const isProduction = import.meta.env.PROD;
+const productionAPI = 'https://eduverse-initial.onrender.com';
+const productionWS = 'wss://eduverse-initial.onrender.com';
+
+export const API_URL = import.meta.env.VITE_API_URL || (isProduction ? productionAPI : 'http://localhost:3001');
+export const WS_URL = import.meta.env.VITE_WS_URL || (isProduction ? productionWS : 'ws://localhost:3001');
 
 // Helper function to build API endpoints
 export const apiEndpoint = (path: string): string => {
