@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { 
   Loader2, BookOpen, Plus, Eye, EyeOff, Edit, Trash2, 
   CheckCircle2, XCircle, Globe, Lock, Megaphone 
