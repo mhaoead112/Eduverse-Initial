@@ -380,7 +380,7 @@ export default function StudyGroupsChatPage() {
 
   const fetchMessages = async (conversationId: string) => {
     try {
-      const response = await fetch(`/api/conversations/${conversationId}/messages`, {
+      const response = await fetch(apiEndpoint(`/api/conversations/${conversationId}/messages`), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -408,7 +408,7 @@ export default function StudyGroupsChatPage() {
 
   const fetchGroupMembers = async (groupId: string) => {
     try {
-      const response = await fetch(`/api/study-groups/${groupId}`, {
+      const response = await fetch(apiEndpoint(`/api/study-groups/${groupId}`), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -416,7 +416,7 @@ export default function StudyGroupsChatPage() {
         const data = await response.json();
         const membersWithPresence = await Promise.all(
           data.members.map(async (member: GroupMember) => {
-            const presenceResponse = await fetch(`/api/study-groups/presence/${member.id}`, {
+            const presenceResponse = await fetch(apiEndpoint(`/api/study-groups/presence/${member.id}`), {
               headers: getAuthHeaders(),
               credentials: "include",
             });
@@ -451,7 +451,7 @@ export default function StudyGroupsChatPage() {
 
   const markMessagesAsRead = async (conversationId: string) => {
     try {
-      await fetch(`/api/conversations/${conversationId}/read`, {
+      await fetch(apiEndpoint(`/api/conversations/${conversationId}/read`), {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: "include",
@@ -477,7 +477,7 @@ export default function StudyGroupsChatPage() {
     
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/conversations/search?query=${encodeURIComponent(query)}`, {
+      const response = await fetch(apiEndpoint(`/api/conversations/search?query=${encodeURIComponent(query)}`), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -498,7 +498,7 @@ export default function StudyGroupsChatPage() {
     
     setIsSending(true);
     try {
-      const response = await fetch(`/api/conversations/${selectedConversation.conversationId}/messages`, {
+      const response = await fetch(apiEndpoint(`/api/conversations/${selectedConversation.conversationId}/messages`), {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -582,7 +582,7 @@ export default function StudyGroupsChatPage() {
           const uploadResponse = JSON.parse(xhr.responseText);
           
           // Send message with file
-          const response = await fetch(`/api/conversations/${selectedConversation.conversationId}/messages`, {
+          const response = await fetch(apiEndpoint(`/api/conversations/${selectedConversation.conversationId}/messages`), {
             method: 'POST',
             headers: {
               ...getAuthHeaders(),
@@ -757,7 +757,7 @@ export default function StudyGroupsChatPage() {
     if (!selectedConversation?.id || membersToAdd.length === 0) return;
 
     try {
-      const response = await fetch(`/api/study-groups/${selectedConversation.id}/members`, {
+      const response = await fetch(apiEndpoint(`/api/study-groups/${selectedConversation.id}/members`), {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -794,7 +794,7 @@ export default function StudyGroupsChatPage() {
 
   const handleStartDirectMessage = async (targetUserId: string) => {
     try {
-      const response = await fetch(`/api/conversations/direct/${targetUserId}`, {
+      const response = await fetch(apiEndpoint(`/api/conversations/direct/${targetUserId}`), {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: "include",
