@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { Send, Bot, User, Sparkles } from "lucide-react";
 
 interface Props {
@@ -54,7 +55,7 @@ export const StudyBuddyChat: React.FC<Props> = ({ lessonId, lessonTitle }) => {
 
     try {
       const token = localStorage.getItem("auth_token") || localStorage.getItem("eduverse_token");
-      const response = await fetch("/api/ai-chat/chat", {
+      const response = await fetch(apiEndpoint("/api/ai-chat/chat"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +62,7 @@ export default function LessonManagementPage() {
       }
 
       try {
-        const response = await fetch('/api/courses/user', {
+        const response = await fetch(apiEndpoint('/api/courses/user'), {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -201,7 +202,7 @@ export default function LessonManagementPage() {
     }));
 
     try {
-      const response = await fetch('/api/lessons/reorder', {
+      const response = await fetch(apiEndpoint('/api/lessons/reorder'), {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
