@@ -217,22 +217,23 @@ if (!cookieSecret) {
   process.exit(1);
 }
 
-// Rate limiting - more strict in production
+// Rate limiting - adjusted for production usage patterns
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 100 : 1000, // limit each IP to 100 requests per windowMs in production
+  max: isProduction ? 500 : 2000, // Increased: 500 requests per 15min in production
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: false,
 });
 
 // Apply rate limiting to all API routes
 app.use('/api/', limiter);
 
-// Stricter rate limiting for auth routes
+// Stricter rate limiting for auth routes only
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProduction ? 5 : 50, // 5 login attempts per 15 minutes in production
+  max: isProduction ? 20 : 100, // Increased: 20 login attempts per 15 minutes in production
   message: 'Too many authentication attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -266,23 +267,29 @@ app.use(morgan(isProduction ? 'combined' : 'dev', { stream: morganStream }));
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
-// Route-specific rate limiters
+// Route-specific rate limiters - adjusted for realistic usage
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProduction ? 200 : 2000,
+  max: isProduction ? 1000 : 5000, // Increased for general API calls
   message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const aiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: isProduction ? 20 : 100, // AI endpoints are expensive
+  max: isProduction ? 50 : 200, // Increased: AI endpoints are expensive but users need access
   message: 'Too many AI requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProduction ? 10 : 50,
+  max: isProduction ? 50 : 200, // Increased for file uploads
   message: 'Too many upload requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 logger.info('🚀 Starting Eduverse API server...');
