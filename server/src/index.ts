@@ -189,28 +189,44 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
 // CORS configuration - use environment variable for production
+// Updated to include all Vercel deployment URLs
 const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',') 
   : [
       'http://localhost:5173',
       'https://eduverse-initial.vercel.app',
-      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app'
+      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app',
+      // Allow all Vercel preview deployments
+      ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:5174'])
     ];
+
+logger.info(`🔐 CORS enabled for origins: ${allowedOrigins.join(', ')}`);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin)) {
+    // Check if origin is in allowed list or matches Vercel preview pattern
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed === origin) return true;
+      // Allow all Vercel preview deployments
+      if (origin.includes('eduverse-initial') && origin.includes('.vercel.app')) return true;
+      return false;
+    });
+    
+    if (isAllowed) {
       callback(null, true);
     } else {
+      logger.warn(`❌ CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600 // Cache preflight for 10 minutes
 }));
 
 app.use(express.json());
