@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiEndpoint } from '@/lib/config';
 import { 
   Users, 
   BookOpen, 
@@ -132,10 +133,10 @@ const AdminPanel: React.FC = () => {
       setLoading(true);
       // Replace with actual API calls
       const [usersRes, classesRes, assignmentsRes, statsRes] = await Promise.all([
-        fetch('/api/admin/users'),
-        fetch('/api/admin/classes'),
-        fetch('/api/admin/assignments'),
-        fetch('/api/admin/stats')
+        fetch(apiEndpoint('/api/admin/users')),
+        fetch(apiEndpoint('/api/admin/classes')),
+        fetch(apiEndpoint('/api/admin/assignments')),
+        fetch(apiEndpoint('/api/admin/stats'))
       ]);
 
       if (usersRes.ok) {

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { apiEndpoint } from '@/lib/config';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +46,7 @@ export function GroupSidebar({ user, selectedGroup, onGroupSelect, onlineUsers, 
   const { data: publicGroups = [], isLoading: isLoadingPublic } = useQuery({
     queryKey: ['public-groups'],
     queryFn: async () => {
-      const response = await fetch('/api/groups/public');
+      const response = await fetch(apiEndpoint('/api/groups/public'));
       if (!response.ok) throw new Error('Failed to fetch public groups');
       return response.json();
     }

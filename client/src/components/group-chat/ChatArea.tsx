@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { apiEndpoint } from '@/lib/config';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -237,7 +238,7 @@ export function ChatArea({
     if (!user || !group) return;
     
     try {
-      const response = await fetch('/api/raise-hand', {
+      const response = await fetch(apiEndpoint('/api/raise-hand'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { apiEndpoint } from '@/lib/config';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -70,7 +71,7 @@ export function CreateGroupModal({ open, onClose }: CreateGroupModalProps) {
     };
 
     try {
-      const response = await fetch('/api/groups', {
+      const response = await fetch(apiEndpoint('/api/groups'), {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(requestData),

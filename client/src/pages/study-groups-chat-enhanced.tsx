@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { apiEndpoint } from "@/lib/config";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -349,7 +350,7 @@ export default function StudyGroupsChatPage() {
   // Fetch functions
   const fetchStudyGroups = async () => {
     try {
-      const response = await fetch("/api/study-groups", {
+      const response = await fetch(apiEndpoint("/api/study-groups"), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -364,7 +365,7 @@ export default function StudyGroupsChatPage() {
 
   const fetchDirectMessages = async () => {
     try {
-      const response = await fetch("/api/conversations/direct", {
+      const response = await fetch(apiEndpoint("/api/conversations/direct"), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -435,7 +436,7 @@ export default function StudyGroupsChatPage() {
 
   const fetchAvailableUsers = async () => {
     try {
-      const response = await fetch("/api/users", {
+      const response = await fetch(apiEndpoint("/api/users"), {
         headers: getAuthHeaders(),
         credentials: "include",
       });
@@ -715,7 +716,7 @@ export default function StudyGroupsChatPage() {
     }
 
     try {
-      const response = await fetch('/api/study-groups', {
+      const response = await fetch(apiEndpoint('/api/study-groups'), {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
