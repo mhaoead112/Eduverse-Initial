@@ -189,18 +189,18 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
 // CORS configuration - use environment variable for production
-// Updated to include all Vercel deployment URLs
+// Updated to include all Vercel deployment URLs (Dec 10, 2025)
+// For Render deployment: Set CORS_ORIGINS env var or use defaults below
 const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',') 
   : [
       'http://localhost:5173',
+      'http://localhost:5174',
       'https://eduverse-initial.vercel.app',
-      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app',
-      // Allow all Vercel preview deployments
-      ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:5174'])
+      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app'
     ];
 
-logger.info(`🔐 CORS enabled for origins: ${allowedOrigins.join(', ')}`);
+logger.info(`🔐 CORS enabled for origins: ${JSON.stringify(allowedOrigins)}`);
 
 app.use(cors({
   origin: (origin, callback) => {
