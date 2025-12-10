@@ -131,7 +131,59 @@ if (isProduction) {
   });
 }
 
-// Security middleware - Enhanced CSP for production
+// CORS configuration - MUST be before Helmet and other middleware
+// Updated to include all Vercel deployment URLs (Dec 10, 2025)
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',') 
+  : [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'https://eduverse-initial.vercel.app',
+      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app'
+    ];
+
+logger.info(`🔐 CORS enabled for origins: ${JSON.stringify(allowedOrigins)}`);
+
+const corsConfig = cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
+    if (!origin) {
+      logger.info('✅ CORS: Allowing request with no origin (server-to-server)');
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list or matches Vercel preview pattern
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed === origin) return true;
+      // Allow all Vercel preview deployments
+      if (origin.includes('eduverse-initial') && origin.includes('.vercel.app')) return true;
+      return false;
+    });
+    
+    if (isAllowed) {
+      logger.info(`✅ CORS: Allowed origin: ${origin}`);
+      callback(null, true);
+    } else {
+      logger.warn(`❌ CORS: Blocked origin: ${origin}`);
+      // Return false instead of error to avoid blocking the response
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600, // Cache preflight for 10 minutes
+  optionsSuccessStatus: 204 // Some legacy browsers choke on 204
+});
+
+// Apply CORS to all routes
+app.use(corsConfig);
+
+// Handle preflight requests for all routes
+app.options('*', corsConfig);
+
+// Security middleware - Enhanced CSP for production (AFTER CORS)
 app.use(helmet({
   contentSecurityPolicy: isProduction ? {
     directives: {
@@ -139,7 +191,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", ...(process.env.CORS_ORIGINS?.split(',') || [])],
+      connectSrc: ["'self'", ...allowedOrigins], // Updated to use allowedOrigins
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -147,6 +199,7 @@ app.use(helmet({
     },
   } : false,
   crossOriginEmbedderPolicy: !isProduction,
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin resources
   hsts: isProduction ? {
     maxAge: 31536000,
     includeSubDomains: true,
@@ -187,47 +240,6 @@ const authLimiter = rateLimit({
 
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
-
-// CORS configuration - use environment variable for production
-// Updated to include all Vercel deployment URLs (Dec 10, 2025)
-// For Render deployment: Set CORS_ORIGINS env var or use defaults below
-const allowedOrigins = process.env.CORS_ORIGINS 
-  ? process.env.CORS_ORIGINS.split(',') 
-  : [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'https://eduverse-initial.vercel.app',
-      'https://eduverse-initial-k9ot2z2u6-mhaoead112s-projects.vercel.app'
-    ];
-
-logger.info(`🔐 CORS enabled for origins: ${JSON.stringify(allowedOrigins)}`);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list or matches Vercel preview pattern
-    const isAllowed = allowedOrigins.some(allowed => {
-      if (allowed === origin) return true;
-      // Allow all Vercel preview deployments
-      if (origin.includes('eduverse-initial') && origin.includes('.vercel.app')) return true;
-      return false;
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      logger.warn(`❌ CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 600 // Cache preflight for 10 minutes
-}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
