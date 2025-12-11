@@ -365,6 +365,7 @@ export default function StudentCourseLessonsPage() {
                   {selectedLesson ? (
                     <div className="bg-white rounded-xl shadow-lg border overflow-hidden">
                       <LessonViewer 
+                        key={selectedLesson.id}
                         fileUrl={selectedLesson.fileUrl} 
                         fileType={selectedLesson.fileType} 
                         fileName={selectedLesson.fileName} 
@@ -384,33 +385,36 @@ export default function StudentCourseLessonsPage() {
                 {/* AI Study Buddy */}
                 <div className="xl:col-span-1">
                   {selectedLesson ? (
-                    <div className="bg-white rounded-xl shadow-lg border overflow-hidden h-full">
-                      <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5" />
-                          <h3 className="font-semibold">Versa - AI Study Buddy</h3>
-                        </div>
-                        <p className="text-purple-100 text-xs mt-1">
+                    <Card className="shadow-lg border-0 overflow-hidden h-[600px] flex flex-col">
+                      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 flex-shrink-0">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <Sparkles className="h-4 w-4" />
+                          AI Study Buddy
+                        </CardTitle>
+                        <p className="text-purple-100 text-xs mt-0.5">
                           Ask questions about this lesson
                         </p>
+                      </CardHeader>
+                      <div className="flex-1 overflow-hidden">
+                        <StudyBuddyChat 
+                          key={selectedLesson.id}
+                          lessonId={selectedLesson.id} 
+                          lessonTitle={selectedLesson.title || selectedLesson.fileName} 
+                        />
                       </div>
-                      <StudyBuddyChat 
-                        lessonId={selectedLesson.id} 
-                        lessonTitle={selectedLesson.title || selectedLesson.fileName} 
-                      />
-                    </div>
+                    </Card>
                   ) : (
                     <Card className="shadow-lg border-0 h-full">
                       <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
                         <CardTitle className="flex items-center gap-2 text-lg">
                           <Sparkles className="h-5 w-5" />
-                          Versa - AI Study Buddy
+                          AI Study Buddy
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-6 text-center">
                         <Sparkles className="h-12 w-12 text-purple-200 mx-auto mb-4" />
                         <p className="text-gray-500 text-sm">
-                          Select a lesson to chat with Versa about that specific content. She'll help you understand the material better!
+                          Select a lesson to chat with your AI study buddy about that specific content!
                         </p>
                       </CardContent>
                     </Card>
