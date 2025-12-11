@@ -167,7 +167,7 @@ export default function TeacherCourseManage() {
       });
 
       if (response.ok) {
-        toast({ title: "Success", description: "Course updated successfully" });
+        toast({ title: "Success", description: "Class updated successfully" });
         setIsEditDialogOpen(false);
         fetchCourseData();
       } else {
@@ -319,7 +319,7 @@ export default function TeacherCourseManage() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-gray-600">Course not found</p>
+          <p className="text-gray-600">Class not found</p>
           <Button onClick={() => setLocation("/teacher/courses")} className="mt-4">
             Back to Courses
           </Button>

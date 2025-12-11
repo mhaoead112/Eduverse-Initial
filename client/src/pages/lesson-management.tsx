@@ -339,7 +339,7 @@ export default function LessonManagementPage() {
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5 text-purple-600" />
-                  Your Courses
+                  Your Classes
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-3">

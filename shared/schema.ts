@@ -40,6 +40,7 @@ export const courses = pgTable("courses", {
   title: text("title").notNull(),
   description: text("description"),
   teacherId: text("teacher_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  imageUrl: text("image_url"), // Optional course cover image
   isPublished: boolean("is_published").default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),

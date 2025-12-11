@@ -415,8 +415,8 @@ export default function StudentDashboard() {
       badge: announcements.length > 0 ? `${announcements.length}` : undefined
     },
     {
-      title: 'My Courses',
-      description: 'Browse your enrolled courses',
+      title: 'My Classes',
+      description: 'Browse your enrolled classes',
       icon: BookOpen,
       color: 'green' as const,
       onClick: () => setLocation('/student/courses')
@@ -634,7 +634,7 @@ export default function StudentDashboard() {
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 sm:gap-5 md:gap-6">
           {/* My Courses Section */}
           <div className="space-y-3 sm:space-y-4 md:space-y-5">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-luxury">My Courses</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-luxury">My Classes</h2>
 
             {enrollments.length === 0 ? (
               <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl">
@@ -668,31 +668,40 @@ export default function StudentDashboard() {
                         <CardContent className="p-0">
                           {/* Course Cover */}
                           <div className={`h-[180px] relative overflow-hidden ${
+                            enrollment.course.imageUrl ? '' :
                             isMath ? 'bg-[#DCC9A3]' :
                             isWriting ? 'bg-[#B8D4C4]' :
                             'bg-gradient-to-br from-blue-200 to-blue-300'
                           }`}>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="relative w-24 h-24 bg-white/40 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                                {isMath ? (
-                                  <div className="grid grid-cols-3 gap-1 w-16 h-16">
-                                    {Array.from({ length: 9 }).map((_, i) => (
-                                      <div key={i} className="bg-white/60 rounded-sm" />
-                                    ))}
-                                  </div>
-                                ) : isWriting ? (
-                                  <div className="w-16 h-12 bg-white/60 rounded-lg relative">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                      <div className="w-12 h-8 bg-white/40 rounded" />
+                            {enrollment.course.imageUrl ? (
+                              <img 
+                                src={enrollment.course.imageUrl.startsWith('http') ? enrollment.course.imageUrl : `/uploads/${enrollment.course.imageUrl}`}
+                                alt={enrollment.course.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="relative w-24 h-24 bg-white/40 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                                  {isMath ? (
+                                    <div className="grid grid-cols-3 gap-1 w-16 h-16">
+                                      {Array.from({ length: 9 }).map((_, i) => (
+                                        <div key={i} className="bg-white/60 rounded-sm" />
+                                      ))}
                                     </div>
-                                  </div>
-                                ) : (
-                                  <Icon className="h-16 w-16 text-white/60" />
-                                )}
+                                  ) : isWriting ? (
+                                    <div className="w-16 h-12 bg-white/60 rounded-lg relative">
+                                      <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="w-12 h-8 bg-white/40 rounded" />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <Icon className="h-16 w-16 text-white/60" />
+                                  )}
+                                </div>
                               </div>
-                            </div>
+                            )}
                             <div className="absolute top-5 left-5">
-                              <p className="text-white/90 text-2xl font-handwriting italic tracking-wide">Cover</p>
+                              <p className="text-white/90 text-2xl font-handwriting italic tracking-wide drop-shadow-md">Class</p>
                             </div>
                           </div>
 

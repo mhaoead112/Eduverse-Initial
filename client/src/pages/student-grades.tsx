@@ -339,7 +339,7 @@ export default function StudentGrades() {
         {/* Tabs */}
         <Tabs defaultValue="courses" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="courses">Current Courses</TabsTrigger>
+            <TabsTrigger value="courses">Current Classes</TabsTrigger>
             <TabsTrigger value="history">Grade History</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>

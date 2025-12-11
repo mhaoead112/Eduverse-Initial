@@ -63,7 +63,7 @@ export default function CreateCoursePage() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">Insufficient Permissions</h1>
           <p className="text-gray-300 mb-2">
-            Only teachers and administrators can create courses.
+            Only teachers and administrators can create classes.
           </p>
           <p className="text-sm text-gray-400 mb-8">
             Your current role: <span className="font-semibold text-amber-400 capitalize">{user?.role}</span>

@@ -49,7 +49,7 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     },
     {
       id: 'courses',
-      label: 'Courses',
+      label: 'Classes',
       href: '/student/courses',
       icon: BookOpen
     },
@@ -87,7 +87,7 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     },
     {
       id: 'courses',
-      label: 'Courses',
+      label: 'Classes',
       href: '/teacher/courses',
       icon: BookOpen
     },
@@ -143,7 +143,7 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     },
     {
       id: 'courses',
-      label: 'Courses',
+      label: 'Classes',
       href: '/admin/courses',
       icon: BookOpen
     },
@@ -193,7 +193,7 @@ const navigationConfig: Record<string, NavigationItem[]> = {
     },
     {
       id: 'courses',
-      label: 'Courses',
+      label: 'Classes',
       href: '/parent/courses',
       icon: BookOpen
     },

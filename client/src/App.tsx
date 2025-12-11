@@ -29,6 +29,7 @@ import TeacherDashboard from "@/pages/teacher-dashboard";
 import TeacherClasses from "@/pages/teacher-classes";
 import TeacherCourses from "@/pages/teacher-courses";
 import TeacherStudents from "@/pages/teacher-students";
+import TeacherStudentProfile from "@/pages/teacher-student-profile";
 import TeacherAssessments from "@/pages/teacher-assessments";
 import TeacherContent from "@/pages/teacher-content";
 import TeacherAnalytics from "@/pages/teacher-analytics";
@@ -43,6 +44,7 @@ import DemoLogin from "@/components/DemoLogin";
 // Import new dashboard pages
 import StudentDashboard from "@/pages/student-dashboard";
 import StudentCoursesPage from "@/pages/student-courses";
+import StudentCourseDetailPage from "@/pages/student-course-detail";
 import StudentProgressPage from "@/pages/student-progress";
 import StudentCalendar from "@/pages/student-calendar";
 import TeacherDashboardEnhanced from "@/pages/teacher-dashboard-enhanced";
@@ -173,6 +175,12 @@ function Router() {
           <Route path="/student/courses">
             <StudentRoute>
               <StudentCoursesPage />
+            </StudentRoute>
+          </Route>
+
+          <Route path="/student/courses/:courseId">
+            <StudentRoute>
+              <StudentCourseDetailPage />
             </StudentRoute>
           </Route>
 
@@ -423,6 +431,11 @@ function Router() {
           <Route path="/teacher/students">
             <TeacherRoute>
               <TeacherStudents />
+            </TeacherRoute>
+          </Route>
+          <Route path="/teacher/students/:studentId">
+            <TeacherRoute>
+              <TeacherStudentProfile />
             </TeacherRoute>
           </Route>
           <Route path="/teacher/assessments">

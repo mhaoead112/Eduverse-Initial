@@ -307,7 +307,7 @@ export default function TeacherAssignmentsPage() {
               Assignments
             </h1>
             <p className="text-gray-600 mt-2">
-              Create and manage assignments for your courses
+              Create and manage assignments for your classes
             </p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -321,7 +321,7 @@ export default function TeacherAssignmentsPage() {
               <DialogHeader>
                 <DialogTitle>Create New Assignment</DialogTitle>
                 <DialogDescription>
-                  Add a new assignment to one of your courses
+                  Add a new assignment to one of your classes
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleCreateAssignment} className="space-y-4">

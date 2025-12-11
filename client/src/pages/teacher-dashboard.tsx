@@ -285,7 +285,7 @@ export default function TeacherDashboard() {
                 onClick={() => setLocation('/teacher/courses/create')}
               >
                 <BookOpen className="h-5 w-5" />
-                <span>Create Course</span>
+                <span>Create Class</span>
               </Button>
               <Button 
                 className="gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl px-6 py-3 h-auto shadow-lg border-0 backdrop-blur-sm"
@@ -312,7 +312,7 @@ export default function TeacherDashboard() {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wide">Your Courses</p>
+                  <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wide">Your Classes</p>
                   <h3 className="text-5xl font-bold text-gray-900 leading-none tracking-tight mb-1">
                     {stats.totalCourses}
                   </h3>
@@ -376,7 +376,7 @@ export default function TeacherDashboard() {
           {/* My Courses Section */}
           <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 font-luxury">My Courses</h2>
+              <h2 className="text-2xl font-bold text-gray-900 font-luxury">My Classes</h2>
               <Button 
                 variant="ghost" 
                 className="text-sm text-gray-600 hover:text-gray-900"
@@ -395,7 +395,7 @@ export default function TeacherDashboard() {
                       No courses yet. Create your first course to get started!
                     </p>
                     <Button onClick={() => setLocation('/teacher/courses/create')}>
-                      Create Course
+                      Create Class
                     </Button>
                   </div>
                 </CardContent>
@@ -411,13 +411,21 @@ export default function TeacherDashboard() {
                         <CardContent className="p-0">
                           {/* Course Cover */}
                           <div className="h-[180px] relative overflow-hidden bg-gradient-to-br from-green-200 to-teal-300">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="text-7xl opacity-80">
-                                {emoji}
+                            {course.imageUrl ? (
+                              <img 
+                                src={course.imageUrl.startsWith('http') ? course.imageUrl : `/uploads/${course.imageUrl}`}
+                                alt={course.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-7xl opacity-80">
+                                  {emoji}
+                                </div>
                               </div>
-                            </div>
+                            )}
                             <div className="absolute top-5 left-5">
-                              <p className="text-white/90 text-2xl font-handwriting italic tracking-wide">Course</p>
+                              <p className="text-white/90 text-2xl font-handwriting italic tracking-wide drop-shadow-md">Class</p>
                             </div>
                           </div>
 

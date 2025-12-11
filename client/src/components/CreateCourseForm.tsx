@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { apiEndpoint } from '@/lib/config';
@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, CheckCircle2, Loader2, BookOpen, FileText, Sparkles } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, BookOpen, FileText, Sparkles, Upload, Image, X } from 'lucide-react';
 
 interface CreateCourseFormProps {
   onSuccess?: () => void;
@@ -21,6 +21,10 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
     title: '',
     description: ''
   });
+  
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -84,13 +88,33 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
     setIsLoading(true);
 
     try {
-      const port = '3001';
+      // If we have a cover image, upload it first
+      let imageUrl = null;
+      if (coverImage) {
+        const imageFormData = new FormData();
+        imageFormData.append('file', coverImage);
+        
+        const uploadResponse = await fetch(apiEndpoint('/api/upload'), {
+          method: 'POST',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          body: imageFormData
+        });
+        
+        if (uploadResponse.ok) {
+          const uploadResult = await uploadResponse.json();
+          imageUrl = uploadResult.filePath || uploadResult.url;
+        }
+      }
+
       const response = await fetch(apiEndpoint('/api/courses'), {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
           title: formData.title.trim(),
           description: formData.description.trim(),
+          imageUrl: imageUrl,
           isPublished: false
         })
       });
@@ -179,9 +203,50 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
 
   const handleReset = () => {
     setFormData({ title: '', description: '' });
+    setCoverImage(null);
+    setCoverImagePreview(null);
     setErrors({});
     setServerError(null);
     setSuccess(false);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid File',
+          description: 'Please select an image file',
+          variant: 'destructive'
+        });
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'File Too Large',
+          description: 'Image must be less than 5MB',
+          variant: 'destructive'
+        });
+        return;
+      }
+      setCoverImage(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setCoverImagePreview(previewUrl);
+    }
+  };
+
+  const removeImage = () => {
+    setCoverImage(null);
+    if (coverImagePreview) {
+      URL.revokeObjectURL(coverImagePreview);
+      setCoverImagePreview(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const getTitleProgress = () => {
@@ -207,7 +272,7 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
             <BookOpen className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">Course Details</h2>
+            <h2 className="text-2xl font-bold text-white">Class Details</h2>
             <p className="text-white/80 text-sm">Fill in the information below to create your course</p>
           </div>
         </div>
@@ -363,6 +428,57 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
             </div>
           </div>
 
+          {/* Cover Image Upload (Optional) */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100 text-gray-500">
+                <Image className="w-4 h-4" />
+              </div>
+              Cover Image
+              <span className="text-gray-400 text-xs font-normal">(Optional)</span>
+            </label>
+            
+            {coverImagePreview ? (
+              <div className="relative rounded-xl overflow-hidden border-2 border-gray-200">
+                <img 
+                  src={coverImagePreview} 
+                  alt="Cover preview" 
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-3 right-3 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-3 left-3 text-white text-sm">
+                  {coverImage?.name}
+                </div>
+              </div>
+            ) : (
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all duration-200"
+              >
+                <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <Upload className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-gray-600 font-medium">Click to upload cover image</p>
+                <p className="text-gray-400 text-sm mt-1">PNG, JPG, GIF up to 5MB</p>
+              </div>
+            )}
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
+
           {/* Creator Info Badge */}
           {isAuthenticated && user && (
             <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl border border-gray-200">
@@ -403,7 +519,7 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
               ) : (
                 <>
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Create Course
+                  Create Class
                 </>
               )}
             </Button>

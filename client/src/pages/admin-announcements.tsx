@@ -382,7 +382,7 @@ export default function AdminAnnouncements() {
                     <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
                       <div>
                         <Label className="font-medium">Global Announcement</Label>
-                        <p className="text-xs text-gray-500">Visible to all users across all courses</p>
+                        <p className="text-xs text-gray-500">Visible to all users across all classes</p>
                       </div>
                       <Switch
                         checked={newAnnouncement.isGlobal}
