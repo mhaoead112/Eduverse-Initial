@@ -6,6 +6,7 @@ import StudyBuddyChat from "@/components/StudyBuddyChat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Megaphone } from "lucide-react";
+import { apiEndpoint } from "@/lib/config";
 
 interface Lesson {
   id: string;
@@ -36,7 +37,7 @@ export default function StudentCourseLessonsPage() {
       try {
         const authHeaders = getAuthHeaders();
         const headers = authHeaders.Authorization ? authHeaders : {};
-        const res = await fetch(`/api/lessons/course/${courseId}`, { headers });
+        const res = await fetch(apiEndpoint(`/api/lessons/course/${courseId}`), { headers });
         if (!res.ok) throw new Error("Failed to load lessons");
         const data = await res.json();
         // API returns { lessons: [] } per server implementation
@@ -44,7 +45,7 @@ export default function StudentCourseLessonsPage() {
         // Add download URL to each lesson
         const lessonsWithUrls = items.map((lesson: Lesson) => ({
           ...lesson,
-          fileUrl: `/api/lessons/${lesson.id}/download`
+          fileUrl: apiEndpoint(`/api/lessons/${lesson.id}/download`)
         }));
         setLessons(lessonsWithUrls);
         if (lessonsWithUrls.length > 0) setSelectedLesson(lessonsWithUrls[0]);
