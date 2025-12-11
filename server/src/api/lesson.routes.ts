@@ -318,7 +318,8 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 /**
  * PUBLIC/PROTECTED
  * GET /api/lessons/:id/download
- * Download a lesson file
+ * Download or view a lesson file
+ * Query param: ?view=inline for inline viewing (PDFs, images, etc.)
  */
 router.get('/:id/download', async (req, res) => {
     try {
@@ -335,9 +336,16 @@ router.get('/:id/download', async (req, res) => {
             return res.status(404).json({ message: 'File not found on server.' });
         }
 
-        // Set headers for download
+        // Determine if inline view or download
+        const isInlineView = req.query.view === 'inline';
+        const disposition = isInlineView ? 'inline' : 'attachment';
+        
+        // Set headers
         res.setHeader('Content-Type', lesson.fileType);
-        res.setHeader('Content-Disposition', `attachment; filename="${lesson.fileName}"`);
+        res.setHeader('Content-Disposition', `${disposition}; filename="${lesson.fileName}"`);
+        
+        // Allow cross-origin for viewing in iframes
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 
         // Stream file to response
         res.sendFile(lesson.filePath);
