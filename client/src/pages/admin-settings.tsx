@@ -461,7 +461,7 @@ export default function AdminSettings() {
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <p className="font-medium">New Course Created</p>
-                    <p className="text-sm text-gray-600">Get notified when teachers create courses</p>
+                    <p className="text-sm text-gray-600">Get notified when teachers create classes</p>
                   </div>
                   <Switch
                     checked={notificationSettings.newCourseCreated}

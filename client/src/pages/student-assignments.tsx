@@ -742,7 +742,7 @@ export default function StudentAssignments() {
                   <SelectValue placeholder="Filter by course" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Courses</SelectItem>
+                  <SelectItem value="all">All Classes</SelectItem>
                   {uniqueCourses.map(course => (
                     <SelectItem key={course} value={course}>{course}</SelectItem>
                   ))}

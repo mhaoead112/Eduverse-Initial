@@ -196,7 +196,7 @@ export default function TeacherStudents() {
                   <BookOpen className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Avg Courses</p>
+                  <p className="text-sm text-gray-600">Avg Classes</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {students.length > 0 ? 
                       (students.reduce((sum, s) => sum + s.enrollmentCount, 0) / students.length).toFixed(1) 
@@ -256,7 +256,7 @@ export default function TeacherStudents() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="name">Name (A-Z)</SelectItem>
-                    <SelectItem value="courses">Most Courses</SelectItem>
+                    <SelectItem value="courses">Most Classes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -321,13 +321,13 @@ export default function TeacherStudents() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-2">
                       <BookOpen className="h-4 w-4 flex-shrink-0 text-purple-500" />
-                      <span className="font-medium">{student.enrollmentCount} {student.enrollmentCount === 1 ? 'Course' : 'Courses'} Enrolled</span>
+                      <span className="font-medium">{student.enrollmentCount} {student.enrollmentCount === 1 ? 'Class' : 'Classes'} Enrolled</span>
                     </div>
                   </div>
 
                   {student.enrolledCourses.length > 0 && (
                     <div className="border-t border-gray-100 pt-4 mb-4">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Enrolled Courses</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Enrolled Classes</p>
                       <div className="space-y-2">
                         {student.enrolledCourses.slice(0, 3).map((course) => (
                           <div key={course.enrollmentId} className="flex items-center gap-2 text-sm text-gray-700 bg-green-50 rounded-lg p-2">

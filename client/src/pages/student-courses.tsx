@@ -58,9 +58,9 @@ export default function StudentCoursesPage() {
     <DashboardLayout role="student" userName={user?.fullName || user?.username || "Student"}>
       <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Courses</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Classes</h1>
           <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
-            View and access your enrolled courses.
+            View and access your enrolled classes.
           </p>
         </div>
 

@@ -169,15 +169,15 @@ export default function TeacherCoursesPage() {
         <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Courses</h1>
-              <p className="text-gray-600">Create, manage, and publish your courses</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Classes</h1>
+              <p className="text-gray-600">Create, manage, and publish your classes</p>
             </div>
             <Button 
               onClick={() => setLocation('/teacher/courses/create')}
               className="bg-blue-600 hover:bg-blue-700 gap-2"
             >
               <Plus className="h-4 w-4" />
-              Create Course
+              Create Class
             </Button>
           </div>
 

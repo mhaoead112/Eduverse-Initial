@@ -133,7 +133,7 @@ export default function ParentCourses() {
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-3">
                   <BookOpen className="h-7 w-7" />
-                  Enrolled Courses
+                  Enrolled Classes
                 </h1>
                 <p className="text-purple-100 mt-1">Track your child's course progress and performance</p>
               </div>

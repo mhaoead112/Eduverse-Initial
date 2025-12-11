@@ -266,7 +266,7 @@ export default function TeacherAnalytics() {
                 <SelectValue placeholder="Select course" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">📚 All Courses</SelectItem>
+                <SelectItem value="all">📚 All Classes</SelectItem>
                 {courses.map((course) => (
                   <SelectItem key={course.id} value={course.id}>
                     {course.title}
@@ -367,7 +367,7 @@ export default function TeacherAnalytics() {
                 <div>
                   <p className="text-sm font-medium text-indigo-600 mb-1">Total Assignments</p>
                   <p className="text-4xl font-bold text-gray-900">{overviewStats.totalAssignments}</p>
-                  <p className="text-xs text-gray-500 mt-1">Across all courses</p>
+                  <p className="text-xs text-gray-500 mt-1">Across all classes</p>
                 </div>
                 <div className="h-16 w-16 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <FileText className="h-8 w-8 text-white" />

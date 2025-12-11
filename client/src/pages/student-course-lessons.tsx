@@ -160,7 +160,7 @@ export default function StudentCourseLessonsPage() {
         <Card className="shadow-xl border-0">
           <CardContent className="p-8 text-center">
             <GraduationCap className="h-12 w-12 text-indigo-500 mx-auto mb-4" />
-            <p className="text-gray-600">Please sign in to view course lessons.</p>
+            <p className="text-gray-600">Please sign in to view class lessons.</p>
             <Link href="/login">
               <Button className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600">
                 Sign In
@@ -188,7 +188,7 @@ export default function StudentCourseLessonsPage() {
               <div className="h-6 w-px bg-gray-300" />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Course Lessons
+                  Class Lessons
                 </h1>
                 <p className="text-sm text-gray-500">
                   {lessons.length} lesson{lessons.length !== 1 ? 's' : ''} available
@@ -251,7 +251,7 @@ export default function StudentCourseLessonsPage() {
             <CardContent className="p-12 text-center">
               <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">No Lessons Yet</h3>
-              <p className="text-gray-500">This course doesn't have any lessons available yet. Check back later!</p>
+              <p className="text-gray-500">This class doesn't have any lessons available yet. Check back later!</p>
             </CardContent>
           </Card>
         ) : (

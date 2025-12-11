@@ -188,7 +188,7 @@ export default function ParentProgress() {
                     <span className="text-sm text-purple-600 font-medium">Avg Score</span>
                   </div>
                   <p className="text-3xl font-bold text-gray-900">{report.overview.averageScore?.toFixed(0) || 0}%</p>
-                  <p className="text-sm text-gray-600 mt-1">across all courses</p>
+                  <p className="text-sm text-gray-600 mt-1">across all classes</p>
                 </CardContent>
               </Card>
 
@@ -315,7 +315,7 @@ export default function ParentProgress() {
               </Button>
               <Button onClick={() => setLocation(`/parent/courses`)}>
                 <BookOpen className="h-4 w-4 mr-2" />
-                View All Courses
+                View All Classes
               </Button>
             </div>
           </>

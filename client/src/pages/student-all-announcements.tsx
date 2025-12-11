@@ -158,7 +158,7 @@ export default function StudentAllAnnouncementsPage() {
             Recent Announcements
           </h1>
           <p className="text-gray-600 mt-2">
-            Stay updated with the latest announcements from all your courses
+            Stay updated with the latest announcements from all your classes
           </p>
         </div>
 
