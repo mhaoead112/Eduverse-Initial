@@ -188,18 +188,21 @@ app.use(helmet({
   contentSecurityPolicy: isProduction ? {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", ...allowedOrigins], // Updated to use allowedOrigins
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", ...allowedOrigins, "wss:", "ws:"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'self'", "blob:"],
+      mediaSrc: ["'self'", "blob:", "https:"],
+      frameSrc: ["'self'", "blob:", "https:", ...allowedOrigins],
+      frameAncestors: ["'self'", ...allowedOrigins],
+      workerSrc: ["'self'", "blob:"],
     },
   } : false,
-  crossOriginEmbedderPolicy: !isProduction,
+  crossOriginEmbedderPolicy: false, // Disable to allow cross-origin iframes
   crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin resources
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   hsts: isProduction ? {
     maxAge: 31536000,
     includeSubDomains: true,
