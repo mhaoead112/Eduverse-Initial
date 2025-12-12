@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,16 @@ interface Child {
   coursesEnrolled: number;
   assignmentsDue: number;
   upcomingEvents: number;
+  progressPercentage?: number;
+  stats?: {
+    progressPercentage: number;
+    currentStreak: number;
+    coursesEnrolled: number;
+    assignmentsDue: number;
+  };
+  recentGrades?: any[];
+  upcomingAssignments?: any[];
+  alerts?: any[];
 }
 
 interface RecentActivity {
@@ -48,12 +59,13 @@ export default function ParentDashboard() {
 
   const fetchParentData = async () => {
     if (!token) {
+      setLoading(false);
       return;
     }
     
     try {
-      // Fetch children linked to this parent
-      const response = await fetch(apiEndpoint('/api/parent/children'), {
+      // Fetch comprehensive dashboard overview
+      const response = await fetch(apiEndpoint('/api/parent/dashboard/overview'), {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -63,48 +75,66 @@ export default function ParentDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setChildren(data.children || []);
-        setRecentActivity(data.recentActivity || []);
-        if (data.children?.length > 0) {
-          setSelectedChild(data.children[0].id);
+        // Map children data to expected format
+        const mappedChildren = (data.children || []).map((child: any) => ({
+          id: child.id,
+          name: child.name || child.fullName,
+          grade: 'N/A', // Grade level - not tracked
+          overallGrade: child.stats?.progressPercentage >= 90 ? 'A' :
+                        child.stats?.progressPercentage >= 80 ? 'B+' :
+                        child.stats?.progressPercentage >= 70 ? 'B' :
+                        child.stats?.progressPercentage >= 60 ? 'C' : 'D',
+          attendance: 95, // Default - would need attendance API
+          coursesEnrolled: child.stats?.coursesEnrolled || 0,
+          assignmentsDue: child.stats?.assignmentsDue || 0,
+          upcomingEvents: 0,
+          progressPercentage: child.stats?.progressPercentage || 0,
+          stats: child.stats,
+          recentGrades: child.recentGrades || [],
+          upcomingAssignments: child.upcomingAssignments || [],
+          alerts: child.alerts || []
+        }));
+        setChildren(mappedChildren);
+        
+        // Map recent activity
+        const mappedActivity = (data.recentActivity || []).map((activity: any, index: number) => ({
+          id: index + 1,
+          childName: activity.childName,
+          type: activity.type || 'grade',
+          message: activity.message,
+          timestamp: activity.timestamp ? formatTimeAgo(new Date(activity.timestamp)) : 'Recently'
+        }));
+        setRecentActivity(mappedActivity);
+        
+        if (mappedChildren.length > 0) {
+          setSelectedChild(mappedChildren[0].id);
         }
       } else {
-        // Use demo data if API not available
-        setChildren([
-          {
-            id: 1,
-            name: "Emma Johnson",
-            grade: "Grade 8",
-            overallGrade: "A-",
-            attendance: 96,
-            coursesEnrolled: 6,
-            assignmentsDue: 3,
-            upcomingEvents: 2
-          },
-          {
-            id: 2,
-            name: "Liam Johnson",
-            grade: "Grade 5",
-            overallGrade: "B+",
-            attendance: 98,
-            coursesEnrolled: 5,
-            assignmentsDue: 2,
-            upcomingEvents: 1
-          }
-        ]);
-        setRecentActivity([
-          { id: 1, childName: "Emma", type: 'grade', message: "Received A on Math Quiz", timestamp: "2 hours ago" },
-          { id: 2, childName: "Liam", type: 'attendance', message: "Marked present today", timestamp: "4 hours ago" },
-          { id: 3, childName: "Emma", type: 'assignment', message: "Submitted Science Project", timestamp: "Yesterday" },
-          { id: 4, childName: "Liam", type: 'achievement', message: "Earned 'Perfect Week' badge", timestamp: "2 days ago" }
-        ]);
-        setSelectedChild(1);
+        console.error('Failed to fetch dashboard data:', response.status);
+        setChildren([]);
+        setRecentActivity([]);
       }
     } catch (error) {
       console.error('Error fetching parent data:', error);
+      setChildren([]);
+      setRecentActivity([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper to format timestamps
+  const formatTimeAgo = (date: Date): string => {
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
   };
 
   const getActivityIcon = (type: string) => {
@@ -176,7 +206,7 @@ export default function ParentDashboard() {
                     </Avatar>
                     <div className="text-left">
                       <p className="font-medium text-gray-900">{child.name}</p>
-                      <p className="text-sm text-gray-500">{child.grade}</p>
+                      <p className="text-sm text-gray-500">{child.progressPercentage || 0}% Progress</p>
                     </div>
                   </button>
                 ))}
@@ -192,13 +222,14 @@ export default function ParentDashboard() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Overall Grade</p>
-                    <h3 className="text-3xl font-bold text-gray-900">{selectedChildData.overallGrade}</h3>
+                    <p className="text-sm text-gray-500">Overall Progress</p>
+                    <h3 className="text-3xl font-bold text-gray-900">{selectedChildData.progressPercentage || 0}%</h3>
                   </div>
                   <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <GraduationCap className="h-6 w-6 text-green-600" />
+                    <TrendingUp className="h-6 w-6 text-green-600" />
                   </div>
                 </div>
+                <Progress value={selectedChildData.progressPercentage || 0} className="mt-3 h-2" />
               </CardContent>
             </Card>
 
