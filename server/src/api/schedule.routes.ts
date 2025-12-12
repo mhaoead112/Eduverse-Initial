@@ -421,6 +421,112 @@ router.post('/event', isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * PUT /api/schedule/event/:id
+ * Update an existing event
+ */
+router.put('/event/:id', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
+    const eventId = req.params.id;
+
+    if (userRole !== 'teacher' && userRole !== 'admin') {
+      return res.status(403).json({ error: 'Only teachers and admins can update events' });
+    }
+
+    // Check if event exists and user owns it
+    const [existingEvent] = await db
+      .select()
+      .from(events)
+      .where(eq(events.id, eventId))
+      .limit(1);
+
+    if (!existingEvent) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    // Only allow editing own events (or admin can edit all)
+    if (existingEvent.createdBy !== userId && userRole !== 'admin') {
+      return res.status(403).json({ error: 'You can only edit your own events' });
+    }
+
+    const { title, description, eventType, startTime, endTime, location, color } = req.body;
+
+    const [updatedEvent] = await db
+      .update(events)
+      .set({
+        title: title || existingEvent.title,
+        description: description !== undefined ? description : existingEvent.description,
+        eventType: eventType || existingEvent.eventType,
+        startTime: startTime ? new Date(startTime) : existingEvent.startTime,
+        endTime: endTime ? new Date(endTime) : existingEvent.endTime,
+        location: location !== undefined ? location : existingEvent.location,
+        color: color !== undefined ? color : existingEvent.color,
+        updatedAt: new Date()
+      })
+      .where(eq(events.id, eventId))
+      .returning();
+
+    res.json({
+      message: 'Event updated successfully',
+      event: updatedEvent
+    });
+
+  } catch (error) {
+    console.error('Error updating event:', error);
+    res.status(500).json({
+      error: 'Failed to update event',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * DELETE /api/schedule/event/:id
+ * Delete an event
+ */
+router.delete('/event/:id', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
+    const eventId = req.params.id;
+
+    if (userRole !== 'teacher' && userRole !== 'admin') {
+      return res.status(403).json({ error: 'Only teachers and admins can delete events' });
+    }
+
+    // Check if event exists and user owns it
+    const [existingEvent] = await db
+      .select()
+      .from(events)
+      .where(eq(events.id, eventId))
+      .limit(1);
+
+    if (!existingEvent) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    // Only allow deleting own events (or admin can delete all)
+    if (existingEvent.createdBy !== userId && userRole !== 'admin') {
+      return res.status(403).json({ error: 'You can only delete your own events' });
+    }
+
+    await db.delete(events).where(eq(events.id, eventId));
+
+    res.json({
+      message: 'Event deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    res.status(500).json({
+      error: 'Failed to delete event',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Helper functions
 function getStartOfWeek(date: Date): Date {
   const d = new Date(date);

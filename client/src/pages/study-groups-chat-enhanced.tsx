@@ -633,7 +633,7 @@ export default function StudyGroupsChatPage() {
         });
       });
 
-      xhr.open('POST', '/api/study-groups/upload');
+      xhr.open('POST', apiEndpoint('/api/study-groups/upload'));
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }

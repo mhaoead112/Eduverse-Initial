@@ -96,6 +96,18 @@ export default function TeacherAssignmentsPage() {
     maxScore: '100',
   });
 
+  // Edit assignment dialog state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    type: 'homework',
+    dueDate: '',
+    maxScore: '100',
+  });
+
   // Fetch courses
   const fetchCourses = async () => {
     if (!token) return;
@@ -274,6 +286,70 @@ export default function TeacherAssignmentsPage() {
     } finally {
       setDeletingId(null);
       setAssignmentToDelete(null);
+    }
+  };
+
+  // Open edit dialog
+  const openEditDialog = (assignment: Assignment) => {
+    setEditingAssignment(assignment);
+    setEditFormData({
+      title: assignment.title,
+      description: assignment.description || '',
+      type: assignment.type,
+      dueDate: new Date(assignment.dueDate).toISOString().slice(0, 16),
+      maxScore: assignment.maxScore,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  // Edit assignment
+  const handleEditAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAssignment) return;
+
+    setIsEditing(true);
+    try {
+      const res = await fetch(apiEndpoint(`/api/assignments/${editingAssignment.id}`), {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: editFormData.title,
+          description: editFormData.description,
+          type: editFormData.type,
+          dueDate: editFormData.dueDate,
+          maxScore: parseInt(editFormData.maxScore),
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update assignment");
+      }
+
+      const updatedAssignment = await res.json();
+
+      setAssignments(assignments.map(a => 
+        a.id === editingAssignment.id 
+          ? { ...a, ...updatedAssignment }
+          : a
+      ));
+
+      toast({
+        title: "Success",
+        description: "Assignment updated successfully",
+        variant: "default"
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingAssignment(null);
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err?.message || "Failed to update assignment",
+        variant: "destructive"
+      });
+    } finally {
+      setIsEditing(false);
     }
   };
 
@@ -637,6 +713,16 @@ export default function TeacherAssignmentsPage() {
                       <Button
                         size="sm"
                         variant="ghost"
+                        onClick={() => openEditDialog(assignment)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        title="Edit assignment"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => setAssignmentToDelete(assignment)}
                         disabled={deletingId === assignment.id}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -677,6 +763,101 @@ export default function TeacherAssignmentsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Assignment Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Assignment</DialogTitle>
+            <DialogDescription>
+              Update the assignment details
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditAssignment} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Title *</Label>
+              <Input
+                id="edit-title"
+                value={editFormData.title}
+                onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                placeholder="Assignment title"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={editFormData.description}
+                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                placeholder="Add instructions or details"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-type">Type *</Label>
+                <Select
+                  value={editFormData.type}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignmentTypes.map(type => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-maxScore">Max Score *</Label>
+                <Input
+                  id="edit-maxScore"
+                  type="number"
+                  value={editFormData.maxScore}
+                  onChange={(e) => setEditFormData({ ...editFormData, maxScore: e.target.value })}
+                  min="1"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-dueDate">Due Date *</Label>
+              <Input
+                id="edit-dueDate"
+                type="datetime-local"
+                value={editFormData.dueDate}
+                onChange={(e) => setEditFormData({ ...editFormData, dueDate: e.target.value })}
+                required
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isEditing}>
+                {isEditing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
