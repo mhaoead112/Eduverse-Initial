@@ -31,6 +31,7 @@ router.get('/student', isAuthenticated, async (req, res) => {
                     description: courses.description,
                     teacherId: courses.teacherId,
                     isPublished: courses.isPublished,
+                    imageUrl: courses.imageUrl,
                 }
             })
             .from(enrollments)
@@ -73,6 +74,7 @@ router.get('/student/:studentId', isAuthenticated, async (req, res) => {
                     description: courses.description,
                     teacherId: courses.teacherId,
                     isPublished: courses.isPublished,
+                    imageUrl: courses.imageUrl,
                 }
             })
             .from(enrollments)
