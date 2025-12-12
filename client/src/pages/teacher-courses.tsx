@@ -30,7 +30,32 @@ interface Course {
   isPublished: boolean;
   createdAt: string;
   updatedAt?: string | null;
+  imageUrl?: string | null;
 }
+
+// Get course icon based on title
+const getCourseStyle = (title: string) => {
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes('math') || lowerTitle.includes('algebra') || lowerTitle.includes('geometry')) {
+    return { bg: 'bg-gradient-to-br from-amber-200 to-amber-300', icon: '📐' };
+  }
+  if (lowerTitle.includes('science') || lowerTitle.includes('physics') || lowerTitle.includes('chemistry') || lowerTitle.includes('biology')) {
+    return { bg: 'bg-gradient-to-br from-green-200 to-green-300', icon: '🔬' };
+  }
+  if (lowerTitle.includes('english') || lowerTitle.includes('writing') || lowerTitle.includes('literature')) {
+    return { bg: 'bg-gradient-to-br from-blue-200 to-blue-300', icon: '📚' };
+  }
+  if (lowerTitle.includes('history') || lowerTitle.includes('social')) {
+    return { bg: 'bg-gradient-to-br from-orange-200 to-orange-300', icon: '🏛️' };
+  }
+  if (lowerTitle.includes('art') || lowerTitle.includes('music') || lowerTitle.includes('drama')) {
+    return { bg: 'bg-gradient-to-br from-purple-200 to-purple-300', icon: '🎨' };
+  }
+  if (lowerTitle.includes('computer') || lowerTitle.includes('programming') || lowerTitle.includes('coding')) {
+    return { bg: 'bg-gradient-to-br from-cyan-200 to-cyan-300', icon: '💻' };
+  }
+  return { bg: 'bg-gradient-to-br from-indigo-200 to-indigo-300', icon: '📖' };
+};
 
 export default function TeacherCoursesPage() {
   const { user, token, isAuthenticated, getAuthHeaders } = useAuth();
@@ -255,43 +280,59 @@ export default function TeacherCoursesPage() {
           </Card>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
-              <Card 
-                key={course.id} 
-                className="group border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all overflow-hidden"
-              >
-                <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                      <BookOpen className="h-6 w-6 text-blue-600" />
+            {courses.map((course) => {
+              const courseStyle = getCourseStyle(course.title);
+              return (
+                <Card 
+                  key={course.id} 
+                  className="group border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all overflow-hidden"
+                >
+                  {/* Course Image */}
+                  <div className={`h-36 relative overflow-hidden ${!course.imageUrl ? courseStyle.bg : ''}`}>
+                    {course.imageUrl ? (
+                      <img 
+                        src={course.imageUrl.startsWith('http') ? course.imageUrl : `/uploads/${course.imageUrl}`}
+                        alt={course.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 bg-white/40 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                          <span className="text-3xl">{courseStyle.icon}</span>
+                        </div>
+                      </div>
+                    )}
+                    {/* Status Badge Overlay */}
+                    <div className="absolute top-3 right-3">
+                      <Badge 
+                        className={course.isPublished 
+                          ? "bg-green-500/90 text-white hover:bg-green-500/90 border-0 shadow-md" 
+                          : "bg-orange-500/90 text-white hover:bg-orange-500/90 border-0 shadow-md"
+                        }
+                      >
+                        {course.isPublished ? (
+                          <span className="flex items-center gap-1">
+                            <Globe className="h-3 w-3" />
+                            Published
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Draft
+                          </span>
+                        )}
+                      </Badge>
                     </div>
-                    <Badge 
-                      className={course.isPublished 
-                        ? "bg-green-100 text-green-700 hover:bg-green-100 border-0" 
-                        : "bg-orange-100 text-orange-700 hover:bg-orange-100 border-0"
-                      }
-                    >
-                      {course.isPublished ? (
-                        <span className="flex items-center gap-1">
-                          <Globe className="h-3 w-3" />
-                          Published
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          <Lock className="h-3 w-3" />
-                          Draft
-                        </span>
-                      )}
-                    </Badge>
                   </div>
-                  <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {course.title}
-                  </CardTitle>
-                  <CardDescription className="mt-2 line-clamp-2 text-sm">
-                    {course.description || "No description provided"}
-                  </CardDescription>
-                </CardHeader>
+                  
+                  <CardHeader className="pb-3 pt-4">
+                    <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      {course.title}
+                    </CardTitle>
+                    <CardDescription className="mt-2 line-clamp-2 text-sm">
+                      {course.description || "No description provided"}
+                    </CardDescription>
+                  </CardHeader>
                 
                 <CardContent className="space-y-4">
                   <div className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 rounded-lg p-2">
@@ -355,7 +396,8 @@ export default function TeacherCoursesPage() {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
