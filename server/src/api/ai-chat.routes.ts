@@ -47,7 +47,7 @@ const aiPool = new Pool(getAiDbConfig());
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const EMBED_MODEL = process.env.EMBED_MODEL || 'text-embedding-004';
-const GEN_MODEL = 'gemini-2.0-flash'; // More stable than experimental model
+const GEN_MODEL = 'gemini-1.5-flash-latest'; // Official supported model
 const TOP_K_LESSONS = 3;
 const CHUNK_FETCH_LIMIT = 50;
 
@@ -114,7 +114,7 @@ async function embedQuery(text: string): Promise<number[]> {
   return retryWithBackoff(async () => {
     const model = genAI!.getGenerativeModel({ model: EMBED_MODEL });
     const result = await model.embedContent({
-      content: { role: 'user', parts: [{ text }] },
+      content: { parts: [{ text }] },
       taskType: TaskType.RETRIEVAL_QUERY
     });
     
