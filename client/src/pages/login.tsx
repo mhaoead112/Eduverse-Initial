@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,93 +7,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Mail, Lock, LogIn, AlertCircle, Loader2, GraduationCap, BookOpen, Users, Award } from 'lucide-react';
 import { apiEndpoint } from '@/lib/config';
+import { useAuth } from '@/hooks/useAuth';
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface LoginResponse {
-  user: {
-    id: number;
-    email: string;
-    fullName: string;
-    role: 'student' | 'teacher' | 'parent' | 'admin';
-  };
-  token: string;
-}
-
 export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { login, isAuthenticated, user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<LoginCredentials>({
     email: '',
     password: ''
   });
 
-  // Login mutation
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: LoginCredentials) => {
-      const response = await fetch(apiEndpoint('/api/auth/login'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-        credentials: 'include'
-      });
+  // Redirect if already authenticated
+  if (isAuthenticated && user) {
+    const roleRoutes: Record<string, string> = {
+      student: '/student/dashboard',
+      teacher: '/teacher/dashboard',
+      parent: '/parent/dashboard',
+      admin: '/admin/dashboard'
+    };
+    setLocation(roleRoutes[user.role] || '/');
+    return null;
+  }
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
-      }
-
-      return response.json() as Promise<LoginResponse>;
-    },
-    onSuccess: (data) => {
-      // Store token in localStorage
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Track login streak for students
-      if (data.user.role === 'student') {
-        fetch(apiEndpoint('/api/streaks/login'), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${data.token}`,
-            'Content-Type': 'application/json'
-          },
-        }).catch(err => console.error('Failed to track login:', err));
-      }
-
-      toast({
-        title: 'Login Successful',
-        description: `Welcome back, ${data.user.fullName}!`,
-      });
-
-      // Redirect based on role
-      const roleRoutes = {
-        student: '/student',
-        teacher: '/teacher',
-        parent: '/parent',
-        admin: '/admin'
-      };
-
-      setTimeout(() => {
-        setLocation(roleRoutes[data.user.role] || '/');
-      }, 500);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Login Failed',
-        description: error.message || 'Invalid email or password',
-        variant: 'destructive',
-      });
-    }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
@@ -116,7 +59,67 @@ export default function Login() {
       return;
     }
 
-    loginMutation.mutate(formData);
+    setIsLoading(true);
+    
+    try {
+      // Use AuthContext login to properly set state
+      const result = await login({
+        username: formData.email, // API accepts username or email
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (result.success) {
+        // Get user from localStorage (set by login function)
+        const storedUser = localStorage.getItem('eduverse_user');
+        const userData = storedUser ? JSON.parse(storedUser) : null;
+
+        // Track login streak for students
+        if (userData?.role === 'student') {
+          const storedToken = localStorage.getItem('eduverse_token');
+          if (storedToken) {
+            fetch(apiEndpoint('/api/streaks/login'), {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${storedToken}`,
+                'Content-Type': 'application/json'
+              },
+            }).catch(err => console.error('Failed to track login:', err));
+          }
+        }
+
+        toast({
+          title: 'Login Successful',
+          description: `Welcome back, ${userData?.fullName || 'User'}!`,
+        });
+
+        // Redirect based on role
+        const roleRoutes: Record<string, string> = {
+          student: '/student/dashboard',
+          teacher: '/teacher/dashboard',
+          parent: '/parent/dashboard',
+          admin: '/admin/dashboard'
+        };
+
+        setTimeout(() => {
+          setLocation(roleRoutes[userData?.role] || '/');
+        }, 300);
+      } else {
+        toast({
+          title: 'Login Failed',
+          description: result.error || 'Invalid email or password',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Login Failed',
+        description: error instanceof Error ? error.message : 'An error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,7 +232,7 @@ export default function Login() {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="pl-10 h-12 text-base border-gray-200 focus:border-[#003366] focus:ring-[#003366]/20 rounded-xl transition-all"
-                    disabled={loginMutation.isPending}
+                    disabled={isLoading}
                     autoComplete="email"
                   />
                 </div>
@@ -257,7 +260,7 @@ export default function Login() {
                     value={formData.password}
                     onChange={handleInputChange}
                     className="pl-10 pr-12 h-12 text-base border-gray-200 focus:border-[#003366] focus:ring-[#003366]/20 rounded-xl transition-all"
-                    disabled={loginMutation.isPending}
+                    disabled={isLoading}
                     autoComplete="current-password"
                   />
                   <button
@@ -274,24 +277,14 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Error Display */}
-              {loginMutation.isError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-700">
-                    {loginMutation.error?.message || 'An error occurred during login'}
-                  </p>
-                </div>
-              )}
-
               {/* Submit Button */}
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-[#003366] to-[#004080] hover:from-[#002244] hover:to-[#003366] h-12 rounded-xl text-base font-semibold shadow-lg shadow-[#003366]/25 transition-all duration-300 hover:shadow-xl hover:shadow-[#003366]/30 hover:-translate-y-0.5"
                 size="lg"
-                disabled={loginMutation.isPending}
+                disabled={isLoading}
               >
-                {loginMutation.isPending ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                     Signing in...
