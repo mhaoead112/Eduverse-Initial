@@ -2,26 +2,48 @@ import { Router } from 'express';
 import { Pool } from 'pg';
 import { GoogleGenerativeAI, TaskType } from '@google/generative-ai';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, '../../../.env.ai') });
 
 const router = Router();
 
+// Check if we're in production (Render sets NODE_ENV)
+const isProduction = process.env.NODE_ENV === 'production';
+
 // PostgreSQL Pool for AI Database
-const aiPool = new Pool({
-  host: process.env.AI_DB_HOST || 'localhost',
-  port: parseInt(process.env.AI_DB_PORT || '5432'),
-  user: process.env.AI_DB_USER || 'postgres',
-  password: process.env.AI_DB_PASSWORD || 'postgres',
-  database: process.env.AI_DB_NAME || 'eduverse',
-  ssl: process.env.AI_DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-});
+// In production (Render), uses environment variables set in Render dashboard
+// In development, uses DATABASE_URL or falls back to local defaults
+const getAiDbConfig = () => {
+  // If AI-specific DB vars are set, use them (both production and dev)
+  if (process.env.AI_DB_HOST) {
+    return {
+      host: process.env.AI_DB_HOST,
+      port: parseInt(process.env.AI_DB_PORT || '5432'),
+      user: process.env.AI_DB_USER,
+      password: process.env.AI_DB_PASSWORD,
+      database: process.env.AI_DB_NAME,
+      ssl: process.env.AI_DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    };
+  }
+  
+  // Fall back to main DATABASE_URL if AI_DB not configured
+  if (process.env.DATABASE_URL) {
+    return {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    };
+  }
+  
+  // Local development defaults
+  return {
+    host: 'localhost',
+    port: 5432,
+    user: 'postgres',
+    password: 'postgres',
+    database: 'eduverse',
+    ssl: false,
+  };
+};
+
+const aiPool = new Pool(getAiDbConfig());
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const EMBED_MODEL = process.env.EMBED_MODEL || 'text-embedding-004';
@@ -30,7 +52,12 @@ const TOP_K_LESSONS = 3;
 const CHUNK_FETCH_LIMIT = 50;
 
 if (!GEMINI_KEY) {
-  console.warn('⚠️  GEMINI_API_KEY not found in .env.ai');
+  console.warn('⚠️  GEMINI_API_KEY not found in environment variables');
+  if (isProduction) {
+    console.warn('   Add GEMINI_API_KEY to Render dashboard -> Environment tab');
+  } else {
+    console.warn('   Add GEMINI_API_KEY to .env or .env.ai file');
+  }
 }
 
 const genAI = GEMINI_KEY ? new GoogleGenerativeAI(GEMINI_KEY) : null;
@@ -292,6 +319,76 @@ router.get('/personas', (req, res) => {
       name: value.name
     }))
   );
+});
+
+// GET /api/ai/status - Check AI service configuration status
+router.get('/status', async (req, res) => {
+  try {
+    const { checkAiDatabaseConnection } = await import('../services/lesson-digestion.service.js');
+    const dbStatus = await checkAiDatabaseConnection();
+    
+    res.json({
+      geminiConfigured: !!GEMINI_KEY,
+      database: dbStatus,
+      embedModel: EMBED_MODEL,
+      generationModel: GEN_MODEL,
+      ready: !!GEMINI_KEY && dbStatus.connected
+    });
+  } catch (error: any) {
+    res.json({
+      geminiConfigured: !!GEMINI_KEY,
+      database: { connected: false, message: error.message },
+      embedModel: EMBED_MODEL,
+      generationModel: GEN_MODEL,
+      ready: false
+    });
+  }
+});
+
+// POST /api/ai/digest-lesson - Process a single lesson for AI context
+router.post('/digest-lesson', isAuthenticated, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    if (!user || (user.role !== 'teacher' && user.role !== 'admin')) {
+      return res.status(403).json({ error: 'Teachers or Admins only' });
+    }
+    
+    const { lessonId, filePath } = req.body;
+    if (!lessonId || !filePath) {
+      return res.status(400).json({ error: 'lessonId and filePath are required' });
+    }
+    
+    const { processLessonFile } = await import('../services/lesson-digestion.service.js');
+    const result = await processLessonFile(filePath, lessonId);
+    
+    res.json(result);
+  } catch (error: any) {
+    console.error('Lesson digestion error:', error);
+    res.status(500).json({ error: 'Failed to process lesson', details: error.message });
+  }
+});
+
+// POST /api/ai/digest-all - Process all lessons in the uploads folder
+router.post('/digest-all', isAuthenticated, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admins only' });
+    }
+    
+    const { processAllLessons } = await import('../services/lesson-digestion.service.js');
+    const lessonsFolder = process.env.LESSON_FOLDER || 'server/uploads/lessons';
+    
+    const result = await processAllLessons(lessonsFolder);
+    
+    res.json({
+      message: `Processed ${result.processed}/${result.total} lessons`,
+      ...result
+    });
+  } catch (error: any) {
+    console.error('Batch digestion error:', error);
+    res.status(500).json({ error: 'Failed to process lessons', details: error.message });
+  }
 });
 
 export default router;

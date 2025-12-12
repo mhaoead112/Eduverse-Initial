@@ -108,6 +108,29 @@ router.post('/upload', isAuthenticated, upload.single('file'), async (req, res) 
             fileSize: file.size.toString()
         });
 
+        // Trigger AI digestion in background (non-blocking)
+        // This indexes the lesson content for the AI Study Buddy
+        try {
+            const { processLessonFile } = await import('../services/lesson-digestion.service.js');
+            const lessonId = `${courseId}-${newLesson.id}`;
+            
+            // Process in background - don't wait for completion
+            processLessonFile(file.path, lessonId)
+                .then(result => {
+                    if (result.success) {
+                        console.log(`✅ AI indexed lesson: ${lessonId} (${result.chunksProcessed} chunks)`);
+                    } else {
+                        console.warn(`⚠️ AI indexing skipped for ${lessonId}: ${result.message}`);
+                    }
+                })
+                .catch(err => {
+                    console.warn(`⚠️ AI indexing failed for ${lessonId}:`, err.message);
+                });
+        } catch (err) {
+            // Don't fail the upload if AI indexing fails
+            console.warn('AI digestion service not available:', err);
+        }
+
         res.status(201).json({
             message: 'Lesson uploaded successfully',
             lesson: newLesson
