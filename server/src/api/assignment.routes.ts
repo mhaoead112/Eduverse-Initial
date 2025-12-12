@@ -669,6 +669,11 @@ router.post("/:assignmentId/submit", isAuthenticated, upload.single('file'), asy
     let submission;
 
     if (existingSubmission) {
+      // Delete existing grade for this submission (reset grade on resubmit)
+      await db
+        .delete(grades)
+        .where(eq(grades.submissionId, existingSubmission.id));
+
       // Update existing submission
       [submission] = await db
         .update(submissions)
