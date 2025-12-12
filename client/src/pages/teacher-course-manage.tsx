@@ -3,7 +3,7 @@ import { useRoute, useLocation } from "wouter";
 import { 
   BookOpen, Users, FileText, Settings, Trash2, Edit, Plus,
   ArrowLeft, Calendar, Clock, TrendingUp, CheckCircle2, Loader2,
-  UserPlus, X, Search
+  UserPlus, X, Search, Megaphone, Pin
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,6 +73,14 @@ interface Student {
   username: string;
 }
 
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  isPinned: boolean;
+  createdAt: string;
+}
+
 export default function TeacherCourseManage() {
   const [, params] = useRoute("/teacher/courses/:id");
   const [, setLocation] = useLocation();
@@ -82,7 +90,15 @@ export default function TeacherCourseManage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Announcement dialog states
+  const [isAnnouncementDialogOpen, setIsAnnouncementDialogOpen] = useState(false);
+  const [announcementTitle, setAnnouncementTitle] = useState("");
+  const [announcementContent, setAnnouncementContent] = useState("");
+  const [announcementPinned, setAnnouncementPinned] = useState(false);
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -145,6 +161,13 @@ export default function TeacherCourseManage() {
       if (studentsRes.ok) {
         const studentsData = await studentsRes.json();
         setEnrollments(Array.isArray(studentsData) ? studentsData : []);
+      }
+
+      // Fetch announcements
+      const announcementsRes = await fetch(apiEndpoint(`/api/announcements/course/${courseId}`), { headers });
+      if (announcementsRes.ok) {
+        const announcementsData = await announcementsRes.json();
+        setAnnouncements(announcementsData.announcements || []);
       }
     } catch (error) {
       console.error("Failed to fetch course data:", error);
@@ -287,6 +310,85 @@ export default function TeacherCourseManage() {
       toast({
         title: "Error",
         description: err instanceof Error ? err.message : "Failed to unenroll student",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Create announcement
+  const handleCreateAnnouncement = async () => {
+    if (!announcementTitle.trim() || !announcementContent.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in both title and content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSavingAnnouncement(true);
+    try {
+      const response = await fetch(apiEndpoint('/api/announcements'), {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          courseId,
+          title: announcementTitle.trim(),
+          content: announcementContent.trim(),
+          isPinned: announcementPinned
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create announcement');
+      }
+
+      toast({
+        title: "Success",
+        description: "Announcement created successfully"
+      });
+
+      setIsAnnouncementDialogOpen(false);
+      setAnnouncementTitle("");
+      setAnnouncementContent("");
+      setAnnouncementPinned(false);
+      fetchCourseData();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to create announcement",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingAnnouncement(false);
+    }
+  };
+
+  // Delete announcement
+  const handleDeleteAnnouncement = async (announcementId: string) => {
+    if (!confirm('Are you sure you want to delete this announcement?')) return;
+
+    try {
+      const response = await fetch(apiEndpoint(`/api/announcements/${announcementId}`), {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete announcement');
+      }
+
+      toast({
+        title: "Success",
+        description: "Announcement deleted successfully"
+      });
+
+      fetchCourseData();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to delete announcement",
         variant: "destructive"
       });
     }
@@ -447,6 +549,10 @@ export default function TeacherCourseManage() {
               <Users className="h-4 w-4 mr-2" />
               Students ({enrollments.length})
             </TabsTrigger>
+            <TabsTrigger value="announcements" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <Megaphone className="h-4 w-4 mr-2" />
+              Announcements ({announcements.length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="lessons" className="space-y-4">
@@ -605,6 +711,63 @@ export default function TeacherCourseManage() {
               </div>
             )}
           </TabsContent>
+
+          {/* Announcements Tab */}
+          <TabsContent value="announcements" className="space-y-4">
+            <div className="flex justify-end">
+              <Button onClick={() => setIsAnnouncementDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                New Announcement
+              </Button>
+            </div>
+
+            {announcements.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Megaphone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">No announcements yet.</p>
+                  <Button onClick={() => setIsAnnouncementDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Announcement
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {announcements.map((announcement) => (
+                  <Card key={announcement.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-lg">{announcement.title}</h3>
+                            {announcement.isPinned && (
+                              <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+                                <Pin className="h-3 w-3 mr-1" />
+                                Pinned
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3 whitespace-pre-wrap">{announcement.content}</p>
+                          <p className="text-xs text-gray-400">
+                            Posted {new Date(announcement.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteAnnouncement(announcement.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
         {/* Edit Course Dialog */}
@@ -723,6 +886,72 @@ export default function TeacherCourseManage() {
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Enroll Student
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Announcement Dialog */}
+        <Dialog open={isAnnouncementDialogOpen} onOpenChange={setIsAnnouncementDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Announcement</DialogTitle>
+              <DialogDescription>
+                Share important updates with your students
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="announcementTitle">Title</Label>
+                <Input
+                  id="announcementTitle"
+                  placeholder="Announcement title..."
+                  value={announcementTitle}
+                  onChange={(e) => setAnnouncementTitle(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="announcementContent">Content</Label>
+                <Textarea
+                  id="announcementContent"
+                  placeholder="Write your announcement here..."
+                  value={announcementContent}
+                  onChange={(e) => setAnnouncementContent(e.target.value)}
+                  rows={5}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="announcementPinned"
+                  checked={announcementPinned}
+                  onChange={(e) => setAnnouncementPinned(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <Label htmlFor="announcementPinned" className="text-sm font-normal">
+                  Pin this announcement (will appear at the top)
+                </Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAnnouncementDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateAnnouncement} 
+                disabled={savingAnnouncement || !announcementTitle.trim() || !announcementContent.trim()}
+              >
+                {savingAnnouncement ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Megaphone className="h-4 w-4 mr-2" />
+                    Create Announcement
                   </>
                 )}
               </Button>
