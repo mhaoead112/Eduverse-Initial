@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useAuthContext } from "@/contexts/AuthContext";
 import { Camera, User, Mail, Calendar, Loader2, X, Upload } from "lucide-react";
 import { apiEndpoint, assetUrl } from '@/lib/config';
 
@@ -24,8 +23,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user: authUser, token, getAuthHeaders, isLoading: authLoading } = useAuth();
-  const { updateUser } = useAuthContext();
+  const { updateUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,13 +34,13 @@ export default function ProfilePage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!token) {
-      setLoading(false);
-      return;
-    }
     fetchProfile();
-  }, [authLoading, token]);
+  }, []);
+
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = localStorage.getItem("auth_token") || localStorage.getItem("eduverse_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   const fetchProfile = async () => {
     try {
@@ -81,11 +79,6 @@ export default function ProfilePage() {
   const handleUpdateName = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!token) {
-      toast({ title: "Unauthorized", description: "Please log in again.", variant: "destructive" });
-      return;
-    }
-
     if (!fullName.trim()) {
       toast({
         title: "Error",
@@ -109,10 +102,11 @@ export default function ProfilePage() {
       if (response.ok) {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
-        
-        // Update auth context with new user data
-        updateUser(updatedProfile);
-        
+        // Update auth context directly - this updates all components using useAuth
+        updateUser({
+          fullName: updatedProfile.fullName,
+          grade: updatedProfile.grade,
+        });
         toast({
           title: "Success",
           description: "Profile updated successfully",
@@ -173,11 +167,6 @@ export default function ProfilePage() {
   };
 
   const handleUploadPicture = async (file: File) => {
-    if (!token) {
-      toast({ title: "Unauthorized", description: "Please log in again.", variant: "destructive" });
-      return;
-    }
-
     try {
       setUploading(true);
       const formData = new FormData();
@@ -193,10 +182,10 @@ export default function ProfilePage() {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
         setPreviewImage(assetUrl(updatedProfile.profilePicture));
-        
-        // Update auth context with new user data
-        updateUser(updatedProfile);
-        
+        // Update auth context directly - this updates all components using useAuth
+        updateUser({
+          profilePicture: updatedProfile.profilePicture,
+        });
         toast({
           title: "Success",
           description: "Profile picture updated successfully",
@@ -234,11 +223,6 @@ export default function ProfilePage() {
   };
 
   const handleRemovePicture = async () => {
-    if (!token) {
-      toast({ title: "Unauthorized", description: "Please log in again.", variant: "destructive" });
-      return;
-    }
-
     try {
       setUploading(true);
       const response = await fetch(apiEndpoint("/api/profile/me/picture"), {
@@ -250,10 +234,10 @@ export default function ProfilePage() {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
         setPreviewImage(null);
-        
-        // Update auth context with new user data
-        updateUser(updatedProfile);
-        
+        // Update auth context directly - this updates all components using useAuth
+        updateUser({
+          profilePicture: null,
+        });
         toast({
           title: "Success",
           description: "Profile picture removed successfully",
