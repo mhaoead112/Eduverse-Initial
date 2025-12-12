@@ -158,11 +158,14 @@ export default function StudentCoursesPage() {
           </Card>
         ) : (
           <div className="grid gap-4 sm:gap-5 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredEnrollments.map((enrollment) => {
+            {filteredEnrollments.map((enrollment, index) => {
               const courseStyle = getCourseStyle(enrollment.course.title);
               return (
                 <Link key={enrollment.id} href={`/student/courses/${enrollment.courseId}/lessons`}>
-                  <Card className="flex flex-col h-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group">
+                  <Card 
+                    className="flex flex-col h-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group opacity-0 animate-fade-in-up"
+                    style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'forwards' }}
+                  >
                     {/* Course Image */}
                     <div className={`h-40 sm:h-48 relative overflow-hidden ${!enrollment.course.imageUrl ? courseStyle.bg : ''}`}>
                       {enrollment.course.imageUrl ? (
