@@ -168,7 +168,7 @@ export default function StudentCoursesPage() {
                   >
                     {/* Course Image */}
                     <div className={`h-40 sm:h-48 relative overflow-hidden ${!enrollment.course.imageUrl ? courseStyle.bg : ''}`}>
-                      {enrollment.course.imageUrl ? (
+                      {enrollment.course.imageUrl && enrollment.course.imageUrl.length > 0 ? (
                         <img 
                           src={enrollment.course.imageUrl.startsWith('http') ? enrollment.course.imageUrl : `/uploads/${enrollment.course.imageUrl}`}
                           alt={enrollment.course.title}

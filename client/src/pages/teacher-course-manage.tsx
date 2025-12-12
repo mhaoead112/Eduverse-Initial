@@ -9,6 +9,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -64,6 +65,10 @@ interface Enrollment {
   studentName: string;
   studentEmail: string;
   studentRole: string;
+  progress?: number;
+  completedAssignments?: number;
+  totalAssignments?: number;
+  averageScore?: number;
 }
 
 interface Student {
@@ -674,26 +679,47 @@ export default function TeacherCourseManage() {
                 {enrollments.map((enrollment) => (
                   <Card key={enrollment.enrollmentId} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
                             {enrollment.studentName?.charAt(0) || 'S'}
                           </div>
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <h3 className="font-semibold">{enrollment.studentName || 'Student'}</h3>
                             <p className="text-sm text-gray-500">{enrollment.studentEmail}</p>
                             <p className="text-xs text-gray-400 mt-1">
                               Enrolled {new Date(enrollment.enrolledAt).toLocaleDateString()}
                             </p>
+                            
+                            {/* Progress Section */}
+                            <div className="mt-3 space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">Course Progress</span>
+                                <span className="font-medium text-gray-900">{enrollment.progress ?? 0}%</span>
+                              </div>
+                              <Progress value={enrollment.progress ?? 0} className="h-2" />
+                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <span className="flex items-center gap-1">
+                                  <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                  {enrollment.completedAssignments ?? 0}/{enrollment.totalAssignments ?? 0} assignments
+                                </span>
+                                {enrollment.averageScore !== undefined && enrollment.averageScore > 0 && (
+                                  <span className="flex items-center gap-1">
+                                    <TrendingUp className="h-3 w-3 text-blue-500" />
+                                    {enrollment.averageScore}% avg score
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-shrink-0">
                           <Button 
                             variant="outline" 
                             size="sm"
                             onClick={() => setLocation(`/teacher/students/${enrollment.studentId}`)}
                           >
-                            View Progress
+                            View Details
                           </Button>
                           <Button 
                             variant="outline" 

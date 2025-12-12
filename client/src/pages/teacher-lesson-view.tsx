@@ -150,7 +150,7 @@ export default function TeacherLessonView() {
           title: "Success",
           description: "Lesson deleted successfully",
         });
-        setLocation(`/teacher/courses/${courseId}/manage`);
+        setLocation(`/teacher/courses/${courseId}`);
       } else {
         throw new Error("Failed to delete lesson");
       }

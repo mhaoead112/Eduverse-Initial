@@ -28,6 +28,7 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -86,26 +87,40 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
     }
 
     setIsLoading(true);
+    setUploadProgress(0);
 
     try {
-      // If we have a cover image, upload it first
+      // If we have a cover image, upload it first with progress tracking
       let imageUrl = null;
       if (coverImage) {
-        const imageFormData = new FormData();
-        imageFormData.append('file', coverImage);
-        
-        const uploadResponse = await fetch(apiEndpoint('/api/upload'), {
-          method: 'POST',
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : ''
-          },
-          body: imageFormData
+        imageUrl = await new Promise<string | null>((resolve, reject) => {
+          const imageFormData = new FormData();
+          imageFormData.append('file', coverImage);
+          
+          const xhr = new XMLHttpRequest();
+          
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = Math.round((event.loaded / event.total) * 100);
+              setUploadProgress(percentComplete);
+            }
+          });
+          
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const result = JSON.parse(xhr.responseText);
+              resolve(result.filePath || result.url);
+            } else {
+              resolve(null);
+            }
+          });
+          
+          xhr.addEventListener('error', () => resolve(null));
+          
+          xhr.open('POST', apiEndpoint('/api/upload'));
+          xhr.setRequestHeader('Authorization', token ? `Bearer ${token}` : '');
+          xhr.send(imageFormData);
         });
-        
-        if (uploadResponse.ok) {
-          const uploadResult = await uploadResponse.json();
-          imageUrl = uploadResult.filePath || uploadResult.url;
-        }
       }
 
       const response = await fetch(apiEndpoint('/api/courses'), {
@@ -478,6 +493,22 @@ export function CreateCourseForm({ onSuccess, onCancel }: CreateCourseFormProps)
               className="hidden"
             />
           </div>
+
+          {/* Upload Progress */}
+          {isLoading && uploadProgress > 0 && uploadProgress < 100 && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Uploading image...</span>
+                <span className="font-semibold text-emerald-600">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Creator Info Badge */}
           {isAuthenticated && user && (

@@ -67,6 +67,7 @@ export default function TeacherReportCards() {
   const [selectedYear, setSelectedYear] = useState(ACADEMIC_YEARS[0]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -164,6 +165,7 @@ export default function TeacherReportCards() {
     }
 
     setUploading(true);
+    setUploadProgress(0);
     setError(null);
 
     try {
@@ -173,27 +175,48 @@ export default function TeacherReportCards() {
       formData.append('period', selectedPeriod);
       formData.append('academicYear', selectedYear);
 
-      const response = await fetch(apiEndpoint('/api/report-cards/upload'), {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+      // Use XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percentComplete);
+        }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to upload report card');
-      }
-
-      toast({
-        title: "Success",
-        description: "Report card uploaded successfully!"
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          toast({
+            title: "Success",
+            description: "Report card uploaded successfully!"
+          });
+          setUploadDialogOpen(false);
+          setSelectedFile(null);
+          setSelectedStudent('');
+          setUploadProgress(0);
+          fetchReportCards();
+        } else {
+          const errorData = JSON.parse(xhr.responseText);
+          throw new Error(errorData.message || 'Failed to upload report card');
+        }
+        setUploading(false);
       });
-      setUploadDialogOpen(false);
-      setSelectedFile(null);
-      setSelectedStudent('');
-      fetchReportCards();
+
+      xhr.addEventListener('error', () => {
+        setError('Network error during upload');
+        toast({
+          title: "Upload failed",
+          description: "Network error occurred",
+          variant: "destructive"
+        });
+        setUploading(false);
+        setUploadProgress(0);
+      });
+
+      xhr.open('POST', apiEndpoint('/api/report-cards/upload'));
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.send(formData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
       toast({
@@ -201,8 +224,8 @@ export default function TeacherReportCards() {
         description: err instanceof Error ? err.message : 'Upload failed',
         variant: "destructive"
       });
-    } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -363,6 +386,22 @@ export default function TeacherReportCards() {
                     <span className="text-sm text-red-700">{error}</span>
                   </div>
                 )}
+
+                {/* Upload Progress */}
+                {uploading && uploadProgress > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Uploading...</span>
+                      <span className="font-semibold text-blue-600">{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-2">
@@ -383,7 +422,7 @@ export default function TeacherReportCards() {
                   {uploading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Uploading...
+                      Uploading... {uploadProgress}%
                     </>
                   ) : (
                     <>

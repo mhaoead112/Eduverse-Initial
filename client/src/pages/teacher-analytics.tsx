@@ -96,11 +96,11 @@ export default function TeacherAnalytics() {
 
       const headers = ['Student Name', 'Email', 'Average Score', 'Assignments Completed', 'Completion Rate', 'Status'];
       const rows = students.map(student => [
-        student.name || 'N/A',
+        student.fullName || student.username || 'N/A',
         student.email || 'N/A',
         student.averageScore ? `${student.averageScore.toFixed(1)}%` : '0%',
-        student.assignmentsCompleted || 0,
-        student.completionRate ? `${student.completionRate.toFixed(1)}%` : '0%',
+        student.completedAssignments || 0,
+        student.totalAssignments > 0 ? `${((student.completedAssignments / student.totalAssignments) * 100).toFixed(1)}%` : '0%',
         (student.averageScore || 0) >= 70 ? 'Good Standing' : (student.averageScore || 0) >= 60 ? 'At Risk' : 'Needs Attention'
       ]);
 
@@ -227,7 +227,7 @@ export default function TeacherAnalytics() {
 
   const getCompletionData = () => {
     return students.slice(0, 10).map(student => ({
-      name: student.username,
+      name: student.fullName || student.username,
       completed: student.completedAssignments,
       pending: student.pendingAssignments,
       total: student.totalAssignments

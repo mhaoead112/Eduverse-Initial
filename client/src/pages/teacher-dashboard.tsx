@@ -411,7 +411,7 @@ export default function TeacherDashboard() {
                         <CardContent className="p-0">
                           {/* Course Cover */}
                           <div className="h-[180px] relative overflow-hidden bg-gradient-to-br from-green-200 to-teal-300">
-                            {course.imageUrl ? (
+                            {course.imageUrl && course.imageUrl.length > 0 ? (
                               <img 
                                 src={course.imageUrl.startsWith('http') ? course.imageUrl : `/uploads/${course.imageUrl}`}
                                 alt={course.title}

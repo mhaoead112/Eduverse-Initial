@@ -3,8 +3,8 @@
 import express from 'express';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { db } from '../db/index.js';
-import { enrollments, courses, users } from '../db/schema.js';
-import { eq, and, sql } from 'drizzle-orm';
+import { enrollments, courses, users, assignments, submissions, grades } from '../db/schema.js';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 
 const router = express.Router();
 
@@ -94,7 +94,7 @@ router.get('/student/:studentId', isAuthenticated, async (req, res) => {
 /**
  * PROTECTED (TEACHER)
  * GET /api/enrollments/course/:courseId
- * Get all students enrolled in a specific course
+ * Get all students enrolled in a specific course with their progress
  */
 router.get('/course/:courseId', isAuthenticated, async (req, res) => {
     try {
@@ -133,7 +133,67 @@ router.get('/course/:courseId', isAuthenticated, async (req, res) => {
             .leftJoin(users, eq(enrollments.studentId, users.id))
             .where(eq(enrollments.courseId, courseId));
 
-        res.status(200).json(enrolledStudents);
+        // Get all assignments for this course
+        const courseAssignments = await db
+            .select()
+            .from(assignments)
+            .where(eq(assignments.courseId, courseId));
+
+        // Calculate progress for each student
+        const studentsWithProgress = await Promise.all(
+            enrolledStudents.map(async (student) => {
+                if (!student.studentId || courseAssignments.length === 0) {
+                    return {
+                        ...student,
+                        progress: 0,
+                        completedAssignments: 0,
+                        totalAssignments: courseAssignments.length,
+                        averageScore: 0
+                    };
+                }
+
+                // Get submissions for this student for course assignments
+                const assignmentIds = courseAssignments.map(a => a.id);
+                const studentSubmissions = await db
+                    .select({
+                        submissionId: submissions.id,
+                        assignmentId: submissions.assignmentId,
+                        score: grades.score,
+                        maxScore: grades.maxScore,
+                    })
+                    .from(submissions)
+                    .leftJoin(grades, eq(grades.submissionId, submissions.id))
+                    .where(and(
+                        eq(submissions.studentId, student.studentId),
+                        inArray(submissions.assignmentId, assignmentIds)
+                    ));
+
+                const completedAssignments = studentSubmissions.length;
+                const totalAssignments = courseAssignments.length;
+                const progress = totalAssignments > 0 ? Math.round((completedAssignments / totalAssignments) * 100) : 0;
+
+                // Calculate average score
+                let totalScore = 0;
+                let totalMaxScore = 0;
+                studentSubmissions.forEach(sub => {
+                    if (sub.score && sub.maxScore) {
+                        totalScore += parseFloat(sub.score);
+                        totalMaxScore += parseFloat(sub.maxScore);
+                    }
+                });
+                const averageScore = totalMaxScore > 0 ? Math.round((totalScore / totalMaxScore) * 100) : 0;
+
+                return {
+                    ...student,
+                    progress,
+                    completedAssignments,
+                    totalAssignments,
+                    averageScore
+                };
+            })
+        );
+
+        res.status(200).json(studentsWithProgress);
     } catch (error) {
         console.error('Error fetching course enrollments:', error);
         res.status(500).json({
