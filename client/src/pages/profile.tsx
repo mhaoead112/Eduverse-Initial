@@ -104,13 +104,15 @@ export default function ProfilePage() {
         const storedUser = localStorage.getItem('eduverse_user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
-          localStorage.setItem('eduverse_user', JSON.stringify({
+          const updatedUser = {
             ...userData,
             fullName: updatedProfile.fullName,
             grade: updatedProfile.grade,
-          }));
+          };
+          localStorage.setItem('eduverse_user', JSON.stringify(updatedUser));
           // Trigger a custom event to update the dashboard (works in same tab)
-          window.dispatchEvent(new CustomEvent('profile-updated'));
+          console.log('Dispatching profile-updated event with:', updatedUser);
+          window.dispatchEvent(new CustomEvent('profile-updated', { detail: updatedUser }));
         }
         toast({
           title: "Success",
@@ -191,12 +193,14 @@ export default function ProfilePage() {
         const storedUser = localStorage.getItem('eduverse_user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
-          localStorage.setItem('eduverse_user', JSON.stringify({
+          const updatedUser = {
             ...userData,
             profilePicture: updatedProfile.profilePicture,
-          }));
+          };
+          localStorage.setItem('eduverse_user', JSON.stringify(updatedUser));
           // Trigger a custom event to update the dashboard (works in same tab)
-          window.dispatchEvent(new CustomEvent('profile-updated'));
+          console.log('Dispatching profile-updated event with:', updatedUser);
+          window.dispatchEvent(new CustomEvent('profile-updated', { detail: updatedUser }));
         }
         toast({
           title: "Success",
@@ -250,12 +254,14 @@ export default function ProfilePage() {
         const storedUser = localStorage.getItem('eduverse_user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
-          localStorage.setItem('eduverse_user', JSON.stringify({
+          const updatedUser = {
             ...userData,
             profilePicture: null,
-          }));
+          };
+          localStorage.setItem('eduverse_user', JSON.stringify(updatedUser));
           // Trigger a custom event to update the dashboard (works in same tab)
-          window.dispatchEvent(new CustomEvent('profile-updated'));
+          console.log('Dispatching profile-updated event with:', updatedUser);
+          window.dispatchEvent(new CustomEvent('profile-updated', { detail: updatedUser }));
         }
         toast({
           title: "Success",

@@ -52,14 +52,16 @@ export function useAuth() {
     }
     
     // Listen for storage changes (profile updates)
-    const handleStorageChange = () => {
+    const handleStorageChange = (event?: Event) => {
+      console.log('Profile update event received:', event?.type);
       const updatedUser = localStorage.getItem('eduverse_user');
       if (updatedUser) {
         try {
           const user = JSON.parse(updatedUser);
+          console.log('Updating auth state with user:', user);
           setAuthState(prev => ({
             ...prev,
-            user
+            user: { ...user } // Create new object reference to force re-render
           }));
         } catch (error) {
           console.error('Failed to parse updated user data:', error);
@@ -68,15 +70,15 @@ export function useAuth() {
     };
 
     // Listen for both native storage events (other tabs) and custom profile updates (same tab)
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('profile-updated', handleStorageChange);
+    window.addEventListener('storage', handleStorageChange as EventListener);
+    window.addEventListener('profile-updated', handleStorageChange as EventListener);
     
     // Mark loading as complete
     setIsLoading(false);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('profile-updated', handleStorageChange);
+      window.removeEventListener('storage', handleStorageChange as EventListener);
+      window.removeEventListener('profile-updated', handleStorageChange as EventListener);
     };
   }, []);
 
