@@ -67,13 +67,16 @@ export function useAuth() {
       }
     };
 
+    // Listen for both native storage events (other tabs) and custom profile updates (same tab)
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('profile-updated', handleStorageChange);
     
     // Mark loading as complete
     setIsLoading(false);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('profile-updated', handleStorageChange);
     };
   }, []);
 
