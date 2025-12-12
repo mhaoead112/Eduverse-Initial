@@ -308,7 +308,7 @@ export default function TeacherDashboard() {
         {/* Stats Cards with Modern Design */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Total Courses */}
-          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1">
+          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -329,7 +329,7 @@ export default function TeacherDashboard() {
           </Card>
 
           {/* Pending Grading */}
-          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1">
+          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -350,7 +350,7 @@ export default function TeacherDashboard() {
           </Card>
 
           {/* Total Students */}
-          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1">
+          <Card className="group bg-white border-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-3xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -372,7 +372,7 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
           {/* My Courses Section */}
           <div className="space-y-5">
             <div className="flex items-center justify-between">

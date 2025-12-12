@@ -468,7 +468,7 @@ export default function StudentCalendar() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between opacity-0 animate-fade-in-down" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
           <div>
             <h1 className="text-4xl font-bold text-gray-900 font-luxury">Calendar</h1>
             <p className="text-gray-600 mt-1 font-elegant">View your schedule and upcoming events</p>
@@ -476,7 +476,7 @@ export default function StudentCalendar() {
         </div>
 
         {/* Calendar Navigation */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0 shadow-lg opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">

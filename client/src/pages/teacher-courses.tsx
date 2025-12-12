@@ -280,12 +280,13 @@ export default function TeacherCoursesPage() {
           </Card>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => {
+            {courses.map((course, index) => {
               const courseStyle = getCourseStyle(course.title);
               return (
                 <Card 
                   key={course.id} 
-                  className="group border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all overflow-hidden"
+                  className="group border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all overflow-hidden opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'forwards' }}
                 >
                   {/* Course Image */}
                   <div className={`h-36 relative overflow-hidden ${!course.imageUrl ? courseStyle.bg : ''}`}>

@@ -37,6 +37,7 @@ export const courses = pgTable("courses", {
   description: text("description"),
   teacherId: text("teacher_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   isPublished: boolean("is_published").default(false).notNull(),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()),
 });
@@ -246,9 +247,12 @@ export const events = pgTable("events", {
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),
   location: text("location"),
+  meetingLink: text("meeting_link"),
   courseId: text("course_id").references(() => courses.id, { onDelete: 'cascade' }),
   createdBy: text("created_by").notNull().references(() => users.id, { onDelete: 'cascade' }),
   isAllDay: boolean("is_all_day").default(false).notNull(),
+  isPublic: boolean("is_public").default(true).notNull(),
+  maxParticipants: text("max_participants"),
   recurrence: text("recurrence"), // 'none', 'daily', 'weekly', 'monthly'
   color: text("color"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

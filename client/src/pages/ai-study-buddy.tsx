@@ -129,7 +129,7 @@ export default function AIStudyBuddy() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-4">
         {/* Header */}
-        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
+        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 animate-fade-in-down" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ export default function AIStudyBuddy() {
         </Card>
 
         {/* Persona Selector */}
-        <Card>
+        <Card className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium">Tutor Personality:</label>
@@ -171,7 +171,7 @@ export default function AIStudyBuddy() {
         </Card>
 
         {/* Chat Messages */}
-        <Card className="h-[500px] flex flex-col">
+        <Card className="h-[500px] flex flex-col opacity-0 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           <CardContent className="flex-1 overflow-y-auto p-6 space-y-4">
             {messages.map((msg, idx) => (
               <div

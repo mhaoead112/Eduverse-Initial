@@ -503,7 +503,7 @@ export default function StudentDashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
           {/* Course Completion */}
-          <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl overflow-hidden">
+          <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl overflow-hidden opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
             <CardContent className="p-4 sm:p-5 md:p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -571,7 +571,7 @@ export default function StudentDashboard() {
           </Card>
 
           {/* Study Streak */}
-          <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl overflow-hidden">
+          <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl overflow-hidden opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
             <CardContent className="p-4 sm:p-5 md:p-6">
               <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 font-medium">Study Streak</p>
               <div className="flex items-center justify-between">
@@ -603,7 +603,7 @@ export default function StudentDashboard() {
           `}</style>
 
           {/* Weekly Study Goal */}
-          <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl overflow-hidden">
+          <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl overflow-hidden opacity-0 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
             <CardContent className="p-4 sm:p-5 md:p-6">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <p className="text-xs sm:text-sm text-gray-600 font-medium">Weekly Study Goal</p>
@@ -631,7 +631,7 @@ export default function StudentDashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 sm:gap-5 md:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 sm:gap-5 md:gap-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
           {/* My Courses Section */}
           <div className="space-y-3 sm:space-y-4 md:space-y-5">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 font-luxury">My Classes</h2>

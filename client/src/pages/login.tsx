@@ -160,25 +160,25 @@ export default function Login() {
           
           {/* Features */}
           <div className="grid grid-cols-2 gap-6 mt-8 max-w-md">
-            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
               <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
                 <GraduationCap className="h-5 w-5 text-[#D4AF37]" />
               </div>
               <span className="text-sm font-medium">Excellence in Education</span>
             </div>
-            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
               <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-[#D4AF37]" />
               </div>
               <span className="text-sm font-medium">Smart Learning</span>
             </div>
-            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
               <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
                 <Users className="h-5 w-5 text-[#D4AF37]" />
               </div>
               <span className="text-sm font-medium">Connected Community</span>
             </div>
-            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex items-center gap-3 bg-white/10 rounded-xl p-4 backdrop-blur-sm opacity-0 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
               <div className="w-10 h-10 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
                 <Award className="h-5 w-5 text-[#D4AF37]" />
               </div>
@@ -190,7 +190,7 @@ export default function Login() {
 
       {/* Right Panel - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-gray-50 to-white">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-6">
             <div className="flex justify-center mb-4">
