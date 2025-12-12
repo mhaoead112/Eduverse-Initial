@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator 
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Logo } from "./logo";
 import { NotificationsPanel } from "./NotificationsPanel";
@@ -386,7 +387,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [location] = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthContext();
   
   // Push notifications - auto-subscribe on login
   const { 
