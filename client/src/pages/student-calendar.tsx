@@ -471,21 +471,7 @@ export default function StudentCalendar() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 font-luxury">Calendar</h1>
-            <p className="text-gray-600 mt-1 font-elegant">Manage your schedule and upcoming events</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="gap-2">
-              <Filter className="w-4 h-4" />
-              Filter
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-            <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4" />
-              Add Event
-            </Button>
+            <p className="text-gray-600 mt-1 font-elegant">View your schedule and upcoming events</p>
           </div>
         </div>
 
@@ -706,11 +692,75 @@ export default function StudentCalendar() {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button className="flex-1 gap-2">
+                  <Button 
+                    className="flex-1 gap-2"
+                    onClick={() => {
+                      // Create Google Calendar URL
+                      const startDate = new Date(selectedEvent.startTime);
+                      const endDate = new Date(selectedEvent.endTime);
+                      
+                      // Format dates for Google Calendar (YYYYMMDDTHHmmssZ)
+                      const formatGoogleDate = (date: Date) => {
+                        return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                      };
+                      
+                      const googleCalUrl = new URL('https://calendar.google.com/calendar/render');
+                      googleCalUrl.searchParams.set('action', 'TEMPLATE');
+                      googleCalUrl.searchParams.set('text', selectedEvent.title);
+                      googleCalUrl.searchParams.set('dates', `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`);
+                      if (selectedEvent.description) {
+                        googleCalUrl.searchParams.set('details', selectedEvent.description);
+                      }
+                      if (selectedEvent.location) {
+                        googleCalUrl.searchParams.set('location', selectedEvent.location);
+                      }
+                      
+                      window.open(googleCalUrl.toString(), '_blank');
+                    }}
+                  >
                     <Bell className="w-4 h-4" />
-                    Add Reminder
+                    Add to Google Calendar
                   </Button>
-                  <Button variant="outline" className="gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={async () => {
+                      // Format event details as text
+                      const startDate = new Date(selectedEvent.startTime);
+                      const endDate = new Date(selectedEvent.endTime);
+                      
+                      const eventText = `📅 ${selectedEvent.title}
+
+🕐 ${formatTime(startDate)} - ${formatTime(endDate)}
+📆 ${formatDate(startDate)}
+${selectedEvent.courseName ? `📚 Course: ${selectedEvent.courseName}` : ''}
+${selectedEvent.location ? `📍 Location: ${selectedEvent.location}` : ''}
+${selectedEvent.description ? `\n📝 ${selectedEvent.description}` : ''}
+${selectedEvent.meetingLink ? `\n🔗 Meeting: ${selectedEvent.meetingLink}` : ''}
+
+---
+Shared from EduVerse`;
+
+                      try {
+                        if (navigator.share) {
+                          await navigator.share({
+                            title: selectedEvent.title,
+                            text: eventText,
+                          });
+                        } else {
+                          // Fallback: copy to clipboard
+                          await navigator.clipboard.writeText(eventText);
+                          toast({
+                            title: 'Copied to clipboard',
+                            description: 'Event details have been copied to your clipboard',
+                          });
+                        }
+                      } catch (err) {
+                        // User cancelled or error
+                        console.error('Share failed:', err);
+                      }
+                    }}
+                  >
                     <Share2 className="w-4 h-4" />
                     Share
                   </Button>
