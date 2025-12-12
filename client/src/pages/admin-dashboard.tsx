@@ -49,7 +49,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiEndpoint } from "@/lib/config";
 
-const API_BASE = apiEndpoint('/api').replace('/api', '');
+const API_BASE = apiEndpoint('/api');
 
 interface SystemStats {
   totalUsers: number;
