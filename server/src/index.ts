@@ -299,7 +299,7 @@ const aiLimiter = rateLimit({
 
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProduction ? 50 : 200, // Increased for file uploads
+  max: isProduction ? 100 : 500, // Increased for file uploads - teachers may upload many lessons
   message: 'Too many upload requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
