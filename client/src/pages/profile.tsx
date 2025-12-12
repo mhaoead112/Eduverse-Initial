@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { Camera, User, Mail, Calendar, Loader2, X, Upload } from "lucide-react";
 import { apiEndpoint, assetUrl } from '@/lib/config';
 
@@ -22,6 +24,8 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { toast } = useToast();
+  const { user: authUser, token, getAuthHeaders } = useAuth();
+  const { updateUser } = useAuthContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,11 +38,6 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchProfile();
   }, []);
-
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("auth_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
 
   const fetchProfile = async () => {
     try {
@@ -100,20 +99,10 @@ export default function ProfilePage() {
       if (response.ok) {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
-        // Update localStorage to reflect changes in the dashboard
-        const storedUser = localStorage.getItem('eduverse_user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          const updatedUser = {
-            ...userData,
-            fullName: updatedProfile.fullName,
-            grade: updatedProfile.grade,
-          };
-          localStorage.setItem('eduverse_user', JSON.stringify(updatedUser));
-          // Trigger a custom event to update the dashboard (works in same tab)
-          console.log('Dispatching profile-updated event with:', updatedUser);
-          window.dispatchEvent(new CustomEvent('profile-updated', { detail: updatedUser }));
-        }
+        
+        // Update auth context with new user data
+        updateUser(updatedProfile);
+        
         toast({
           title: "Success",
           description: "Profile updated successfully",
@@ -189,19 +178,10 @@ export default function ProfilePage() {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
         setPreviewImage(assetUrl(updatedProfile.profilePicture));
-        // Update localStorage to sync with dashboard
-        const storedUser = localStorage.getItem('eduverse_user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          const updatedUser = {
-            ...userData,
-            profilePicture: updatedProfile.profilePicture,
-          };
-          localStorage.setItem('eduverse_user', JSON.stringify(updatedUser));
-          // Trigger a custom event to update the dashboard (works in same tab)
-          console.log('Dispatching profile-updated event with:', updatedUser);
-          window.dispatchEvent(new CustomEvent('profile-updated', { detail: updatedUser }));
-        }
+        
+        // Update auth context with new user data
+        updateUser(updatedProfile);
+        
         toast({
           title: "Success",
           description: "Profile picture updated successfully",
@@ -250,19 +230,10 @@ export default function ProfilePage() {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
         setPreviewImage(null);
-        // Update localStorage to sync with dashboard
-        const storedUser = localStorage.getItem('eduverse_user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          const updatedUser = {
-            ...userData,
-            profilePicture: null,
-          };
-          localStorage.setItem('eduverse_user', JSON.stringify(updatedUser));
-          // Trigger a custom event to update the dashboard (works in same tab)
-          console.log('Dispatching profile-updated event with:', updatedUser);
-          window.dispatchEvent(new CustomEvent('profile-updated', { detail: updatedUser }));
-        }
+        
+        // Update auth context with new user data
+        updateUser(updatedProfile);
+        
         toast({
           title: "Success",
           description: "Profile picture removed successfully",
