@@ -24,7 +24,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user: authUser, token, getAuthHeaders } = useAuth();
+  const { user: authUser, token, getAuthHeaders, isLoading: authLoading } = useAuth();
   const { updateUser } = useAuthContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -36,8 +36,13 @@ export default function ProfilePage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     fetchProfile();
-  }, []);
+  }, [authLoading, token]);
 
   const fetchProfile = async () => {
     try {
@@ -75,6 +80,11 @@ export default function ProfilePage() {
 
   const handleUpdateName = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!token) {
+      toast({ title: "Unauthorized", description: "Please log in again.", variant: "destructive" });
+      return;
+    }
 
     if (!fullName.trim()) {
       toast({
@@ -163,6 +173,11 @@ export default function ProfilePage() {
   };
 
   const handleUploadPicture = async (file: File) => {
+    if (!token) {
+      toast({ title: "Unauthorized", description: "Please log in again.", variant: "destructive" });
+      return;
+    }
+
     try {
       setUploading(true);
       const formData = new FormData();
@@ -219,6 +234,11 @@ export default function ProfilePage() {
   };
 
   const handleRemovePicture = async () => {
+    if (!token) {
+      toast({ title: "Unauthorized", description: "Please log in again.", variant: "destructive" });
+      return;
+    }
+
     try {
       setUploading(true);
       const response = await fetch(apiEndpoint("/api/profile/me/picture"), {
