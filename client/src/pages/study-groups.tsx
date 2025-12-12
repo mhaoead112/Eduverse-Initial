@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { apiEndpoint } from "@/lib/config";
+import { apiEndpoint, assetUrl } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
@@ -822,7 +822,7 @@ export default function StudyGroupsPage() {
                     >
                       <Avatar className="h-12 w-12 flex-shrink-0">
                         {group.avatarUrl ? (
-                          <AvatarImage src={`${apiEndpoint()}${group.avatarUrl}`} alt={group.name} />
+                          <AvatarImage src={assetUrl(group.avatarUrl)} alt={group.name} />
                         ) : null}
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
                           {group.name.substring(0, 2).toUpperCase()}
@@ -859,7 +859,7 @@ export default function StudyGroupsPage() {
                   <div className="relative">
                     <Avatar className="h-10 w-10">
                       {selectedGroup.avatarUrl ? (
-                        <AvatarImage src={`${apiEndpoint()}${selectedGroup.avatarUrl}`} alt={selectedGroup.name} />
+                        <AvatarImage src={assetUrl(selectedGroup.avatarUrl)} alt={selectedGroup.name} />
                       ) : null}
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                         {selectedGroup.name.substring(0, 2).toUpperCase()}
@@ -960,7 +960,7 @@ export default function StudyGroupsPage() {
                             ) : message.type === 'image' ? (
                               <div>
                                 <img
-                                  src={`${apiEndpoint()}${message.fileUrl}`}
+                                  src={assetUrl(message.fileUrl)}
                                   alt={message.fileName}
                                   className="max-w-sm rounded-lg mb-1"
                                 />
@@ -1104,7 +1104,7 @@ export default function StudyGroupsPage() {
                 <div className="text-center">
                   <Avatar className="h-24 w-24 mx-auto mb-3">
                     {selectedGroup?.avatarUrl ? (
-                      <AvatarImage src={`${apiEndpoint()}${selectedGroup.avatarUrl}`} alt={selectedGroup?.name} />
+                      <AvatarImage src={assetUrl(selectedGroup.avatarUrl)} alt={selectedGroup?.name} />
                     ) : null}
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-3xl">
                       {selectedGroup?.name.substring(0, 2).toUpperCase()}
