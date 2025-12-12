@@ -76,6 +76,8 @@ import parentRoutes from './api/parent.routes.js';
 import scheduleRoutes from './api/schedule.routes.js';
 import adminSettingsRoutes from './api/admin-settings.routes.js';
 import pushRoutes from './api/push.routes.js';
+import uploadRoutes from './api/upload.routes.js';
+import uploadRoutes from './api/upload.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -332,6 +334,7 @@ app.use('/api/parent', apiLimiter, parentRoutes);
 app.use('/api/schedule', apiLimiter, scheduleRoutes);
 app.use('/api/admin/settings', apiLimiter, adminSettingsRoutes);
 app.use('/api/push', apiLimiter, pushRoutes);
+app.use('/api/upload', uploadLimiter, uploadRoutes);
 
 app.get('/api/health', (req, res) => {
     res.status(200).json({ 

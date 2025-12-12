@@ -673,7 +673,7 @@ export default function StudentDashboard() {
                             isWriting ? 'bg-[#B8D4C4]' :
                             'bg-gradient-to-br from-blue-200 to-blue-300'
                           }`}>
-                            {enrollment.course.imageUrl ? (
+                            {enrollment.course.imageUrl && enrollment.course.imageUrl.length > 0 ? (
                               <img 
                                 src={enrollment.course.imageUrl.startsWith('http') ? enrollment.course.imageUrl : `/uploads/${enrollment.course.imageUrl}`}
                                 alt={enrollment.course.title}

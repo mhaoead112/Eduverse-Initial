@@ -290,7 +290,7 @@ export default function TeacherCoursesPage() {
                 >
                   {/* Course Image */}
                   <div className={`h-36 relative overflow-hidden ${!course.imageUrl ? courseStyle.bg : ''}`}>
-                    {course.imageUrl ? (
+                    {course.imageUrl && course.imageUrl.length > 0 ? (
                       <img 
                         src={course.imageUrl.startsWith('http') ? course.imageUrl : `/uploads/${course.imageUrl}`}
                         alt={course.title}
