@@ -49,6 +49,48 @@ router.get('/student', isAuthenticated, async (req, res) => {
 
 /**
  * PROTECTED (TEACHER)
+ * GET /api/enrollments/student/:studentId
+ * Get all enrollments for a specific student (for teachers to view student progress)
+ */
+router.get('/student/:studentId', isAuthenticated, async (req, res) => {
+    try {
+        const user = (req as any).user;
+        if (!user || user.role !== 'teacher') {
+            return res.status(403).json({ message: 'Forbidden: Teachers only' });
+        }
+
+        const { studentId } = req.params;
+
+        // Get all enrollments for this student with course details
+        const studentEnrollments = await db
+            .select({
+                id: enrollments.id,
+                courseId: enrollments.courseId,
+                enrolledAt: enrollments.enrolledAt,
+                course: {
+                    id: courses.id,
+                    title: courses.title,
+                    description: courses.description,
+                    teacherId: courses.teacherId,
+                    isPublished: courses.isPublished,
+                }
+            })
+            .from(enrollments)
+            .leftJoin(courses, eq(enrollments.courseId, courses.id))
+            .where(eq(enrollments.studentId, studentId));
+
+        res.status(200).json({ enrollments: studentEnrollments });
+    } catch (error) {
+        console.error('Error fetching student enrollments:', error);
+        res.status(500).json({
+            message: 'Failed to fetch enrollments',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+
+/**
+ * PROTECTED (TEACHER)
  * GET /api/enrollments/course/:courseId
  * Get all students enrolled in a specific course
  */

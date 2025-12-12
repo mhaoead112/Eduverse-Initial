@@ -582,7 +582,11 @@ export default function TeacherCourseManage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setLocation(`/teacher/students/${enrollment.studentId}`)}
+                          >
                             View Progress
                           </Button>
                           <Button 

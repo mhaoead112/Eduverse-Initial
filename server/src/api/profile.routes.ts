@@ -118,52 +118,68 @@ router.put('/me', isAuthenticated, async (req, res) => {
 });
 
 // Upload profile picture
-router.post('/me/picture', isAuthenticated, upload.single('profilePicture'), async (req, res) => {
-  try {
-    const userId = req.user!.id;
-
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    // Get current user to delete old profile picture
-    const [currentUser] = await db
-      .select({ profilePicture: users.profilePicture })
-      .from(users)
-      .where(eq(users.id, userId));
-
-    // Delete old profile picture if it exists
-    if (currentUser?.profilePicture) {
-      const oldPath = path.join(process.cwd(), currentUser.profilePicture);
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
+router.post('/me/picture', isAuthenticated, (req, res, next) => {
+  // Handle multer upload with explicit error handling
+  upload.single('profilePicture')(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      // Multer error (file too large, etc.)
+      console.error('Multer error:', err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
       }
+      return res.status(400).json({ error: `Upload error: ${err.message}` });
+    } else if (err) {
+      // Other error (invalid file type, etc.)
+      console.error('Upload error:', err);
+      return res.status(400).json({ error: err.message });
     }
 
-    const profilePicturePath = `/uploads/profiles/${req.file.filename}`;
+    try {
+      const userId = req.user!.id;
 
-    const [updatedUser] = await db
-      .update(users)
-      .set({
-        profilePicture: profilePicturePath,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId))
-      .returning({
-        id: users.id,
-        username: users.username,
-        fullName: users.fullName,
-        email: users.email,
-        role: users.role,
-        profilePicture: users.profilePicture,
-        grade: users.grade,
-      });
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded. Please select an image file.' });
+      }
 
-    res.json(updatedUser);
-  } catch (error) {
-    console.error('Error uploading profile picture:', error);
-    res.status(500).json({ error: 'Failed to upload profile picture' });
-  }
+      // Get current user to delete old profile picture
+      const [currentUser] = await db
+        .select({ profilePicture: users.profilePicture })
+        .from(users)
+        .where(eq(users.id, userId));
+
+      // Delete old profile picture if it exists
+      if (currentUser?.profilePicture) {
+        const oldPath = path.join(process.cwd(), currentUser.profilePicture);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      const profilePicturePath = `/uploads/profiles/${req.file.filename}`;
+
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          profilePicture: profilePicturePath,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId))
+        .returning({
+          id: users.id,
+          username: users.username,
+          fullName: users.fullName,
+          email: users.email,
+          role: users.role,
+          profilePicture: users.profilePicture,
+          grade: users.grade,
+        });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      res.status(500).json({ error: 'Failed to upload profile picture' });
+    }
+  });
 });
 
 // Delete profile picture

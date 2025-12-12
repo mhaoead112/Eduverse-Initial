@@ -132,7 +132,7 @@ export default function StudentCourseDetailPage() {
       }
 
       // Fetch assignments
-      const assignmentsRes = await fetch(apiEndpoint(`/api/assignments/course/${courseId}`), { headers });
+      const assignmentsRes = await fetch(apiEndpoint(`/api/assignments/courses/${courseId}/assignments`), { headers });
       if (assignmentsRes.ok) {
         const assignmentsData = await assignmentsRes.json();
         setAssignments(assignmentsData.assignments || assignmentsData || []);
@@ -145,8 +145,12 @@ export default function StudentCourseDetailPage() {
         setAnnouncements(announcementsData.announcements || announcementsData || []);
       }
 
-      // Calculate mock progress (would come from API in production)
-      setProgress(Math.floor(Math.random() * 60) + 20);
+      // Fetch student progress for this course
+      const progressRes = await fetch(apiEndpoint(`/api/progress/course/${courseId}`), { headers });
+      if (progressRes.ok) {
+        const progressData = await progressRes.json();
+        setProgress(progressData.progressPercentage || 0);
+      }
     } catch (error) {
       console.error("Error fetching course data:", error);
       toast({
