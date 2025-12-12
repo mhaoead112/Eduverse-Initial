@@ -109,8 +109,8 @@ export default function ProfilePage() {
             fullName: updatedProfile.fullName,
             grade: updatedProfile.grade,
           }));
-          // Trigger a storage event to update the dashboard
-          window.dispatchEvent(new Event('storage'));
+          // Trigger a custom event to update the dashboard (works in same tab)
+          window.dispatchEvent(new CustomEvent('profile-updated'));
         }
         toast({
           title: "Success",
@@ -195,8 +195,8 @@ export default function ProfilePage() {
             ...userData,
             profilePicture: updatedProfile.profilePicture,
           }));
-          // Trigger a storage event to update the dashboard
-          window.dispatchEvent(new Event('storage'));
+          // Trigger a custom event to update the dashboard (works in same tab)
+          window.dispatchEvent(new CustomEvent('profile-updated'));
         }
         toast({
           title: "Success",
@@ -254,8 +254,8 @@ export default function ProfilePage() {
             ...userData,
             profilePicture: null,
           }));
-          // Trigger a storage event to update the dashboard
-          window.dispatchEvent(new Event('storage'));
+          // Trigger a custom event to update the dashboard (works in same tab)
+          window.dispatchEvent(new CustomEvent('profile-updated'));
         }
         toast({
           title: "Success",
