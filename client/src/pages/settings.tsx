@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,17 @@ export default function SettingsPage() {
   const [gradeUpdates, setGradeUpdates] = useState(true);
 
   // Appearance Settings
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState(() => {
+    // Initialize from localStorage
+    return localStorage.getItem('eduverse-language') || "en";
+  });
+
+  // Persist language to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('eduverse-language', language);
+    // Update document lang attribute for accessibility
+    document.documentElement.lang = language;
+  }, [language]);
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
