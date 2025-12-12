@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { apiEndpoint } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
@@ -186,7 +187,7 @@ export default function StudyGroupsPage() {
   const fetchGroups = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:3001/api/study-groups", {
+      const response = await fetch(apiEndpoint("/api/study-groups"), {
         headers: getAuthHeaders()
       });
 
@@ -371,7 +372,7 @@ export default function StudyGroupsPage() {
       const name = formData.get('name') as string;
       const description = formData.get('description') as string;
 
-      const response = await fetch("http://localhost:3001/api/study-groups", {
+      const response = await fetch(apiEndpoint("/api/study-groups"), {
         method: "POST",
         headers: {
           ...getAuthHeaders(),

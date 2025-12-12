@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { apiEndpoint } from "@/lib/config";
+import { apiEndpoint, assetUrl } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -570,7 +570,7 @@ export default function TeacherAnalytics() {
                     <div className="flex items-start gap-4">
                       <Avatar className="h-16 w-16 ring-4 ring-gray-100 shadow-md">
                         <AvatarImage 
-                          src={student.profilePicture ? `${apiEndpoint()}${student.profilePicture}` : ''} 
+                          src={student.profilePicture ? assetUrl(student.profilePicture) : ''} 
                           alt={student.fullName} 
                         />
                         <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-500 text-white font-bold text-lg">

@@ -4,7 +4,7 @@ import {
   ArrowLeft, FileText, Video, Download, Edit, 
   Trash2, Loader2, Clock, Calendar, BookOpen
 } from "lucide-react";
-import { apiEndpoint } from "@/lib/config";
+import { apiEndpoint, assetUrl } from "@/lib/config";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ interface Lesson {
   order: string | null;
   courseId: string;
   courseName?: string;
+  isPublished?: boolean;
   createdAt: Date;
   updatedAt?: Date | null;
 }
@@ -60,10 +61,10 @@ export default function TeacherLessonView() {
     const uploadsIndex = filePath.indexOf('uploads');
     if (uploadsIndex !== -1) {
       const relativePath = filePath.substring(uploadsIndex);
-      return `${apiEndpoint()}/${relativePath.replace(/\\/g, '/')}`;
+      return assetUrl(relativePath.replace(/\\/g, '/'));
     }
     // Fallback: assume it's already a relative path
-    return `${apiEndpoint()}${filePath}`;
+    return assetUrl(filePath);
   };
 
   useEffect(() => {

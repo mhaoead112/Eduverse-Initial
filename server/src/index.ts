@@ -77,7 +77,6 @@ import scheduleRoutes from './api/schedule.routes.js';
 import adminSettingsRoutes from './api/admin-settings.routes.js';
 import pushRoutes from './api/push.routes.js';
 import uploadRoutes from './api/upload.routes.js';
-import uploadRoutes from './api/upload.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
