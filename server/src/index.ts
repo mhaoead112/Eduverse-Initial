@@ -245,7 +245,16 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
-app.use(express.json());
+// JSON and URL-encoded body parsers
+// Skip JSON parsing for multipart form data (file uploads)
+app.use((req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    // Skip JSON parsing for file uploads - multer will handle these
+    return next();
+  }
+  express.json()(req, res, next);
+});
 app.use(express.urlencoded({ extended: true }));
 
 // Cookie parser with signing for security
