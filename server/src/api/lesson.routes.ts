@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { createLesson, getLessonsByCourse, getLessonById, deleteLesson, updateLesson, reorderLessons } from '../services/lesson.service.js';
 import { getCourseById } from '../services/course.service.js';
+import { uploadFile, deleteFile, isCloudStorageConfigured } from '../services/cloud-storage.service.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -98,34 +99,50 @@ router.post('/upload', isAuthenticated, upload.single('file'), async (req, res) 
             return res.status(403).json({ message: "You don't have permission to add lessons to this course." });
         }
 
-        // Create lesson record in database
+        // Upload file to cloud storage (or keep locally if cloud not configured)
+        const uploadResult = await uploadFile(file.path, {
+            folder: 'lessons',
+            resourceType: 'raw' // Use 'raw' for documents, not just images
+        });
+
+        // Create lesson record in database with cloud URL
         const newLesson = await createLesson({
             courseId,
             title: lessonTitle,
             fileName: file.originalname,
-            filePath: file.path,
+            filePath: uploadResult.url, // Now stores cloud URL or local path
             fileType: file.mimetype,
             fileSize: file.size.toString()
         });
 
+        console.log(`Lesson uploaded to ${uploadResult.isCloudinary ? 'Cloudinary' : 'local storage'}: ${uploadResult.url}`);
+
         // Trigger AI digestion in background (non-blocking)
         // This indexes the lesson content for the AI Study Buddy
+        // Note: AI digestion works best with local files, so we check if file still exists
         try {
             const { processLessonFile } = await import('../services/lesson-digestion.service.js');
             const lessonId = `${courseId}-${newLesson.id}`;
             
-            // Process in background - don't wait for completion
-            processLessonFile(file.path, lessonId)
-                .then(result => {
-                    if (result.success) {
-                        console.log(`✅ AI indexed lesson: ${lessonId} (${result.chunksProcessed} chunks)`);
-                    } else {
-                        console.warn(`⚠️ AI indexing skipped for ${lessonId}: ${result.message}`);
-                    }
-                })
-                .catch(err => {
-                    console.warn(`⚠️ AI indexing failed for ${lessonId}:`, err.message);
-                });
+            // If using cloud storage, the local file was deleted after upload
+            // For AI indexing with cloud files, we'd need to download first (future enhancement)
+            // For now, only process if file still exists locally (non-cloud mode)
+            const localPath = uploadResult.isCloudinary ? null : path.join(process.cwd(), uploadResult.url);
+            
+            if (localPath) {
+                // Process in background - don't wait for completion
+                processLessonFile(localPath, lessonId)
+                    .then(result => {
+                        if (result.success) {
+                            console.log(`✅ AI indexed lesson: ${lessonId} (${result.chunksProcessed} chunks)`);
+                        } else {
+                            console.warn(`⚠️ AI indexing skipped for ${lessonId}: ${result.message}`);
+                        }
+                    })
+                    .catch(err => {
+                        console.warn(`⚠️ AI indexing failed for ${lessonId}:`, err.message);
+                    });
+            }
         } catch (err) {
             // Don't fail the upload if AI indexing fails
             console.warn('AI digestion service not available:', err);
@@ -315,11 +332,11 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
             return res.status(403).json({ message: "You don't have permission to delete this lesson." });
         }
 
-        // Delete file from filesystem
+        // Delete file from cloud or local storage
         try {
-            await fs.unlink(lesson.filePath);
+            await deleteFile(lesson.filePath);
         } catch (error) {
-            console.warn('Failed to delete file from filesystem:', error);
+            console.warn('Failed to delete file from storage:', error);
             // Continue with database deletion even if file deletion fails
         }
 
@@ -352,9 +369,19 @@ router.get('/:id/download', async (req, res) => {
             return res.status(404).json({ message: 'Lesson not found.' });
         }
 
-        // Check if file exists
+        // Check if file is stored in cloud (Cloudinary URL)
+        if (lesson.filePath.startsWith('http://') || lesson.filePath.startsWith('https://')) {
+            // Redirect to cloud URL for direct access
+            return res.redirect(lesson.filePath);
+        }
+
+        // For local files, check if file exists
+        const localPath = lesson.filePath.startsWith('/') 
+            ? path.join(process.cwd(), lesson.filePath)
+            : lesson.filePath;
+            
         try {
-            await fs.access(lesson.filePath);
+            await fs.access(localPath);
         } catch {
             return res.status(404).json({ message: 'File not found on server.' });
         }
@@ -371,7 +398,7 @@ router.get('/:id/download', async (req, res) => {
         res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 
         // Stream file to response
-        res.sendFile(lesson.filePath);
+        res.sendFile(localPath);
     } catch (error) {
         console.error('Error downloading lesson:', error);
         res.status(500).json({

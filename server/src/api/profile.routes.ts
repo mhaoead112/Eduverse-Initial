@@ -6,6 +6,7 @@ import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
+import { uploadFile, deleteFile, isCloudStorageConfigured } from '../services/cloud-storage.service.js';
 
 const router = express.Router();
 
@@ -147,20 +148,22 @@ router.post('/me/picture', isAuthenticated, (req, res, next) => {
         .from(users)
         .where(eq(users.id, userId));
 
-      // Delete old profile picture if it exists
+      // Delete old profile picture from storage (cloud or local)
       if (currentUser?.profilePicture) {
-        const oldPath = path.join(process.cwd(), currentUser.profilePicture);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
+        await deleteFile(currentUser.profilePicture);
       }
 
-      const profilePicturePath = `/uploads/profiles/${req.file.filename}`;
+      // Upload new profile picture to cloud storage
+      const localFilePath = req.file.path;
+      const uploadResult = await uploadFile(localFilePath, {
+        folder: 'profile-pictures',
+        resourceType: 'image'
+      });
 
       const [updatedUser] = await db
         .update(users)
         .set({
-          profilePicture: profilePicturePath,
+          profilePicture: uploadResult.url,
           updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
@@ -174,6 +177,8 @@ router.post('/me/picture', isAuthenticated, (req, res, next) => {
           grade: users.grade,
         });
 
+      console.log(`Profile picture uploaded to ${uploadResult.isCloudinary ? 'Cloudinary' : 'local storage'}: ${uploadResult.url}`);
+      
       res.json(updatedUser);
     } catch (error) {
       console.error('Error uploading profile picture:', error);
@@ -193,11 +198,9 @@ router.delete('/me/picture', isAuthenticated, async (req, res) => {
       .from(users)
       .where(eq(users.id, userId));
 
+    // Delete from cloud or local storage
     if (currentUser?.profilePicture) {
-      const filePath = path.join(process.cwd(), currentUser.profilePicture);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      await deleteFile(currentUser.profilePicture);
     }
 
     const [updatedUser] = await db

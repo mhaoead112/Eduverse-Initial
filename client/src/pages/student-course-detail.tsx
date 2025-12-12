@@ -563,7 +563,11 @@ export default function StudentCourseDetailPage() {
                             )}
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation('/student/assignments')}
+                        >
                           View
                         </Button>
                       </div>
