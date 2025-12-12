@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiEndpoint } from "@/lib/config";
 import { 
   Calendar as CalendarIcon, Plus, ChevronLeft, ChevronRight,
-  Clock, MapPin, Users, BookOpen, Trash2
+  Clock, MapPin, Users, BookOpen, Trash2, Edit, Loader2
 } from "lucide-react";
 import {
   Dialog,
@@ -55,6 +55,12 @@ export default function TeacherCalendar() {
     location: "",
     courseName: ""
   });
+
+  // Edit event state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -202,9 +208,94 @@ export default function TeacherCalendar() {
     });
   };
 
-  const handleDeleteEvent = (eventId: number) => {
-    setEvents(events.filter(e => e.id !== eventId));
-    toast({ title: "Success", description: "Event deleted" });
+  const handleDeleteEvent = async (eventId: number) => {
+    setIsDeleting(eventId);
+    try {
+      const response = await fetch(apiEndpoint(`/api/schedule/event/${eventId}`), {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        setEvents(events.filter(e => e.id !== eventId));
+        toast({ title: "Success", description: "Event deleted successfully" });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast({ 
+          title: "Error", 
+          description: errorData.error || "Failed to delete event",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Network error - could not delete event",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  const openEditDialog = (event: CalendarEvent) => {
+    setEditingEvent(event);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditEvent = async () => {
+    if (!editingEvent) return;
+
+    setIsSaving(true);
+    try {
+      const startDateTime = new Date(`${editingEvent.date}T${editingEvent.startTime}:00`);
+      const endDateTime = new Date(`${editingEvent.date}T${editingEvent.endTime}:00`);
+
+      const response = await fetch(apiEndpoint(`/api/schedule/event/${editingEvent.id}`), {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          title: editingEvent.title,
+          description: editingEvent.description,
+          eventType: editingEvent.type,
+          startTime: startDateTime.toISOString(),
+          endTime: endDateTime.toISOString(),
+          location: editingEvent.location
+        })
+      });
+
+      if (response.ok) {
+        setEvents(events.map(e => 
+          e.id === editingEvent.id ? editingEvent : e
+        ));
+        toast({ title: "Success", description: "Event updated successfully" });
+        setEditDialogOpen(false);
+        setEditingEvent(null);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast({ 
+          title: "Error", 
+          description: errorData.error || "Failed to update event",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Network error - could not update event",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const navigateMonth = (direction: number) => {
@@ -485,7 +576,7 @@ export default function TeacherCalendar() {
                     {todayEvents.map((event) => (
                       <div key={event.id} className={`p-3 rounded-lg ${getEventTypeColor(event.type)}`}>
                         <div className="flex items-start justify-between">
-                          <div>
+                          <div className="flex-1">
                             <h4 className="font-medium">{event.title}</h4>
                             <div className="flex items-center gap-2 text-sm mt-1">
                               <Clock className="h-3 w-3" />
@@ -497,6 +588,29 @@ export default function TeacherCalendar() {
                                 {event.location}
                               </div>
                             )}
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEditDialog(event)}
+                              className="h-8 w-8"
+                            >
+                              <Edit className="h-4 w-4 text-blue-500" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteEvent(event.id)}
+                              disabled={isDeleting === event.id}
+                              className="h-8 w-8"
+                            >
+                              {isDeleting === event.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              )}
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -524,13 +638,29 @@ export default function TeacherCalendar() {
                             {new Date(event.date).toLocaleDateString()}
                           </p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteEvent(event.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditDialog(event)}
+                            className="h-8 w-8"
+                          >
+                            <Edit className="h-4 w-4 text-blue-500" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteEvent(event.id)}
+                            disabled={isDeleting === event.id}
+                            className="h-8 w-8"
+                          >
+                            {isDeleting === event.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -539,6 +669,110 @@ export default function TeacherCalendar() {
           </div>
         </div>
       </div>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+            <DialogDescription>Update the event details</DialogDescription>
+          </DialogHeader>
+          {editingEvent && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editingEvent.title}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
+                  placeholder="Event title"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editingEvent.description || ''}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })}
+                  placeholder="Event description"
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-type">Event Type</Label>
+                <Select
+                  value={editingEvent.type}
+                  onValueChange={(value: any) => setEditingEvent({ ...editingEvent, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="class">Class</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="exam">Exam</SelectItem>
+                    <SelectItem value="announcement">Announcement</SelectItem>
+                    <SelectItem value="holiday">Holiday</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-date">Date</Label>
+                <Input
+                  id="edit-date"
+                  type="date"
+                  value={editingEvent.date}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-start">Start Time</Label>
+                  <Input
+                    id="edit-start"
+                    type="time"
+                    value={editingEvent.startTime}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, startTime: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-end">End Time</Label>
+                  <Input
+                    id="edit-end"
+                    type="time"
+                    value={editingEvent.endTime}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, endTime: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-location">Location</Label>
+                <Input
+                  id="edit-location"
+                  value={editingEvent.location || ''}
+                  onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
+                  placeholder="Room or location"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditEvent} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

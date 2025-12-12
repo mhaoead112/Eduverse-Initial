@@ -349,7 +349,7 @@ export default function TeacherStudents() {
                       variant="default" 
                       className="flex-1 bg-blue-600 hover:bg-blue-700"
                       size="sm"
-                      onClick={() => setLocation(`/profile/${student.id}`)}
+                      onClick={() => setLocation(`/teacher/students/${student.id}`)}
                     >
                       View Profile
                     </Button>
