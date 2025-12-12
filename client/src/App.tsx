@@ -166,6 +166,13 @@ function Router() {
             </StudentRoute>
           </Route>
 
+          {/* Alias for /student/dashboard */}
+          <Route path="/student/dashboard">
+            <StudentRoute>
+              <StudentDashboard />
+            </StudentRoute>
+          </Route>
+
           <Route path="/student/progress">
             <StudentRoute>
               <StudentProgressPage />
@@ -263,6 +270,13 @@ function Router() {
             </TeacherRoute>
           </Route>
 
+          {/* Alias for /teacher/dashboard */}
+          <Route path="/teacher/dashboard">
+            <TeacherRoute>
+              <TeacherDashboard />
+            </TeacherRoute>
+          </Route>
+
           <Route path="/teacher/messages">
             <TeacherRoute>
               <StudyGroupsChatPage />
@@ -276,6 +290,13 @@ function Router() {
           </Route>
 
           <Route path="/admin">
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          </Route>
+
+          {/* Alias for /admin/dashboard */}
+          <Route path="/admin/dashboard">
             <AdminRoute>
               <AdminDashboard />
             </AdminRoute>
