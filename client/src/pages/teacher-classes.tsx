@@ -138,27 +138,27 @@ export default function TeacherClasses() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0f1a]">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               My Classes
             </h1>
-            <p className="text-gray-600">
+            <p className="text-slate-400">
               Manage your classes, students, and course materials
             </p>
           </div>
           
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button data-testid="button-create-class">
+              <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" data-testid="button-create-class">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Class
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl bg-slate-800/50 border border-slate-700/50">
               <DialogHeader>
                 <DialogTitle>Create New Class</DialogTitle>
                 <DialogDescription>
@@ -292,6 +292,7 @@ export default function TeacherClasses() {
                     <Button 
                       type="button" 
                       variant="outline" 
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700/50"
                       onClick={() => setIsCreateDialogOpen(false)}
                       data-testid="button-cancel-create"
                     >
@@ -300,6 +301,7 @@ export default function TeacherClasses() {
                     <Button 
                       type="submit" 
                       disabled={createClassMutation.isPending}
+                      className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                       data-testid="button-submit-create"
                     >
                       {createClassMutation.isPending ? "Creating..." : "Create Class"}
@@ -314,12 +316,12 @@ export default function TeacherClasses() {
         {/* Classes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mockClasses.map((classItem) => (
-            <Card key={classItem.id} className="hover:shadow-lg transition-shadow" data-testid={`class-card-${classItem.id}`}>
+            <Card key={classItem.id} className="bg-slate-800/50 border border-slate-700/50 hover:shadow-lg transition-shadow" data-testid={`class-card-${classItem.id}`}>
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <CardTitle className="text-lg mb-1">{classItem.name}</CardTitle>
-                    <CardDescription>{classItem.subject} • {classItem.gradeLevel}</CardDescription>
+                    <CardTitle className="text-lg mb-1 text-white">{classItem.name}</CardTitle>
+                    <CardDescription className="text-slate-400">{classItem.subject} • {classItem.gradeLevel}</CardDescription>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -353,48 +355,48 @@ export default function TeacherClasses() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-1 text-gray-600">
+                    <span className="flex items-center gap-1 text-slate-400">
                       <Users className="h-4 w-4" />
                       Students
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-white">
                       {classItem.enrolledStudents}/{classItem.maxStudents}
                     </span>
                   </div>
                   
                   {classItem.schedule?.time && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-1 text-gray-600">
+                      <span className="flex items-center gap-1 text-slate-400">
                         <Clock className="h-4 w-4" />
                         Schedule
                       </span>
-                      <span className="font-medium">{classItem.schedule.time}</span>
+                      <span className="font-medium text-white">{classItem.schedule.time}</span>
                     </div>
                   )}
                   
                   {classItem.schedule?.room && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-1 text-gray-600">
+                      <span className="flex items-center gap-1 text-slate-400">
                         <Calendar className="h-4 w-4" />
                         Room
                       </span>
-                      <span className="font-medium">{classItem.schedule.room}</span>
+                      <span className="font-medium text-white">{classItem.schedule.room}</span>
                     </div>
                   )}
                   
                   {classItem.description && (
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-slate-400 mt-2">
                       {classItem.description}
                     </p>
                   )}
                 </div>
                 
                 <div className="flex gap-2 mt-4">
-                  <Button variant="outline" size="sm" className="flex-1" data-testid={`button-view-${classItem.id}`}>
+                  <Button variant="outline" size="sm" className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700/50" data-testid={`button-view-${classItem.id}`}>
                     <BookOpen className="h-4 w-4 mr-1" />
                     View
                   </Button>
-                  <Button variant="outline" size="sm" data-testid={`button-share-code-${classItem.id}`}>
+                  <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700/50" data-testid={`button-share-code-${classItem.id}`}>
                     <QrCode className="h-4 w-4" />
                   </Button>
                 </div>
@@ -405,16 +407,16 @@ export default function TeacherClasses() {
         
         {/* Empty State */}
         {mockClasses.length === 0 && (
-          <Card className="text-center py-12" data-testid="empty-state">
+          <Card className="text-center py-12 bg-slate-800/50 border border-slate-700/50" data-testid="empty-state">
             <CardContent>
-              <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <BookOpen className="h-12 w-12 mx-auto text-slate-500 mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">
                 No classes yet
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-slate-400 mb-4">
                 Create your first class to start teaching and managing students
               </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)} data-testid="button-create-first-class">
+              <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" onClick={() => setIsCreateDialogOpen(true)} data-testid="button-create-first-class">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Class
               </Button>

@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { apiEndpoint } from "@/lib/config";
-import StudentLayout from "@/components/StudentLayout";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { 
   CheckCircle2, 
   FileText, 
@@ -89,11 +89,11 @@ export default function StudentProgressPage() {
   const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
       case 'graded':
-        return 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30';
+        return 'text-green-400 bg-green-500/20 border-green-500/30';
       case 'submitted':
         return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
       case 'pending':
-        return 'text-amber-400 bg-amber-500/20 border-amber-500/30';
+        return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
       case 'overdue':
         return 'text-red-400 bg-red-500/20 border-red-500/30';
       default:
@@ -118,13 +118,13 @@ export default function StudentProgressPage() {
   ];
 
   return (
-    <StudentLayout>
+    <DashboardLayout>
       <div className="space-y-6">
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-amber-400" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/10 border border-yellow-500/20 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-yellow-400" />
             </div>
             My Progress
           </h1>
@@ -141,7 +141,7 @@ export default function StudentProgressPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
                   activeTab === tab.id
-                    ? "bg-amber-500 text-slate-900"
+                    ? "bg-yellow-500 text-slate-900"
                     : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
                 }`}
               >
@@ -164,7 +164,7 @@ export default function StudentProgressPage() {
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-yellow-500 border-t-transparent"></div>
           </div>
         )}
 
@@ -184,10 +184,10 @@ export default function StudentProgressPage() {
               <div className="space-y-6">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 rounded-2xl p-5">
+                  <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/10 border border-yellow-500/20 rounded-2xl p-5">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                        <Clock className="h-6 w-6 text-amber-400" />
+                      <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                        <Clock className="h-6 w-6 text-yellow-400" />
                       </div>
                       <div>
                         <p className="text-3xl font-bold text-white">{pendingAssignments}</p>
@@ -196,10 +196,10 @@ export default function StudentProgressPage() {
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/20 rounded-2xl p-5">
+                  <div className="bg-gradient-to-br from-green-500/20 to-green-500/10 border border-green-500/20 rounded-2xl p-5">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                        <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                      <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-6 w-6 text-green-400" />
                       </div>
                       <div>
                         <p className="text-3xl font-bold text-white">{completedAssignments}</p>
@@ -236,9 +236,9 @@ export default function StudentProgressPage() {
                 {/* Recent Activity */}
                 <div className="grid lg:grid-cols-2 gap-6">
                   {/* Recent Submissions */}
-                  <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+                  <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                      <CheckCircle2 className="h-5 w-5 text-green-400" />
                       Recent Submissions
                     </h3>
                     {submissions.length === 0 ? (
@@ -247,8 +247,8 @@ export default function StudentProgressPage() {
                       <div className="space-y-3">
                         {submissions.slice(0, 5).map((sub) => (
                           <div key={sub.id} className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-xl">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                              <FileText className="h-5 w-5 text-emerald-400" />
+                            <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                              <FileText className="h-5 w-5 text-green-400" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-white font-medium truncate">{sub.assignmentTitle}</p>
@@ -264,7 +264,7 @@ export default function StudentProgressPage() {
                   </div>
 
                   {/* Recent Grades */}
-                  <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+                  <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                       <GraduationCap className="h-5 w-5 text-blue-400" />
                       Recent Grades
@@ -278,15 +278,15 @@ export default function StudentProgressPage() {
                           return (
                             <div key={grade.id} className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-xl">
                               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                percentage >= 90 ? 'bg-emerald-500/20' :
+                                percentage >= 90 ? 'bg-green-500/20' :
                                 percentage >= 80 ? 'bg-blue-500/20' :
-                                percentage >= 70 ? 'bg-amber-500/20' :
+                                percentage >= 70 ? 'bg-yellow-500/20' :
                                 'bg-red-500/20'
                               }`}>
                                 <span className={`font-bold ${
-                                  percentage >= 90 ? 'text-emerald-400' :
+                                  percentage >= 90 ? 'text-green-400' :
                                   percentage >= 80 ? 'text-blue-400' :
-                                  percentage >= 70 ? 'text-amber-400' :
+                                  percentage >= 70 ? 'text-yellow-400' :
                                   'text-red-400'
                                 }`}>
                                   {grade.letterGrade || `${percentage}%`}
@@ -322,9 +322,9 @@ export default function StudentProgressPage() {
                   </div>
                 ) : (
                   assignments.map((assignment) => (
-                    <div key={assignment.id} className="flex items-center gap-4 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
-                      <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                        <FileText className="h-6 w-6 text-amber-400" />
+                    <div key={assignment.id} className="flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl">
+                      <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                        <FileText className="h-6 w-6 text-yellow-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-white">{assignment.title}</h4>
@@ -355,9 +355,9 @@ export default function StudentProgressPage() {
                   </div>
                 ) : (
                   submissions.map((sub) => (
-                    <div key={sub.id} className="flex items-center gap-4 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                        <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                    <div key={sub.id} className="flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl">
+                      <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-6 w-6 text-green-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-white">{sub.assignmentTitle}</h4>
@@ -387,17 +387,17 @@ export default function StudentProgressPage() {
                   grades.map((grade) => {
                     const percentage = grade.maxScore ? Math.round((grade.score || 0) / grade.maxScore * 100) : 0;
                     return (
-                      <div key={grade.id} className="flex items-center gap-4 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
+                      <div key={grade.id} className="flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl">
                         <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${
-                          percentage >= 90 ? 'bg-emerald-500/20' :
+                          percentage >= 90 ? 'bg-green-500/20' :
                           percentage >= 80 ? 'bg-blue-500/20' :
-                          percentage >= 70 ? 'bg-amber-500/20' :
+                          percentage >= 70 ? 'bg-yellow-500/20' :
                           'bg-red-500/20'
                         }`}>
                           <span className={`text-lg font-bold ${
-                            percentage >= 90 ? 'text-emerald-400' :
+                            percentage >= 90 ? 'text-green-400' :
                             percentage >= 80 ? 'text-blue-400' :
-                            percentage >= 70 ? 'text-amber-400' :
+                            percentage >= 70 ? 'text-yellow-400' :
                             'text-red-400'
                           }`}>
                             {grade.letterGrade || `${percentage}%`}
@@ -420,6 +420,6 @@ export default function StudentProgressPage() {
           </>
         )}
       </div>
-    </StudentLayout>
+    </DashboardLayout>
   );
 }

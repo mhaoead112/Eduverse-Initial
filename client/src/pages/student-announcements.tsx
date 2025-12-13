@@ -3,7 +3,7 @@ import { useRoute, Link } from "wouter";
 import { ArrowLeft, Megaphone, Pin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiEndpoint } from "@/lib/config";
-import StudentLayout from "@/components/StudentLayout";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 interface Announcement {
   id: number;
@@ -30,7 +30,7 @@ export default function StudentAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem("token");
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
@@ -102,7 +102,7 @@ export default function StudentAnnouncementsPage() {
   };
 
   return (
-    <StudentLayout>
+    <DashboardLayout>
       <div className="space-y-6">
         {/* Back Button & Header */}
         <div className="flex items-center gap-4">
@@ -113,8 +113,8 @@ export default function StudentAnnouncementsPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
-                <Megaphone className="h-5 w-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/20 flex items-center justify-center">
+                <Megaphone className="h-5 w-5 text-yellow-400" />
               </div>
               Announcements
             </h1>
@@ -127,7 +127,7 @@ export default function StudentAnnouncementsPage() {
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-yellow-500 border-t-transparent"></div>
           </div>
         )}
 
@@ -150,9 +150,9 @@ export default function StudentAnnouncementsPage() {
             {announcements.map((announcement) => (
               <div
                 key={announcement.id}
-                className={`bg-slate-800/40 border rounded-2xl p-5 transition-all ${
+                className={`bg-slate-800/50 border rounded-2xl p-5 transition-all ${
                   announcement.isPinned 
-                    ? "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5" 
+                    ? "border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5" 
                     : "border-slate-700/50"
                 }`}
               >
@@ -161,11 +161,11 @@ export default function StudentAnnouncementsPage() {
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                       announcement.isPinned 
-                        ? "bg-amber-500/20" 
+                        ? "bg-yellow-500/20" 
                         : "bg-slate-700/50"
                     }`}>
                       {announcement.isPinned ? (
-                        <Pin className="h-5 w-5 text-amber-400" />
+                        <Pin className="h-5 w-5 text-yellow-400" />
                       ) : (
                         <Megaphone className="h-5 w-5 text-slate-400" />
                       )}
@@ -177,7 +177,7 @@ export default function StudentAnnouncementsPage() {
                   </div>
                   
                   {announcement.isPinned && (
-                    <span className="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-400 bg-amber-500/20 border border-amber-500/30">
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-medium text-yellow-400 bg-yellow-500/20 border border-yellow-500/30">
                       Pinned
                     </span>
                   )}
@@ -192,6 +192,6 @@ export default function StudentAnnouncementsPage() {
           </div>
         )}
       </div>
-    </StudentLayout>
+    </DashboardLayout>
   );
 }

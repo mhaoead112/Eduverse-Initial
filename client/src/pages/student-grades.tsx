@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { apiEndpoint } from "@/lib/config";
-import StudentLayout from "@/components/StudentLayout";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { 
   Trophy, 
   TrendingUp, 
@@ -150,14 +150,14 @@ export default function StudentGradesPage() {
   });
 
   return (
-    <StudentLayout>
-      <div className="space-y-6">
+    <DashboardLayout>
+      <div className="min-h-screen bg-[#0a0f1a] space-y-6">
         {/* Page Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/20 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-yellow-400" />
               </div>
               My Grades
             </h1>
@@ -178,7 +178,7 @@ export default function StudentGradesPage() {
                   onClick={() => setSortBy(option.value as any)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     sortBy === option.value
-                      ? "bg-amber-500 text-slate-900"
+                      ? "bg-yellow-500 text-slate-900"
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
@@ -191,10 +191,10 @@ export default function StudentGradesPage() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 rounded-2xl p-5">
+          <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/20 rounded-2xl p-5">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                <Award className="h-6 w-6 text-amber-400" />
+              <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                <Award className="h-6 w-6 text-yellow-400" />
               </div>
               <div>
                 <p className="text-3xl font-bold text-white">{averageGrade}%</p>
@@ -241,10 +241,10 @@ export default function StudentGradesPage() {
         </div>
 
         {/* GPA Card */}
-        <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
                 <Star className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -253,7 +253,7 @@ export default function StudentGradesPage() {
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-bold text-amber-400">
+              <span className="text-5xl font-bold text-yellow-400">
                 {(averageGrade / 25).toFixed(2)}
               </span>
               <span className="text-slate-400 text-lg">/ 4.0</span>
@@ -262,9 +262,9 @@ export default function StudentGradesPage() {
           
           {/* GPA Progress Bar */}
           <div className="mt-6">
-            <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden">
+            <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full transition-all"
                 style={{ width: `${(averageGrade / 100) * 100}%` }}
               />
             </div>
@@ -281,10 +281,10 @@ export default function StudentGradesPage() {
         {/* Course Grades */}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-yellow-500 border-t-transparent text-yellow-500"></div>
           </div>
         ) : sortedGrades.length === 0 ? (
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+          <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
               <BookOpen className="h-8 w-8 text-slate-500" />
             </div>
@@ -321,7 +321,7 @@ export default function StudentGradesPage() {
                       <p className="text-sm text-slate-400 truncate">{course.teacherName}</p>
                       
                       {/* Progress Bar */}
-                      <div className="mt-2 h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
+                      <div className="mt-2 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                         <div 
                           className={`h-full ${colors.bg} rounded-full`}
                           style={{ width: `${course.currentGrade}%` }}
@@ -417,6 +417,6 @@ export default function StudentGradesPage() {
           </div>
         )}
       </div>
-    </StudentLayout>
+    </DashboardLayout>
   );
 }

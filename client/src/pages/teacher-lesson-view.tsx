@@ -197,8 +197,8 @@ export default function TeacherLessonView() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <div className="flex items-center justify-center min-h-[400px] bg-[#0a0f1a]">
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
         </div>
       </DashboardLayout>
     );
@@ -207,9 +207,9 @@ export default function TeacherLessonView() {
   if (!lesson) {
     return (
       <DashboardLayout>
-        <div className="text-center py-12">
-          <p className="text-gray-600">Lesson not found</p>
-          <Button onClick={() => setLocation(`/teacher/courses/${courseId}/manage`)} className="mt-4">
+        <div className="text-center py-12 bg-[#0a0f1a] min-h-screen">
+          <p className="text-slate-400">Lesson not found</p>
+          <Button onClick={() => setLocation(`/teacher/courses/${courseId}/manage`)} className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-slate-900">
             Back to Course
           </Button>
         </div>
@@ -219,30 +219,30 @@ export default function TeacherLessonView() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pb-10">
+      <div className="space-y-6 pb-10 bg-[#0a0f1a] min-h-screen">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+        <div className="bg-slate-800/50 rounded-2xl p-6 shadow-lg border border-slate-700/50">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
               <Button 
                 variant="ghost" 
                 size="icon"
                 onClick={() => setLocation(`/teacher/courses/${courseId}/manage`)}
-                className="hover:bg-white"
+                className="hover:bg-slate-700 text-slate-400 hover:text-white"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   {lesson.order && (
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                    <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                       Lesson {lesson.order}
                     </Badge>
                   )}
-                  <h1 className="text-3xl font-bold text-gray-900">{lesson.title}</h1>
+                  <h1 className="text-3xl font-bold text-white">{lesson.title}</h1>
                 </div>
-                <p className="text-gray-600 max-w-2xl">{lesson.fileName}</p>
-                <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                <p className="text-slate-400 max-w-2xl">{lesson.fileName}</p>
+                <div className="flex items-center gap-4 mt-3 text-sm text-slate-500">
                   <span className="flex items-center gap-1">
                     <FileText className="h-4 w-4" />
                     {lesson.fileType}
@@ -262,7 +262,7 @@ export default function TeacherLessonView() {
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditDialogOpen(true)}
-                className="bg-white"
+                className="bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
@@ -279,24 +279,25 @@ export default function TeacherLessonView() {
         </div>
 
         {/* File Section */}
-        <Card>
+        <Card className="bg-slate-800/50 border border-slate-700/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-white">
+              <FileText className="h-5 w-5 text-yellow-500" />
               Lesson File
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{lesson.fileName}</p>
-                    <p className="text-sm text-gray-500 mt-1">Type: {lesson.fileType} • Size: {lesson.fileSize}</p>
+                    <p className="font-medium text-white">{lesson.fileName}</p>
+                    <p className="text-sm text-slate-400 mt-1">Type: {lesson.fileType} • Size: {lesson.fileSize}</p>
                   </div>
                   <Button 
                     variant="outline"
                     onClick={() => window.open(getFileUrl(lesson.filePath), '_blank')}
+                    className="bg-yellow-500 hover:bg-yellow-400 text-slate-900 border-yellow-500"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download
@@ -309,41 +310,42 @@ export default function TeacherLessonView() {
 
         {/* Edit Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-slate-800 border border-slate-700">
             <DialogHeader>
-              <DialogTitle>Edit Lesson</DialogTitle>
-              <DialogDescription>Update lesson title</DialogDescription>
+              <DialogTitle className="text-white">Edit Lesson</DialogTitle>
+              <DialogDescription className="text-slate-400">Update lesson title</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title" className="text-slate-300">Title</Label>
                 <Input
                   id="title"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
+                  className="bg-slate-900/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-yellow-500"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 Cancel
               </Button>
-              <Button onClick={handleUpdateLesson}>Save Changes</Button>
+              <Button onClick={handleUpdateLesson} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">Save Changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Delete Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-slate-800 border border-slate-700">
             <DialogHeader>
-              <DialogTitle>Delete Lesson</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Delete Lesson</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 Are you sure you want to delete this lesson? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDeleteLesson}>

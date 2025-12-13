@@ -181,10 +181,10 @@ export default function TeacherAssignmentSubmissions() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-eduverse-blue" />
-          <p className="text-gray-600">Loading submissions...</p>
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-yellow-500" />
+          <p className="text-slate-400">Loading submissions...</p>
         </div>
       </div>
     );
@@ -192,81 +192,81 @@ export default function TeacherAssignmentSubmissions() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
         <div className="text-center">
           <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-900 font-semibold">Failed to load submissions</p>
+          <p className="text-white font-semibold">Failed to load submissions</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0f1a]">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="mb-6">
           <Button
             variant="ghost"
             onClick={() => setLocation("/teacher/assignments")}
-            className="mb-4"
+            className="mb-4 text-slate-400 hover:text-white hover:bg-slate-800"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Assignments
           </Button>
           
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             {data.assignment.title}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate-400">
             Review and grade student submissions
           </p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Students</p>
-                  <p className="text-2xl font-bold">{data.totalStudents}</p>
+                  <p className="text-sm text-slate-400">Total Students</p>
+                  <p className="text-2xl font-bold text-white">{data.totalStudents}</p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Submitted</p>
-                  <p className="text-2xl font-bold text-green-600">{data.submittedCount}</p>
+                  <p className="text-sm text-slate-400">Submitted</p>
+                  <p className="text-2xl font-bold text-green-500">{data.submittedCount}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-orange-600">{data.totalStudents - data.submittedCount}</p>
+                  <p className="text-sm text-slate-400">Pending</p>
+                  <p className="text-2xl font-bold text-orange-500">{data.totalStudents - data.submittedCount}</p>
                 </div>
                 <Clock className="h-8 w-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Max Score</p>
-                  <p className="text-2xl font-bold">{data.assignment.maxScore}</p>
+                  <p className="text-sm text-slate-400">Max Score</p>
+                  <p className="text-2xl font-bold text-white">{data.assignment.maxScore}</p>
                 </div>
                 <Award className="h-8 w-8 text-purple-500" />
               </div>
@@ -275,13 +275,13 @@ export default function TeacherAssignmentSubmissions() {
         </div>
 
         {/* Search */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-slate-800/50 border border-slate-700/50">
           <CardContent className="p-4">
             <Input
               placeholder="Search students by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-md"
+              className="max-w-md bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
             />
           </CardContent>
         </Card>
@@ -289,24 +289,24 @@ export default function TeacherAssignmentSubmissions() {
         {/* Students List */}
         <div className="grid grid-cols-1 gap-4">
           {filteredStudents.map((student) => (
-            <Card key={student.studentId} className="hover:shadow-lg transition-shadow">
+            <Card key={student.studentId} className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="bg-gray-100 p-3 rounded-full">
-                      <User className="h-6 w-6 text-gray-600" />
+                    <div className="bg-slate-700 p-3 rounded-full">
+                      <User className="h-6 w-6 text-slate-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{student.studentName}</h3>
-                      <p className="text-sm text-gray-600">{student.studentEmail}</p>
+                      <h3 className="font-semibold text-lg text-white">{student.studentName}</h3>
+                      <p className="text-sm text-slate-400">{student.studentEmail}</p>
                       {student.hasSubmitted && student.submission && (
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
                             Submitted: {new Date(student.submission.submittedAt).toLocaleString()}
                           </span>
                           {student.submission.score && (
-                            <span className="flex items-center gap-1 text-green-600 font-medium">
+                            <span className="flex items-center gap-1 text-green-500 font-medium">
                               <Award className="h-4 w-4" />
                               Score: {student.submission.score}/{data.assignment.maxScore}
                             </span>
@@ -319,7 +319,7 @@ export default function TeacherAssignmentSubmissions() {
                   <div className="flex items-center gap-3">
                     {student.hasSubmitted ? (
                       <>
-                        <Badge className="bg-green-100 text-green-800">
+                        <Badge className="bg-green-500/20 text-green-400 border border-green-500/30">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Submitted
                         </Badge>
@@ -327,13 +327,14 @@ export default function TeacherAssignmentSubmissions() {
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedSubmission(student)}
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View Submission
                         </Button>
                       </>
                     ) : (
-                      <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                      <Badge variant="secondary" className="bg-orange-500/20 text-orange-400 border border-orange-500/30">
                         <Clock className="h-3 w-3 mr-1" />
                         Not Submitted
                       </Badge>
@@ -347,10 +348,10 @@ export default function TeacherAssignmentSubmissions() {
 
         {/* View Submission Dialog */}
         <Dialog open={!!selectedSubmission} onOpenChange={() => setSelectedSubmission(null)}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-slate-800 border border-slate-700">
             <DialogHeader>
-              <DialogTitle>Submission Details</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Submission Details</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 {selectedSubmission?.studentName} • {selectedSubmission?.studentEmail}
               </DialogDescription>
             </DialogHeader>
@@ -358,9 +359,9 @@ export default function TeacherAssignmentSubmissions() {
             {selectedSubmission?.submission && (
               <div className="space-y-4">
                 {/* Submission Info */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2">Submission Information</h4>
-                  <div className="text-sm space-y-1">
+                <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+                  <h4 className="font-semibold mb-2 text-white">Submission Information</h4>
+                  <div className="text-sm space-y-1 text-slate-300">
                     <p>Submitted: {new Date(selectedSubmission.submission.submittedAt).toLocaleString()}</p>
                     {selectedSubmission.submission.fileName && (
                       <p>File: {selectedSubmission.submission.fileName} ({(parseInt(selectedSubmission.submission.fileSize || "0") / 1024).toFixed(2)} KB)</p>
@@ -371,8 +372,8 @@ export default function TeacherAssignmentSubmissions() {
                 {/* Content */}
                 {selectedSubmission.submission.content && (
                   <div>
-                    <h4 className="font-semibold mb-2">Submission Content</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">
+                    <h4 className="font-semibold mb-2 text-white">Submission Content</h4>
+                    <div className="bg-slate-700/50 p-4 rounded-lg whitespace-pre-wrap text-slate-300 border border-slate-600">
                       {selectedSubmission.submission.content}
                     </div>
                   </div>
@@ -383,7 +384,7 @@ export default function TeacherAssignmentSubmissions() {
                   <Button
                     variant="outline"
                     onClick={() => handleDownload(selectedSubmission.submission!.id)}
-                    className="w-full"
+                    className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download {selectedSubmission.submission.fileName}
@@ -392,13 +393,13 @@ export default function TeacherAssignmentSubmissions() {
 
                 {/* Current Grade */}
                 {selectedSubmission.submission.score && (
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <h4 className="font-semibold mb-2 text-green-800">Current Grade</h4>
-                    <p className="text-2xl font-bold text-green-600">{selectedSubmission.submission.score}/{data.assignment.maxScore}</p>
+                  <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/30">
+                    <h4 className="font-semibold mb-2 text-green-400">Current Grade</h4>
+                    <p className="text-2xl font-bold text-green-500">{selectedSubmission.submission.score}/{data.assignment.maxScore}</p>
                     {selectedSubmission.submission.feedback && (
                       <div className="mt-2">
-                        <p className="text-sm font-medium text-green-700">Feedback:</p>
-                        <p className="text-sm text-green-800">{selectedSubmission.submission.feedback}</p>
+                        <p className="text-sm font-medium text-green-400">Feedback:</p>
+                        <p className="text-sm text-green-300">{selectedSubmission.submission.feedback}</p>
                       </div>
                     )}
                   </div>
@@ -410,7 +411,7 @@ export default function TeacherAssignmentSubmissions() {
                     setFeedback(selectedSubmission.submission?.feedback || "");
                     setIsGradeDialogOpen(true);
                   }}
-                  className="w-full bg-eduverse-blue hover:bg-eduverse-blue/90"
+                  className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                 >
                   <Award className="h-4 w-4 mr-2" />
                   {selectedSubmission.submission.score ? 'Update Grade' : 'Grade Submission'}
@@ -422,17 +423,17 @@ export default function TeacherAssignmentSubmissions() {
 
         {/* Grade Dialog */}
         <Dialog open={isGradeDialogOpen} onOpenChange={setIsGradeDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-slate-800 border border-slate-700">
             <DialogHeader>
-              <DialogTitle>Grade Submission</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Grade Submission</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 Grade {selectedSubmission?.studentName}'s submission
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="score">Score (out of {data.assignment.maxScore})</Label>
+                <Label htmlFor="score" className="text-slate-300">Score (out of {data.assignment.maxScore})</Label>
                 <Input
                   id="score"
                   type="number"
@@ -441,29 +442,31 @@ export default function TeacherAssignmentSubmissions() {
                   value={score}
                   onChange={(e) => setScore(e.target.value)}
                   placeholder="Enter score"
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <Label htmlFor="feedback">Feedback (Optional)</Label>
+                <Label htmlFor="feedback" className="text-slate-300">Feedback (Optional)</Label>
                 <Textarea
                   id="feedback"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   placeholder="Provide feedback for the student..."
                   rows={4}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                 />
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsGradeDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsGradeDialogOpen(false)} className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 Cancel
               </Button>
               <Button
                 onClick={handleGradeSubmission}
                 disabled={gradeMutation.isPending || !score}
-                className="bg-eduverse-blue hover:bg-eduverse-blue/90"
+                className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
               >
                 {gradeMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Submit Grade

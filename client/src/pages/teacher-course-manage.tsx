@@ -416,7 +416,7 @@ export default function TeacherCourseManage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
         </div>
       </DashboardLayout>
     );
@@ -426,8 +426,8 @@ export default function TeacherCourseManage() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-gray-600">Class not found</p>
-          <Button onClick={() => setLocation("/teacher/courses")} className="mt-4">
+          <p className="text-slate-400">Class not found</p>
+          <Button onClick={() => setLocation("/teacher/courses")} className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-slate-900">
             Back to Courses
           </Button>
         </div>
@@ -440,7 +440,7 @@ export default function TeacherCourseManage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
         </div>
       </DashboardLayout>
     );
@@ -453,37 +453,37 @@ export default function TeacherCourseManage() {
     <DashboardLayout>
       <div className="space-y-6 pb-10">
         {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 shadow-lg">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
               <Button 
                 variant="ghost" 
                 size="icon"
                 onClick={() => setLocation("/teacher/courses")}
-                className="hover:bg-white"
+                className="hover:bg-slate-700/50 text-slate-400 hover:text-white"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{course.title}</h1>
-                <p className="text-gray-600 max-w-2xl">{course.description}</p>
+                <h1 className="text-3xl font-bold text-white mb-2">{course.title}</h1>
+                <p className="text-slate-400 max-w-2xl">{course.description}</p>
                 <div className="flex items-center gap-3 mt-3">
-                  <Badge variant="outline" className="bg-white">
+                  <Badge variant="outline" className="bg-slate-700/50 border-slate-600 text-slate-300">
                     <Calendar className="h-3 w-3 mr-1" />
                     Created {new Date(course.createdAt).toLocaleDateString()}
                   </Badge>
-                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                  <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30">
                     {course.status}
                   </Badge>
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(true)} className="bg-white">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(true)} className="bg-slate-700/50 border-slate-600 text-white hover:bg-slate-700">
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Button>
-              <Button onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/create`)} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/create`)} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Lesson
               </Button>
@@ -493,13 +493,13 @@ export default function TeacherCourseManage() {
 
         {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-lg rounded-2xl overflow-hidden">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700 mb-1">Students Enrolled</p>
-                  <h3 className="text-4xl font-bold text-blue-900">{enrollments.length}</h3>
-                  <p className="text-xs text-blue-600 mt-1">Active learners</p>
+                  <p className="text-sm font-medium text-blue-400 mb-1">Students Enrolled</p>
+                  <h3 className="text-4xl font-bold text-white">{enrollments.length}</h3>
+                  <p className="text-xs text-slate-400 mt-1">Active learners</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
                   <Users className="h-7 w-7 text-white" />
@@ -508,13 +508,13 @@ export default function TeacherCourseManage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0 shadow-lg rounded-2xl overflow-hidden">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700 mb-1">Total Lessons</p>
-                  <h3 className="text-4xl font-bold text-green-900">{lessons.length}</h3>
-                  <p className="text-xs text-green-600 mt-1">Content modules</p>
+                  <p className="text-sm font-medium text-green-400 mb-1">Total Lessons</p>
+                  <h3 className="text-4xl font-bold text-white">{lessons.length}</h3>
+                  <p className="text-xs text-slate-400 mt-1">Content modules</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-green-600 flex items-center justify-center shadow-lg">
                   <BookOpen className="h-7 w-7 text-white" />
@@ -523,13 +523,13 @@ export default function TeacherCourseManage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-0 shadow-lg rounded-2xl overflow-hidden">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-700 mb-1">Assignments</p>
-                  <h3 className="text-4xl font-bold text-orange-900">{assignments.length}</h3>
-                  <p className="text-xs text-orange-600 mt-1">Active tasks</p>
+                  <p className="text-sm font-medium text-orange-400 mb-1">Assignments</p>
+                  <h3 className="text-4xl font-bold text-white">{assignments.length}</h3>
+                  <p className="text-xs text-slate-400 mt-1">Active tasks</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-orange-600 flex items-center justify-center shadow-lg">
                   <FileText className="h-7 w-7 text-white" />
@@ -541,20 +541,20 @@ export default function TeacherCourseManage() {
 
         {/* Enhanced Content Tabs */}
         <Tabs defaultValue="lessons" className="space-y-4">
-          <TabsList className="bg-white border border-gray-200 p-1 shadow-sm">
-            <TabsTrigger value="lessons" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+          <TabsList className="bg-slate-800/50 border border-slate-700/50 p-1 shadow-sm">
+            <TabsTrigger value="lessons" className="text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               <BookOpen className="h-4 w-4 mr-2" />
               Lessons ({lessons.length})
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="assignments" className="text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               <FileText className="h-4 w-4 mr-2" />
               Assignments ({assignments.length})
             </TabsTrigger>
-            <TabsTrigger value="students" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="students" className="text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               <Users className="h-4 w-4 mr-2" />
               Students ({enrollments.length})
             </TabsTrigger>
-            <TabsTrigger value="announcements" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="announcements" className="text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               <Megaphone className="h-4 w-4 mr-2" />
               Announcements ({announcements.length})
             </TabsTrigger>
@@ -562,12 +562,12 @@ export default function TeacherCourseManage() {
 
           <TabsContent value="lessons" className="space-y-4">
             {lessons.length === 0 ? (
-              <Card>
+              <Card className="bg-slate-800/50 border border-slate-700/50">
                 <CardContent className="py-12 text-center">
-                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No lessons yet. Create your first lesson!</p>
+                  <BookOpen className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                  <p className="text-slate-400">No lessons yet. Create your first lesson!</p>
                   <Button 
-                    className="mt-4" 
+                    className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-slate-900" 
                     onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/create`)}
                   >
                     Create Lesson
@@ -577,19 +577,19 @@ export default function TeacherCourseManage() {
             ) : (
               <div className="grid gap-4">
                 {lessons.map((lesson) => (
-                  <Card key={lesson.id} className="hover:shadow-md transition-shadow">
+                  <Card key={lesson.id} className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg mb-2">{lesson.title}</h3>
-                          <p className="text-sm text-gray-600 line-clamp-2">{lesson.content}</p>
-                          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                          <h3 className="font-semibold text-lg mb-2 text-white">{lesson.title}</h3>
+                          <p className="text-sm text-slate-400 line-clamp-2">{lesson.content}</p>
+                          <div className="flex items-center gap-4 mt-3 text-sm text-slate-500">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
                               {new Date(lesson.createdAt).toLocaleDateString()}
                             </span>
                             {lesson.videoUrl && (
-                              <Badge variant="secondary">Has Video</Badge>
+                              <Badge variant="secondary" className="bg-slate-700 text-slate-300">Has Video</Badge>
                             )}
                           </div>
                         </div>
@@ -597,6 +597,7 @@ export default function TeacherCourseManage() {
                           variant="outline" 
                           size="sm"
                           onClick={() => setLocation(`/teacher/courses/${courseId}/lessons/${lesson.id}`)}
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                         >
                           View
                         </Button>
@@ -610,12 +611,12 @@ export default function TeacherCourseManage() {
 
           <TabsContent value="assignments" className="space-y-4">
             {assignments.length === 0 ? (
-              <Card>
+              <Card className="bg-slate-800/50 border border-slate-700/50">
                 <CardContent className="py-12 text-center">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No assignments yet.</p>
+                  <FileText className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                  <p className="text-slate-400">No assignments yet.</p>
                   <Button 
-                    className="mt-4"
+                    className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                     onClick={() => setLocation('/teacher/assignments')}
                   >
                     Create Assignment
@@ -625,13 +626,13 @@ export default function TeacherCourseManage() {
             ) : (
               <div className="grid gap-4">
                 {assignments.map((assignment) => (
-                  <Card key={assignment.id} className="hover:shadow-md transition-shadow">
+                  <Card key={assignment.id} className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg mb-2">{assignment.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{assignment.description}</p>
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <h3 className="font-semibold text-lg mb-2 text-white">{assignment.title}</h3>
+                          <p className="text-sm text-slate-400 mb-3">{assignment.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-slate-500">
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
                               Due: {new Date(assignment.dueDate).toLocaleDateString()}
@@ -643,6 +644,7 @@ export default function TeacherCourseManage() {
                           variant="outline" 
                           size="sm"
                           onClick={() => setLocation(`/teacher/assignments/${assignment.id}`)}
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                         >
                           View
                         </Button>
@@ -657,18 +659,18 @@ export default function TeacherCourseManage() {
           <TabsContent value="students" className="space-y-4">
             {/* Enroll Student Button */}
             <div className="flex justify-end">
-              <Button onClick={openEnrollDialog} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={openEnrollDialog} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Enroll Student
               </Button>
             </div>
 
             {enrollments.length === 0 ? (
-              <Card>
+              <Card className="bg-slate-800/50 border border-slate-700/50">
                 <CardContent className="py-12 text-center">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">No students enrolled yet.</p>
-                  <Button onClick={openEnrollDialog}>
+                  <Users className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                  <p className="text-slate-400 mb-4">No students enrolled yet.</p>
+                  <Button onClick={openEnrollDialog} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                     <UserPlus className="h-4 w-4 mr-2" />
                     Enroll Your First Student
                   </Button>
@@ -677,7 +679,7 @@ export default function TeacherCourseManage() {
             ) : (
               <div className="grid gap-4">
                 {enrollments.map((enrollment) => (
-                  <Card key={enrollment.enrollmentId} className="hover:shadow-md transition-shadow">
+                  <Card key={enrollment.enrollmentId} className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4 flex-1">
@@ -685,20 +687,20 @@ export default function TeacherCourseManage() {
                             {enrollment.studentName?.charAt(0) || 'S'}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold">{enrollment.studentName || 'Student'}</h3>
-                            <p className="text-sm text-gray-500">{enrollment.studentEmail}</p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            <h3 className="font-semibold text-white">{enrollment.studentName || 'Student'}</h3>
+                            <p className="text-sm text-slate-400">{enrollment.studentEmail}</p>
+                            <p className="text-xs text-slate-500 mt-1">
                               Enrolled {new Date(enrollment.enrolledAt).toLocaleDateString()}
                             </p>
                             
                             {/* Progress Section */}
                             <div className="mt-3 space-y-2">
                               <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-600">Course Progress</span>
-                                <span className="font-medium text-gray-900">{enrollment.progress ?? 0}%</span>
+                                <span className="text-slate-400">Course Progress</span>
+                                <span className="font-medium text-white">{enrollment.progress ?? 0}%</span>
                               </div>
                               <Progress value={enrollment.progress ?? 0} className="h-2" />
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-4 text-xs text-slate-500">
                                 <span className="flex items-center gap-1">
                                   <CheckCircle2 className="h-3 w-3 text-green-500" />
                                   {enrollment.completedAssignments ?? 0}/{enrollment.totalAssignments ?? 0} assignments
@@ -718,13 +720,14 @@ export default function TeacherCourseManage() {
                             variant="outline" 
                             size="sm"
                             onClick={() => setLocation(`/teacher/students/${enrollment.studentId}`)}
+                            className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                           >
                             View Details
                           </Button>
                           <Button 
                             variant="outline" 
                             size="sm"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-900/30 border-slate-600"
                             onClick={() => handleUnenrollStudent(enrollment.enrollmentId, enrollment.studentName)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -741,18 +744,18 @@ export default function TeacherCourseManage() {
           {/* Announcements Tab */}
           <TabsContent value="announcements" className="space-y-4">
             <div className="flex justify-end">
-              <Button onClick={() => setIsAnnouncementDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => setIsAnnouncementDialogOpen(true)} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                 <Plus className="h-4 w-4 mr-2" />
                 New Announcement
               </Button>
             </div>
 
             {announcements.length === 0 ? (
-              <Card>
+              <Card className="bg-slate-800/50 border border-slate-700/50">
                 <CardContent className="py-12 text-center">
-                  <Megaphone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">No announcements yet.</p>
-                  <Button onClick={() => setIsAnnouncementDialogOpen(true)}>
+                  <Megaphone className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                  <p className="text-slate-400 mb-4">No announcements yet.</p>
+                  <Button onClick={() => setIsAnnouncementDialogOpen(true)} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Announcement
                   </Button>
@@ -761,28 +764,28 @@ export default function TeacherCourseManage() {
             ) : (
               <div className="grid gap-4">
                 {announcements.map((announcement) => (
-                  <Card key={announcement.id} className="hover:shadow-md transition-shadow">
+                  <Card key={announcement.id} className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-lg">{announcement.title}</h3>
+                            <h3 className="font-semibold text-lg text-white">{announcement.title}</h3>
                             {announcement.isPinned && (
-                              <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+                              <Badge variant="secondary" className="bg-amber-500/20 text-amber-400">
                                 <Pin className="h-3 w-3 mr-1" />
                                 Pinned
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 mb-3 whitespace-pre-wrap">{announcement.content}</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-sm text-slate-400 mb-3 whitespace-pre-wrap">{announcement.content}</p>
+                          <p className="text-xs text-slate-500">
                             Posted {new Date(announcement.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                         <Button 
                           variant="outline" 
                           size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-400 hover:text-red-300 hover:bg-red-900/30 border-slate-600"
                           onClick={() => handleDeleteAnnouncement(announcement.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -798,77 +801,79 @@ export default function TeacherCourseManage() {
 
         {/* Edit Course Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-slate-800 border-slate-700">
             <DialogHeader>
-              <DialogTitle>Edit Course</DialogTitle>
-              <DialogDescription>Update course information</DialogDescription>
+              <DialogTitle className="text-white">Edit Course</DialogTitle>
+              <DialogDescription className="text-slate-400">Update course information</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">Course Title</Label>
+                <Label htmlFor="title" className="text-white">Course Title</Label>
                 <Input
                   id="title"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-white">Description</Label>
                 <Textarea
                   id="description"
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={4}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 Cancel
               </Button>
-              <Button onClick={handleUpdateCourse}>Save Changes</Button>
+              <Button onClick={handleUpdateCourse} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">Save Changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Enroll Student Dialog */}
         <Dialog open={isEnrollDialogOpen} onOpenChange={setIsEnrollDialogOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md bg-slate-800 border-slate-700">
             <DialogHeader>
-              <DialogTitle>Enroll Student</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Enroll Student</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 Select a student to enroll in this course
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               {/* Search Input */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder="Search students..."
                   value={studentSearchTerm}
                   onChange={(e) => setStudentSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
 
               {/* Student Selection */}
               {loadingStudents ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-                  <span className="ml-2 text-gray-600">Loading students...</span>
+                  <Loader2 className="h-6 w-6 animate-spin text-yellow-500" />
+                  <span className="ml-2 text-slate-400">Loading students...</span>
                 </div>
               ) : filteredStudents.length === 0 ? (
-                <div className="py-8 text-center text-gray-500">
+                <div className="py-8 text-center text-slate-500">
                   {studentSearchTerm ? "No students match your search" : "No available students to enroll"}
                 </div>
               ) : (
-                <div className="max-h-64 overflow-y-auto border rounded-lg divide-y">
+                <div className="max-h-64 overflow-y-auto border border-slate-700 rounded-lg divide-y divide-slate-700">
                   {filteredStudents.map((student) => (
                     <div
                       key={student.id}
-                      className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-3 ${
-                        selectedStudentId === student.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                      className={`p-3 cursor-pointer hover:bg-slate-700/50 transition-colors flex items-center gap-3 ${
+                        selectedStudentId === student.id ? 'bg-yellow-500/20 border-l-4 border-yellow-500' : ''
                       }`}
                       onClick={() => setSelectedStudentId(student.id)}
                     >
@@ -876,11 +881,11 @@ export default function TeacherCourseManage() {
                         {student.fullName?.charAt(0) || 'S'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{student.fullName}</p>
-                        <p className="text-sm text-gray-500 truncate">{student.email}</p>
+                        <p className="font-medium text-white truncate">{student.fullName}</p>
+                        <p className="text-sm text-slate-400 truncate">{student.email}</p>
                       </div>
                       {selectedStudentId === student.id && (
-                        <CheckCircle2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                        <CheckCircle2 className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                       )}
                     </div>
                   ))}
@@ -895,13 +900,14 @@ export default function TeacherCourseManage() {
                   setSelectedStudentId("");
                   setStudentSearchTerm("");
                 }}
+                className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleEnrollStudent}
                 disabled={!selectedStudentId || enrolling}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
               >
                 {enrolling ? (
                   <>
@@ -921,31 +927,33 @@ export default function TeacherCourseManage() {
 
         {/* Create Announcement Dialog */}
         <Dialog open={isAnnouncementDialogOpen} onOpenChange={setIsAnnouncementDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-slate-800 border-slate-700">
             <DialogHeader>
-              <DialogTitle>Create Announcement</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Create Announcement</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 Share important updates with your students
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="announcementTitle">Title</Label>
+                <Label htmlFor="announcementTitle" className="text-white">Title</Label>
                 <Input
                   id="announcementTitle"
                   placeholder="Announcement title..."
                   value={announcementTitle}
                   onChange={(e) => setAnnouncementTitle(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
               <div>
-                <Label htmlFor="announcementContent">Content</Label>
+                <Label htmlFor="announcementContent" className="text-white">Content</Label>
                 <Textarea
                   id="announcementContent"
                   placeholder="Write your announcement here..."
                   value={announcementContent}
                   onChange={(e) => setAnnouncementContent(e.target.value)}
                   rows={5}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -954,20 +962,21 @@ export default function TeacherCourseManage() {
                   id="announcementPinned"
                   checked={announcementPinned}
                   onChange={(e) => setAnnouncementPinned(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300"
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-700"
                 />
-                <Label htmlFor="announcementPinned" className="text-sm font-normal">
+                <Label htmlFor="announcementPinned" className="text-sm font-normal text-slate-300">
                   Pin this announcement (will appear at the top)
                 </Label>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAnnouncementDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAnnouncementDialogOpen(false)} className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 Cancel
               </Button>
               <Button 
                 onClick={handleCreateAnnouncement} 
                 disabled={savingAnnouncement || !announcementTitle.trim() || !announcementContent.trim()}
+                className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
               >
                 {savingAnnouncement ? (
                   <>

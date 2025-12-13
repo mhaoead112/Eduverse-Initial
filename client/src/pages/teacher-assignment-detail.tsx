@@ -82,7 +82,7 @@ export default function TeacherAssignmentDetail() {
 
       const csvContent = [
         headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ...rows.map((row: (string | number)[]) => row.map((cell: string | number) => `"${cell}"`).join(','))
       ].join('\n');
 
       // Download CSV
@@ -232,7 +232,7 @@ export default function TeacherAssignmentDetail() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
         </div>
       </DashboardLayout>
     );
@@ -242,8 +242,8 @@ export default function TeacherAssignmentDetail() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-gray-600">Assignment not found</p>
-          <Button onClick={() => setLocation("/teacher/assignments")} className="mt-4">
+          <p className="text-slate-400">Assignment not found</p>
+          <Button onClick={() => setLocation("/teacher/assignments")} className="mt-4 bg-yellow-500 hover:bg-yellow-400 text-slate-900">
             Back to Assignments
           </Button>
         </div>
@@ -257,20 +257,20 @@ export default function TeacherAssignmentDetail() {
     <DashboardLayout>
       <div className="space-y-6 pb-10">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+        <div className="bg-slate-800/50 rounded-2xl p-6 shadow-lg border border-slate-700/50">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
               <Button 
                 variant="ghost" 
                 size="icon"
                 onClick={() => setLocation("/teacher/assignments")}
-                className="hover:bg-white"
+                className="hover:bg-slate-700/50 text-slate-400"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold text-gray-900">{assignment.title}</h1>
+                  <h1 className="text-3xl font-bold text-white">{assignment.title}</h1>
                   <Badge variant={assignment.isPublished ? "default" : "secondary"}>
                     {assignment.isPublished ? "Published" : "Draft"}
                   </Badge>
@@ -278,8 +278,8 @@ export default function TeacherAssignmentDetail() {
                     <Badge variant="destructive">Past Due</Badge>
                   )}
                 </div>
-                <p className="text-gray-600 max-w-2xl">{assignment.description}</p>
-                <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                <p className="text-slate-400 max-w-2xl">{assignment.description}</p>
+                <div className="flex items-center gap-4 mt-3 text-sm text-slate-500">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                     Due: {new Date(assignment.dueDate).toLocaleDateString()}
@@ -295,7 +295,7 @@ export default function TeacherAssignmentDetail() {
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditDialogOpen(true)}
-                className="bg-white"
+                className="bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
@@ -303,7 +303,7 @@ export default function TeacherAssignmentDetail() {
               <Button 
                 variant={assignment.isPublished ? "outline" : "default"}
                 onClick={handleTogglePublish}
-                className={assignment.isPublished ? "bg-white" : ""}
+                className={assignment.isPublished ? "bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600" : "bg-yellow-500 hover:bg-yellow-400 text-slate-900"}
               >
                 {assignment.isPublished ? (
                   <>
@@ -330,63 +330,63 @@ export default function TeacherAssignmentDetail() {
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0">
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-700 font-medium">Total Submissions</p>
-                  <p className="text-3xl font-bold text-blue-900">0</p>
+                  <p className="text-sm text-slate-400 font-medium">Total Submissions</p>
+                  <p className="text-3xl font-bold text-white">0</p>
                 </div>
-                <Users className="h-8 w-8 text-blue-600" />
+                <Users className="h-8 w-8 text-yellow-500" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0">
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-green-700 font-medium">Graded</p>
-                  <p className="text-3xl font-bold text-green-900">0</p>
+                  <p className="text-sm text-slate-400 font-medium">Graded</p>
+                  <p className="text-3xl font-bold text-white">0</p>
                 </div>
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <CheckCircle2 className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-0">
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-orange-700 font-medium">Pending</p>
-                  <p className="text-3xl font-bold text-orange-900">0</p>
+                  <p className="text-sm text-slate-400 font-medium">Pending</p>
+                  <p className="text-3xl font-bold text-white">0</p>
                 </div>
-                <Clock className="h-8 w-8 text-orange-600" />
+                <Clock className="h-8 w-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-0">
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-purple-700 font-medium">Avg Score</p>
-                  <p className="text-3xl font-bold text-purple-900">--</p>
+                  <p className="text-sm text-slate-400 font-medium">Avg Score</p>
+                  <p className="text-3xl font-bold text-white">--</p>
                 </div>
-                <FileText className="h-8 w-8 text-purple-600" />
+                <FileText className="h-8 w-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Actions */}
-        <Card>
+        <Card className="bg-slate-800/50 border border-slate-700/50">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-white">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button 
-              className="w-full justify-start"
+              className="w-full justify-start bg-yellow-500 hover:bg-yellow-400 text-slate-900"
               onClick={() => setLocation(`/teacher/assignments/${assignmentId}/submissions`)}
             >
               <Users className="h-4 w-4 mr-2" />
@@ -394,7 +394,7 @@ export default function TeacherAssignmentDetail() {
             </Button>
             <Button 
               variant="outline"
-              className="w-full justify-start"
+              className="w-full justify-start bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600"
               onClick={handleExportGrades}
             >
               <Download className="h-4 w-4 mr-2" />
@@ -405,70 +405,74 @@ export default function TeacherAssignmentDetail() {
 
         {/* Edit Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl bg-slate-800 border border-slate-700">
             <DialogHeader>
-              <DialogTitle>Edit Assignment</DialogTitle>
-              <DialogDescription>Update assignment details</DialogDescription>
+              <DialogTitle className="text-white">Edit Assignment</DialogTitle>
+              <DialogDescription className="text-slate-400">Update assignment details</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title" className="text-slate-300">Title</Label>
                 <Input
                   id="title"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
+                  className="bg-slate-700/50 border-slate-600 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-slate-300">Description</Label>
                 <Textarea
                   id="description"
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={4}
+                  className="bg-slate-700/50 border-slate-600 text-white"
                 />
               </div>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Label htmlFor="dueDate" className="text-slate-300">Due Date</Label>
                   <Input
                     id="dueDate"
                     type="date"
                     value={editDueDate}
                     onChange={(e) => setEditDueDate(e.target.value)}
+                    className="bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="maxScore">Max Score</Label>
+                  <Label htmlFor="maxScore" className="text-slate-300">Max Score</Label>
                   <Input
                     id="maxScore"
                     type="number"
                     value={editMaxScore}
                     onChange={(e) => setEditMaxScore(e.target.value)}
+                    className="bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600">
                 Cancel
               </Button>
-              <Button onClick={handleUpdateAssignment}>Save Changes</Button>
+              <Button onClick={handleUpdateAssignment} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">Save Changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Delete Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-slate-800 border border-slate-700">
             <DialogHeader>
-              <DialogTitle>Delete Assignment</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Delete Assignment</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 Are you sure you want to delete this assignment? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600">
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDeleteAssignment}>

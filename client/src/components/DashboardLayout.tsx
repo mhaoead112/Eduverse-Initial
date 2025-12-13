@@ -212,27 +212,27 @@ const navigationConfig: Record<string, NavigationItem[]> = {
   ]
 };
 
-// Role-based color schemes
+// Role-based color schemes - Dark theme
 const roleColors: Record<string, { primary: string; secondary: string; accent: string }> = {
   student: {
-    primary: 'text-blue-600',
-    secondary: 'bg-blue-50',
-    accent: 'border-blue-200'
+    primary: 'text-yellow-500',
+    secondary: 'bg-yellow-500/10',
+    accent: 'border-yellow-500/30'
   },
   teacher: {
-    primary: 'text-green-600',
-    secondary: 'bg-green-50',
-    accent: 'border-green-200'
+    primary: 'text-yellow-500',
+    secondary: 'bg-yellow-500/10',
+    accent: 'border-yellow-500/30'
   },
   admin: {
-    primary: 'text-purple-600',
-    secondary: 'bg-purple-50',
-    accent: 'border-purple-200'
+    primary: 'text-purple-400',
+    secondary: 'bg-purple-500/10',
+    accent: 'border-purple-500/30'
   },
   parent: {
-    primary: 'text-pink-600',
-    secondary: 'bg-pink-50',
-    accent: 'border-pink-200'
+    primary: 'text-pink-400',
+    secondary: 'bg-pink-500/10',
+    accent: 'border-pink-500/30'
   }
 };
 
@@ -247,11 +247,11 @@ function SidebarNavItem({ item, isActive, colors, isSubmenuItem = false }: {
   
   const baseClasses = `
     flex items-center justify-between w-full px-3 py-2.5 text-left 
-    rounded-lg transition-all duration-200 group
+    rounded-xl transition-all duration-200 group
     ${isSubmenuItem ? 'pl-10 text-sm' : ''}
     ${isActive 
-      ? 'bg-gray-900 text-white' 
-      : 'text-gray-600 hover:bg-gray-50'
+      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
+      : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
     }
   `;
 
@@ -433,36 +433,37 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0f1a]">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 sm:w-[245px] bg-white border-r border-gray-100
+        fixed inset-y-0 left-0 z-50 w-64 sm:w-[220px] bg-[#0d1526] border-r border-slate-800/50
         transform transition-transform duration-300 ease-in-out md:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
           {/* Sidebar header */}
-          <div className="flex items-center justify-between h-16 sm:h-20 px-4 sm:px-6 border-b border-gray-100">
-            <div className="flex items-center gap-2.5">
-<div className="mb-6 mt-10">
-            <img 
-              src="/nies-logo.png" 
-              alt="NIES Logo" 
-              className="w-400 h-200 object-contain drop-shadow-2xl"
-            />              </div>
+          <div className="flex items-center justify-between h-16 sm:h-20 px-4 sm:px-5 border-b border-slate-800/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <GraduationCap className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-base font-bold text-white tracking-tight">Student LMS</h1>
+                <p className="text-[10px] text-slate-500 font-medium">Spring Semester</p>
+              </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden -mr-2"
+              className="md:hidden -mr-2 text-slate-400 hover:text-white hover:bg-slate-800"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-5 w-5" />
@@ -470,7 +471,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-3 sm:px-4 pt-4 sm:pt-6 pb-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 sm:px-3 pt-4 sm:pt-5 pb-4 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
               // Check if current location matches this item or is a child route
               // For dashboard items (exact paths like /student, /teacher, /admin, /parent), 
@@ -491,15 +492,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
 
           {/* Sidebar footer - Settings and Logout */}
-          <div className="border-t border-gray-100">
-            <div className="px-3 sm:px-4 py-3 space-y-1">
+          <div className="border-t border-slate-800/50">
+            <div className="px-3 sm:px-3 py-3 space-y-1">
               <Link href="/settings">
                 <div className={`
-                  flex items-center w-full px-3 py-2.5 text-left rounded-lg
+                  flex items-center w-full px-3 py-2.5 text-left rounded-xl
                   transition-all duration-200 group
                   ${location === '/settings' 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-slate-800 text-white' 
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                   }
                 `}>
                   <div className="flex items-center space-x-3">
@@ -512,14 +513,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <button
                 onClick={handleLogout}
                 className="
-                  flex items-center w-full px-3 py-2.5 text-left rounded-lg
+                  flex items-center w-full px-3 py-2.5 text-left rounded-xl
                   transition-all duration-200 group
-                  text-gray-600 hover:bg-gray-50
+                  text-slate-400 hover:bg-slate-800/50 hover:text-white
                 "
               >
                 <div className="flex items-center space-x-3">
                   <LogOut className="h-5 w-5" />
-                  <span className="font-medium text-sm">Logout</span>
+                  <span className="font-medium text-sm">Log out</span>
                 </div>
               </button>
             </div>
@@ -528,15 +529,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="md:pl-64 sm:md:pl-[245px]">
+      <div className="md:pl-64 sm:md:pl-[220px]">
         {/* Top header */}
-        <header className="bg-white border-b border-gray-100 h-14 sm:h-16 md:h-20">
+        <header className="bg-[#0a0f1a] border-b border-slate-800/50 h-14 sm:h-16 md:h-[72px]">
           <div className="flex items-center justify-between h-full px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="flex items-center flex-1 max-w-2xl">
               <Button
                 variant="ghost"
                 size="sm"
-                className="md:hidden mr-2 p-2"
+                className="md:hidden mr-2 p-2 text-slate-400 hover:text-white hover:bg-slate-800"
                 onClick={() => setSidebarOpen(true)}
                 data-testid="mobile-menu-button"
               >
@@ -546,11 +547,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {/* Search */}
               <div className="flex items-center flex-1">
                 <div className="relative w-full max-w-xl">
-                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
                   <Input
                     type="search"
-                    placeholder="Search..."
-                    className="pl-9 sm:pl-11 pr-3 sm:pr-4 h-9 sm:h-10 md:h-11 bg-gray-50 border-0 rounded-lg text-xs sm:text-sm focus-visible:ring-1 focus-visible:ring-gray-300"
+                    placeholder="Search for classes, assignments, or teachers..."
+                    className="pl-9 sm:pl-11 pr-3 sm:pr-4 h-10 sm:h-11 bg-slate-800/50 border-slate-700/50 rounded-xl text-sm text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     data-testid="search-input"
@@ -559,25 +560,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
 
-            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
               {/* Notifications */}
               <NotificationsPanel />
 
               {/* User Profile */}
               <Link href={`/${user?.role || 'student'}/profile`}>
-                <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-gray-200 cursor-pointer hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-colors">
+                <div className="flex items-center gap-2 sm:gap-3 pl-3 sm:pl-4 border-l border-slate-700/50 cursor-pointer hover:bg-slate-800/50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-colors">
                   <div className="hidden lg:block text-right">
-                    <p className="text-sm font-semibold text-gray-900">{displayName}</p>
-                    <p className="text-xs text-gray-500 capitalize">
-                      {user?.grade || (user?.role === 'student' ? 'Student' : user?.role)}
+                    <p className="text-sm font-semibold text-white">{displayName}</p>
+                    <p className="text-xs text-slate-500 capitalize">
+                      {user?.grade || (user?.role === 'student' ? 'Computer Science' : user?.role)}
                     </p>
                   </div>
-                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 ring-2 ring-gray-100">
+                  <Avatar className="h-9 w-9 sm:h-10 sm:w-10 ring-2 ring-slate-700">
                     <AvatarImage 
                       src={user?.profilePicture ? assetUrl(user.profilePicture) : ''} 
                       alt={displayName} 
                     />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-xs sm:text-sm">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm">
                       {displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -588,7 +589,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 bg-gray-50">
+        <main className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 bg-[#0a0f1a] min-h-[calc(100vh-72px)]">
           <div className="animate-fade-in">
             {children}
           </div>

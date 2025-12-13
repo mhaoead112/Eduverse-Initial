@@ -249,28 +249,28 @@ export default function TeacherAssessments() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published': return 'bg-green-100 text-green-800';
-      case 'draft': return 'bg-yellow-100 text-yellow-800';
-      case 'closed': return 'bg-gray-100 text-gray-800';
-      case 'graded': return 'bg-blue-100 text-blue-800';
-      case 'submitted': return 'bg-orange-100 text-orange-800';
-      case 'late': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'published': return 'bg-green-500/20 text-green-400 border border-green-500/30';
+      case 'draft': return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+      case 'closed': return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
+      case 'graded': return 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+      case 'submitted': return 'bg-orange-500/20 text-orange-400 border border-orange-500/30';
+      case 'late': return 'bg-red-500/20 text-red-400 border border-red-500/30';
+      default: return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
     }
   };
 
   const pendingGradingCount = mockSubmissions.filter(s => s.status === 'submitted').length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0f1a]">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Assessment Tools
             </h1>
-            <p className="text-gray-600">
+            <p className="text-slate-400">
               Create quizzes, manage assignments, and grade student work
             </p>
           </div>
@@ -278,7 +278,7 @@ export default function TeacherAssessments() {
           <div className="flex gap-3">
             <Dialog open={isQuizDialogOpen} onOpenChange={setIsQuizDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" data-testid="button-create-quiz">
+                <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white" data-testid="button-create-quiz">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Quiz
                 </Button>
@@ -408,7 +408,7 @@ export default function TeacherAssessments() {
             
             <Dialog open={isAssignmentDialogOpen} onOpenChange={setIsAssignmentDialogOpen}>
               <DialogTrigger asChild>
-                <Button data-testid="button-create-assignment">
+                <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" data-testid="button-create-assignment">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Assignment
                 </Button>
@@ -559,95 +559,95 @@ export default function TeacherAssessments() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card data-testid="card-total-assessments">
+          <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-total-assessments">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Assessments</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-300">Total Assessments</CardTitle>
+              <FileText className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{mockAssessments.length}</div>
-              <p className="text-xs text-muted-foreground">Active assessments</p>
+              <div className="text-2xl font-bold text-white">{mockAssessments.length}</div>
+              <p className="text-xs text-slate-500">Active assessments</p>
             </CardContent>
           </Card>
 
-          <Card data-testid="card-pending-grading">
+          <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-pending-grading">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Grading</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-300">Pending Grading</CardTitle>
               <AlertCircle className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{pendingGradingCount}</div>
-              <p className="text-xs text-muted-foreground">Submissions to review</p>
+              <div className="text-2xl font-bold text-orange-400">{pendingGradingCount}</div>
+              <p className="text-xs text-slate-500">Submissions to review</p>
             </CardContent>
           </Card>
 
-          <Card data-testid="card-average-score">
+          <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-average-score">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-300">Average Score</CardTitle>
+              <BarChart3 className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">83%</div>
-              <p className="text-xs text-muted-foreground">Across all assessments</p>
+              <div className="text-2xl font-bold text-white">83%</div>
+              <p className="text-xs text-slate-500">Across all assessments</p>
             </CardContent>
           </Card>
 
-          <Card data-testid="card-completion-rate">
+          <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-completion-rate">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-300">Completion Rate</CardTitle>
+              <Award className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">92%</div>
-              <p className="text-xs text-muted-foreground">Students completing work</p>
+              <div className="text-2xl font-bold text-white">92%</div>
+              <p className="text-xs text-slate-500">Students completing work</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-            <TabsTrigger value="grading" data-testid="tab-grading">
+          <TabsList className="bg-slate-800/50 border border-slate-700/50">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900 text-slate-400" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="grading" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900 text-slate-400" data-testid="tab-grading">
               Grading Queue
               {pendingGradingCount > 0 && (
-                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">
+                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs bg-red-500">
                   {pendingGradingCount}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="gradebook" data-testid="tab-gradebook">Gradebook</TabsTrigger>
+            <TabsTrigger value="gradebook" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900 text-slate-400" data-testid="tab-gradebook">Gradebook</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               {/* Assessments List */}
-              <Card data-testid="card-assessments-list">
+              <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-assessments-list">
                 <CardHeader>
-                  <CardTitle>Recent Assessments</CardTitle>
-                  <CardDescription>Manage your quizzes and assignments</CardDescription>
+                  <CardTitle className="text-white">Recent Assessments</CardTitle>
+                  <CardDescription className="text-slate-400">Manage your quizzes and assignments</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {mockAssessments.map((assessment) => (
                       <div 
                         key={assessment.id}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg border border-slate-600/30"
                         data-testid={`assessment-item-${assessment.id}`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0">
                             {assessment.type === 'quiz' ? (
-                              <GraduationCap className="h-5 w-5 text-blue-600" />
+                              <GraduationCap className="h-5 w-5 text-blue-400" />
                             ) : (
-                              <FileText className="h-5 w-5 text-green-600" />
+                              <FileText className="h-5 w-5 text-green-400" />
                             )}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900">
+                            <h3 className="font-semibold text-white">
                               {assessment.title}
                             </h3>
-                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-4 text-sm text-slate-400">
                               <span>{assessment.className}</span>
                               <span className="flex items-center gap-1">
                                 <Users className="h-3 w-3" />
@@ -663,7 +663,7 @@ export default function TeacherAssessments() {
                           <Badge className={getStatusColor(assessment.status)}>
                             {assessment.status}
                           </Badge>
-                          <Button variant="outline" size="sm" data-testid={`button-view-assessment-${assessment.id}`}>
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white" data-testid={`button-view-assessment-${assessment.id}`}>
                             <Eye className="h-4 w-4 mr-1" />
                             View
                           </Button>
@@ -677,25 +677,25 @@ export default function TeacherAssessments() {
           </TabsContent>
 
           <TabsContent value="grading" className="space-y-6">
-            <Card data-testid="card-grading-queue">
+            <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-grading-queue">
               <CardHeader>
-                <CardTitle>Grading Queue</CardTitle>
-                <CardDescription>Review and grade student submissions</CardDescription>
+                <CardTitle className="text-white">Grading Queue</CardTitle>
+                <CardDescription className="text-slate-400">Review and grade student submissions</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {mockSubmissions.filter(s => s.status === 'submitted').map((submission) => (
                     <div 
                       key={submission.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg border border-slate-600/30"
                       data-testid={`submission-item-${submission.id}`}
                     >
                       <div className="flex items-center gap-3">
                         <div>
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-white">
                             {submission.studentName}
                           </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-4 text-sm text-slate-400">
                             <span>{submission.assessmentTitle}</span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -708,7 +708,7 @@ export default function TeacherAssessments() {
                         <Badge className={getStatusColor(submission.status)}>
                           {submission.status}
                         </Badge>
-                        <Button variant="outline" size="sm" data-testid={`button-grade-${submission.id}`}>
+                        <Button size="sm" className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" data-testid={`button-grade-${submission.id}`}>
                           <Edit className="h-4 w-4 mr-1" />
                           Grade
                         </Button>
@@ -718,11 +718,11 @@ export default function TeacherAssessments() {
                   
                   {mockSubmissions.filter(s => s.status === 'submitted').length === 0 && (
                     <div className="text-center py-8" data-testid="empty-grading-queue">
-                      <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <CheckCircle className="h-12 w-12 mx-auto text-green-400 mb-4" />
+                      <h3 className="text-lg font-semibold text-white mb-2">
                         All caught up!
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-slate-400">
                         No submissions pending review at this time.
                       </p>
                     </div>
@@ -733,14 +733,14 @@ export default function TeacherAssessments() {
           </TabsContent>
 
           <TabsContent value="gradebook" className="space-y-6">
-            <Card data-testid="card-gradebook">
+            <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-gradebook">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>Gradebook</CardTitle>
-                    <CardDescription>Overview of all student grades</CardDescription>
+                    <CardTitle className="text-white">Gradebook</CardTitle>
+                    <CardDescription className="text-slate-400">Overview of all student grades</CardDescription>
                   </div>
-                  <Button variant="outline" data-testid="button-export-grades">
+                  <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white" data-testid="button-export-grades">
                     <Download className="h-4 w-4 mr-2" />
                     Export Grades
                   </Button>
@@ -751,15 +751,15 @@ export default function TeacherAssessments() {
                   {mockSubmissions.filter(s => s.status === 'graded').map((submission) => (
                     <div 
                       key={submission.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg border border-slate-600/30"
                       data-testid={`grade-item-${submission.id}`}
                     >
                       <div className="flex items-center gap-3">
                         <div>
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-white">
                             {submission.studentName}
                           </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-4 text-sm text-slate-400">
                             <span>{submission.assessmentTitle}</span>
                             <span>Graded {new Date(submission.submittedAt).toLocaleDateString()}</span>
                           </div>
@@ -767,10 +767,10 @@ export default function TeacherAssessments() {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <div className="text-lg font-bold">
+                          <div className="text-lg font-bold text-white">
                             {submission.grade}/{submission.maxScore}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-slate-500">
                             {Math.round((submission.grade! / submission.maxScore) * 100)}%
                           </div>
                         </div>

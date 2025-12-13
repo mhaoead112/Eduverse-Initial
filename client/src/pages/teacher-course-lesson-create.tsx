@@ -93,28 +93,28 @@ export default function TeacherCourseLessonCreate() {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6 pb-10">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+        <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-lg border border-slate-700/50">
           <div className="flex items-center gap-4 mb-4">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={handleCancel}
-              className="hover:bg-white"
+              className="hover:bg-slate-700/50 text-slate-300"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Create New Lesson</h1>
-              <p className="text-gray-600 mt-1">Add a new lesson to your course</p>
+              <h1 className="text-3xl font-bold text-white">Create New Lesson</h1>
+              <p className="text-slate-400 mt-1">Add a new lesson to your course</p>
             </div>
           </div>
         </div>
 
         {/* Form Card */}
-        <Card>
+        <Card className="bg-slate-800/50 border border-slate-700/50">
           <CardHeader>
-            <CardTitle>Lesson Details</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white">Lesson Details</CardTitle>
+            <CardDescription className="text-slate-400">
               Fill in the information below to create a new lesson for this course
             </CardDescription>
           </CardHeader>
@@ -122,7 +122,7 @@ export default function TeacherCourseLessonCreate() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title">
+                <Label htmlFor="title" className="text-white">
                   Lesson Title <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -132,31 +132,32 @@ export default function TeacherCourseLessonCreate() {
                   placeholder="Enter lesson title"
                   maxLength={255}
                   required
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   {title.length}/255 characters
                 </p>
               </div>
 
               {/* Content */}
               <div className="space-y-2">
-                <Label htmlFor="content">Lesson Content</Label>
+                <Label htmlFor="content" className="text-white">Lesson Content</Label>
                 <Textarea
                   id="content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Enter the lesson content, instructions, or description"
                   rows={8}
-                  className="resize-none"
+                  className="resize-none bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   Provide detailed lesson content, learning objectives, or instructions
                 </p>
               </div>
 
               {/* Video URL */}
               <div className="space-y-2">
-                <Label htmlFor="videoUrl" className="flex items-center gap-2">
+                <Label htmlFor="videoUrl" className="flex items-center gap-2 text-white">
                   <Video className="h-4 w-4" />
                   Video URL (Optional)
                 </Label>
@@ -166,19 +167,20 @@ export default function TeacherCourseLessonCreate() {
                   value={videoUrl}
                   onChange={(e) => setVideoUrl(e.target.value)}
                   placeholder="https://youtube.com/watch?v=..."
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   Add a YouTube, Vimeo, or other video URL for this lesson
                 </p>
               </div>
 
               {/* File Upload */}
               <div className="space-y-2">
-                <Label htmlFor="file" className="flex items-center gap-2">
+                <Label htmlFor="file" className="flex items-center gap-2 text-white">
                   <FileText className="h-4 w-4" />
                   Lesson File (Optional)
                 </Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                <div className="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-yellow-500 transition-colors bg-slate-700/30">
                   <Input
                     id="file"
                     type="file"
@@ -187,20 +189,20 @@ export default function TeacherCourseLessonCreate() {
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
                   />
                   <label htmlFor="file" className="cursor-pointer">
-                    <Upload className="h-10 w-10 mx-auto mb-2 text-gray-400" />
+                    <Upload className="h-10 w-10 mx-auto mb-2 text-slate-400" />
                     {file ? (
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-sm font-medium text-white">{file.name}</p>
+                        <p className="text-xs text-slate-500 mt-1">
                           {(file.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-slate-400">
                           Click to upload or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                           PDF, DOC, DOCX, PPT, PPTX, TXT (max 50MB)
                         </p>
                       </div>
@@ -214,11 +216,11 @@ export default function TeacherCourseLessonCreate() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin text-slate-900" />
                       Creating...
                     </>
                   ) : (
@@ -233,7 +235,7 @@ export default function TeacherCourseLessonCreate() {
                   variant="outline"
                   onClick={handleCancel}
                   disabled={isSubmitting}
-                  className="flex-1"
+                  className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700/50"
                 >
                   Cancel
                 </Button>
@@ -244,31 +246,31 @@ export default function TeacherCourseLessonCreate() {
 
         {/* Information Grid */}
         <div className="grid md:grid-cols-3 gap-4">
-          <Card className="border-l-4 border-blue-500">
+          <Card className="bg-slate-800/50 border border-slate-700/50 border-l-4 border-l-yellow-500">
             <CardContent className="pt-6">
-              <FileText className="h-8 w-8 text-blue-500 mb-3" />
-              <h3 className="font-semibold mb-2">Lesson Content</h3>
-              <p className="text-sm text-gray-600">
+              <FileText className="h-8 w-8 text-yellow-500 mb-3" />
+              <h3 className="font-semibold mb-2 text-white">Lesson Content</h3>
+              <p className="text-sm text-slate-400">
                 Provide clear, detailed content that helps students understand the topic
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-indigo-500">
+          <Card className="bg-slate-800/50 border border-slate-700/50 border-l-4 border-l-yellow-500">
             <CardContent className="pt-6">
-              <Video className="h-8 w-8 text-indigo-500 mb-3" />
-              <h3 className="font-semibold mb-2">Video Resources</h3>
-              <p className="text-sm text-gray-600">
+              <Video className="h-8 w-8 text-yellow-500 mb-3" />
+              <h3 className="font-semibold mb-2 text-white">Video Resources</h3>
+              <p className="text-sm text-slate-400">
                 Add video links to enhance learning with visual demonstrations
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-purple-500">
+          <Card className="bg-slate-800/50 border border-slate-700/50 border-l-4 border-l-yellow-500">
             <CardContent className="pt-6">
-              <Upload className="h-8 w-8 text-purple-500 mb-3" />
-              <h3 className="font-semibold mb-2">Supporting Files</h3>
-              <p className="text-sm text-gray-600">
+              <Upload className="h-8 w-8 text-yellow-500 mb-3" />
+              <h3 className="font-semibold mb-2 text-white">Supporting Files</h3>
+              <p className="text-sm text-slate-400">
                 Upload documents, presentations, or other materials for students
               </p>
             </CardContent>

@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { apiEndpoint } from "@/lib/config";
-import StudentLayout from "@/components/StudentLayout";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { 
   FileText, 
   Download, 
@@ -155,14 +155,14 @@ export default function StudentReportCards() {
   };
 
   return (
-    <StudentLayout>
-      <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6 min-h-screen" style={{ backgroundColor: '#0a0f1a' }}>
         {/* Page Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
-                <GraduationCap className="h-5 w-5 text-amber-400" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/10 border border-yellow-500/20 flex items-center justify-center">
+                <GraduationCap className="h-5 w-5 text-yellow-400" />
               </div>
               Report Cards
             </h1>
@@ -191,7 +191,7 @@ export default function StudentReportCards() {
                     }}
                     className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${
                       selectedYear === year
-                        ? "bg-amber-500/20 text-amber-400"
+                        ? "bg-yellow-500/20 text-yellow-400"
                         : "text-slate-300 hover:bg-slate-700/50"
                     }`}
                   >
@@ -209,7 +209,7 @@ export default function StudentReportCards() {
             onClick={() => setSelectedPeriod('ALL')}
             className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
               selectedPeriod === 'ALL'
-                ? "bg-amber-500 text-slate-900"
+                ? "bg-yellow-500 text-slate-900"
                 : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
             }`}
           >
@@ -221,7 +221,7 @@ export default function StudentReportCards() {
               onClick={() => setSelectedPeriod(period.value)}
               className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
                 selectedPeriod === period.value
-                  ? "bg-amber-500 text-slate-900"
+                  ? "bg-yellow-500 text-slate-900"
                   : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
               }`}
             >
@@ -233,7 +233,7 @@ export default function StudentReportCards() {
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-yellow-500 border-t-transparent"></div>
           </div>
         )}
 
@@ -249,9 +249,9 @@ export default function StudentReportCards() {
         {!loading && !error && (
           <>
             {filteredReports.length === 0 ? (
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+              <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-12 text-center">
                 <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
-                  <FileText className="h-8 w-8 text-slate-500" />
+                  <FileText className="h-8 w-8 text-slate-400" />
                 </div>
                 <h3 className="text-lg font-medium text-white mb-2">No Report Cards Found</h3>
                 <p className="text-slate-400 text-sm max-w-md mx-auto">
@@ -329,13 +329,13 @@ export default function StudentReportCards() {
         )}
 
         {/* Info Card */}
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
               <AlertCircle className="h-5 w-5 text-blue-400" />
             </div>
             <div>
-              <h4 className="font-medium text-blue-400 mb-1">About Report Cards</h4>
+              <h4 className="font-medium text-white mb-1">About Report Cards</h4>
               <p className="text-sm text-slate-400">
                 Your report cards are official documents showing your academic progress. 
                 They are uploaded by your teachers at the end of each quarter or semester. 
@@ -345,6 +345,6 @@ export default function StudentReportCards() {
           </div>
         </div>
       </div>
-    </StudentLayout>
+    </DashboardLayout>
   );
 }

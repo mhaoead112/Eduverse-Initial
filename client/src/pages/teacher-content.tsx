@@ -379,15 +379,15 @@ export default function TeacherContent() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0f1a]">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Content Library
             </h1>
-            <p className="text-gray-600">
+            <p className="text-slate-400">
               Organize and manage your teaching materials
             </p>
           </div>
@@ -453,7 +453,7 @@ export default function TeacherContent() {
             
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
               <DialogTrigger asChild>
-                <Button data-testid="button-upload-content">
+                <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" data-testid="button-upload-content">
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Content
                 </Button>
@@ -591,12 +591,12 @@ export default function TeacherContent() {
                     
                     <div className="space-y-4">
                       <Label>File Upload</Label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                        <p className="text-gray-600 mb-2">
+                      <div className="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center">
+                        <Upload className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                        <p className="text-slate-400 mb-2">
                           Click to upload or drag and drop
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-500">
                           PDF, DOC, PPT, Video, Images (Max 50MB)
                         </p>
                         <Input type="file" className="mt-4" data-testid="input-file-upload" />
@@ -621,7 +621,7 @@ export default function TeacherContent() {
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
             <Input
               placeholder="Search content..."
               value={searchQuery}
@@ -688,9 +688,9 @@ export default function TeacherContent() {
           <TabsContent value="my-content" className="space-y-6">
             {/* Folders */}
             {mockFolders.length > 0 && (
-              <Card data-testid="card-folders">
+              <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-folders">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-white">
                     <FolderOpen className="h-5 w-5" />
                     Folders
                   </CardTitle>
@@ -702,21 +702,21 @@ export default function TeacherContent() {
                         key={folder.id}
                         className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                           selectedFolder === folder.id 
-                            ? 'bg-blue-50 border-blue-300' 
-                            : 'bg-white hover:bg-gray-50'
+                            ? 'bg-yellow-500/20 border-yellow-500/50' 
+                            : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50'
                         }`}
                         onClick={() => setSelectedFolder(selectedFolder === folder.id ? null : folder.id)}
                         data-testid={`folder-${folder.id}`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <FolderOpen className="h-6 w-6 text-blue-600" />
-                          <span className="text-sm text-gray-500">{folder.itemCount} items</span>
+                          <FolderOpen className="h-6 w-6 text-yellow-500" />
+                          <span className="text-sm text-slate-500">{folder.itemCount} items</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
+                        <h3 className="font-semibold text-white mb-1">
                           {folder.name}
                         </h3>
                         {folder.description && (
-                          <p className="text-sm text-gray-600 line-clamp-2">
+                          <p className="text-sm text-slate-400 line-clamp-2">
                             {folder.description}
                           </p>
                         )}
@@ -728,10 +728,10 @@ export default function TeacherContent() {
             )}
             
             {/* Content Grid/List */}
-            <Card data-testid="card-content-list">
+            <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-content-list">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>
+                  <CardTitle className="text-white">
                     {selectedFolder ? `Folder: ${mockFolders.find(f => f.id === selectedFolder)?.name}` : 'All Content'}
                   </CardTitle>
                   {selectedFolder && (
@@ -752,7 +752,7 @@ export default function TeacherContent() {
                     {filteredContent.map((item) => (
                       <div 
                         key={item.id}
-                        className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 hover:bg-slate-700/50 transition-all"
                         data-testid={`content-item-${item.id}`}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -802,12 +802,12 @@ export default function TeacherContent() {
                           </div>
                         </div>
                         
-                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        <h3 className="font-semibold text-white mb-2 line-clamp-2">
                           {item.title}
                         </h3>
                         
                         {item.description && (
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          <p className="text-sm text-slate-400 mb-3 line-clamp-2">
                             {item.description}
                           </p>
                         )}
@@ -824,7 +824,7 @@ export default function TeacherContent() {
                           </Badge>
                         </div>
                         
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-xs text-slate-500">
                           <span>{formatFileSize(item.fileSize)}</span>
                           <span>{item.downloads} downloads</span>
                         </div>
@@ -836,16 +836,16 @@ export default function TeacherContent() {
                     {filteredContent.map((item) => (
                       <div 
                         key={item.id}
-                        className="flex items-center justify-between p-4 bg-white border rounded-lg"
+                        className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-lg"
                         data-testid={`content-list-item-${item.id}`}
                       >
                         <div className="flex items-center gap-4 flex-1">
                           {getFileIcon(item.fileType)}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 truncate">
+                            <h3 className="font-semibold text-white truncate">
                               {item.title}
                             </h3>
-                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-4 text-sm text-slate-400">
                               <span>{item.category}</span>
                               <span>{item.subject}</span>
                               <span>{formatFileSize(item.fileSize)}</span>
@@ -866,11 +866,11 @@ export default function TeacherContent() {
                 
                 {filteredContent.length === 0 && (
                   <div className="text-center py-8" data-testid="empty-content">
-                    <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <FileText className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">
                       No content found
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-slate-400">
                       Try adjusting your search or filters, or upload new content.
                     </p>
                   </div>
@@ -880,17 +880,17 @@ export default function TeacherContent() {
           </TabsContent>
 
           <TabsContent value="shared" className="space-y-6">
-            <Card data-testid="card-shared-content">
+            <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-shared-content">
               <CardHeader>
-                <CardTitle>Shared Resources</CardTitle>
-                <CardDescription>Content shared by other teachers</CardDescription>
+                <CardTitle className="text-white">Shared Resources</CardTitle>
+                <CardDescription className="text-slate-400">Content shared by other teachers</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredSharedContent.map((item) => (
                     <div 
                       key={item.id}
-                      className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 hover:bg-slate-700/50 transition-all"
                       data-testid={`shared-content-item-${item.id}`}
                     >
                       <div className="flex items-center justify-between mb-3">
@@ -909,16 +909,16 @@ export default function TeacherContent() {
                         </Button>
                       </div>
                       
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                      <h3 className="font-semibold text-white mb-2 line-clamp-2">
                         {item.title}
                       </h3>
                       
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-slate-400 mb-2">
                         by {item.uploadedBy}
                       </p>
                       
                       {item.description && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        <p className="text-sm text-slate-400 mb-3 line-clamp-2">
                           {item.description}
                         </p>
                       )}
@@ -933,7 +933,7 @@ export default function TeacherContent() {
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-slate-500">
                           {item.downloads} downloads
                         </div>
                         <Button variant="outline" size="sm" data-testid={`button-download-shared-${item.id}`}>
@@ -949,10 +949,10 @@ export default function TeacherContent() {
           </TabsContent>
 
           <TabsContent value="bookmarks" className="space-y-6">
-            <Card data-testid="card-bookmarked-content">
+            <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-bookmarked-content">
               <CardHeader>
-                <CardTitle>Bookmarked Content</CardTitle>
-                <CardDescription>Your saved content for quick access</CardDescription>
+                <CardTitle className="text-white">Bookmarked Content</CardTitle>
+                <CardDescription className="text-slate-400">Your saved content for quick access</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -961,7 +961,7 @@ export default function TeacherContent() {
                     .map((item) => (
                       <div 
                         key={item.id}
-                        className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 hover:bg-slate-700/50 transition-all"
                         data-testid={`bookmark-item-${item.id}`}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -969,11 +969,11 @@ export default function TeacherContent() {
                           <Star className="h-4 w-4 text-yellow-500" />
                         </div>
                         
-                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        <h3 className="font-semibold text-white mb-2 line-clamp-2">
                           {item.title}
                         </h3>
                         
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-slate-400 mb-2">
                           by {item.uploadedBy}
                         </p>
                         
@@ -996,11 +996,11 @@ export default function TeacherContent() {
                 
                 {[...mockContent, ...mockSharedContent].filter(item => item.isBookmarked).length === 0 && (
                   <div className="text-center py-8" data-testid="empty-bookmarks">
-                    <Star className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <Star className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">
                       No bookmarked content
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-slate-400">
                       Bookmark content to save it for quick access later.
                     </p>
                   </div>
