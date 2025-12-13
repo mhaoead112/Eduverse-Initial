@@ -168,8 +168,8 @@ export default function StudentCourseDetailPage() {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-indigo-500 mx-auto mb-4" />
-            <p className="text-gray-500">Loading class...</p>
+            <Loader2 className="h-12 w-12 animate-spin text-yellow-500 mx-auto mb-4" />
+            <p className="text-slate-400">Loading class...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -180,12 +180,12 @@ export default function StudentCourseDetailPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Card className="max-w-md">
+          <Card className="max-w-md bg-slate-800/60 border-slate-700/50 rounded-2xl">
             <CardContent className="pt-6 text-center">
-              <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-700 mb-2">Class Not Found</h2>
-              <p className="text-gray-500 mb-4">This class doesn't exist or you don't have access to it.</p>
-              <Button onClick={() => setLocation('/student/courses')}>
+              <BookOpen className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-white mb-2">Class Not Found</h2>
+              <p className="text-slate-400 mb-4">This class doesn't exist or you don't have access to it.</p>
+              <Button onClick={() => setLocation('/student/courses')} className="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold">
                 Browse Classes
               </Button>
             </CardContent>
@@ -204,7 +204,7 @@ export default function StudentCourseDetailPage() {
         {/* Back Button */}
         <Button
           variant="ghost"
-          className="gap-2 text-gray-600 hover:text-gray-900 -ml-2"
+          className="gap-2 text-slate-400 hover:text-white hover:bg-slate-800 -ml-2"
           onClick={() => setLocation('/student/dashboard')}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -218,7 +218,7 @@ export default function StudentCourseDetailPage() {
             className={`h-48 md:h-64 relative ${
               course.imageUrl 
                 ? '' 
-                : 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500'
+                : 'bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500'
             }`}
           >
             {course.imageUrl && (
@@ -228,11 +228,11 @@ export default function StudentCourseDetailPage() {
                 className="w-full h-full object-cover"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent" />
             
             {/* Course Title Overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <Badge className="bg-white/20 text-white border-0 mb-3">
+              <Badge className="bg-white/20 text-white border-0 mb-3 backdrop-blur-sm">
                 <BookOpen className="h-3 w-3 mr-1" />
                 Class
               </Badge>
@@ -249,60 +249,60 @@ export default function StudentCourseDetailPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50">
+          <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl hover:bg-slate-800/80 transition-all">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <FileText className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <FileText className="h-6 w-6 text-blue-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{lessons.length}</p>
-              <p className="text-sm text-gray-500">Lessons</p>
+              <p className="text-2xl font-bold text-white">{lessons.length}</p>
+              <p className="text-sm text-slate-400">Lessons</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-pink-50">
+          <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl hover:bg-slate-800/80 transition-all">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <ClipboardList className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <ClipboardList className="h-6 w-6 text-purple-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{assignments.length}</p>
-              <p className="text-sm text-gray-500">Assignments</p>
+              <p className="text-2xl font-bold text-white">{assignments.length}</p>
+              <p className="text-sm text-slate-400">Assignments</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl hover:bg-slate-800/80 transition-all">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Target className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <Target className="h-6 w-6 text-emerald-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{progress}%</p>
-              <p className="text-sm text-gray-500">Progress</p>
+              <p className="text-2xl font-bold text-white">{progress}%</p>
+              <p className="text-sm text-slate-400">Progress</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-amber-50 to-orange-50">
+          <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl hover:bg-slate-800/80 transition-all">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Megaphone className="h-6 w-6 text-amber-600" />
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <Megaphone className="h-6 w-6 text-yellow-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{announcements.length}</p>
-              <p className="text-sm text-gray-500">Announcements</p>
+              <p className="text-2xl font-bold text-white">{announcements.length}</p>
+              <p className="text-sm text-slate-400">Announcements</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white border shadow-sm p-1 rounded-xl w-full justify-start overflow-x-auto">
-            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+          <TabsList className="bg-slate-800/60 border border-slate-700 p-1 rounded-xl w-full justify-start overflow-x-auto">
+            <TabsTrigger value="overview" className="rounded-lg text-slate-300 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               Overview
             </TabsTrigger>
-            <TabsTrigger value="lessons" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <TabsTrigger value="lessons" className="rounded-lg text-slate-300 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               Lessons
             </TabsTrigger>
-            <TabsTrigger value="assignments" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <TabsTrigger value="assignments" className="rounded-lg text-slate-300 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               Assignments
             </TabsTrigger>
-            <TabsTrigger value="announcements" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <TabsTrigger value="announcements" className="rounded-lg text-slate-300 data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">
               Announcements
             </TabsTrigger>
           </TabsList>
@@ -313,20 +313,20 @@ export default function StudentCourseDetailPage() {
               {/* Description & Progress */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Description */}
-                <Card className="border-0 shadow-md">
+                <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
                   <CardHeader>
-                    <CardTitle className="text-lg">About This Class</CardTitle>
+                    <CardTitle className="text-lg text-white">About This Class</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-slate-300 leading-relaxed">
                       {course.description || "No description available for this class."}
                     </p>
                   </CardContent>
                 </Card>
 
                 {/* Progress */}
-                <Card className="border-0 shadow-md overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
+                <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <TrendingUp className="h-5 w-5" />
                       Your Progress
@@ -334,44 +334,49 @@ export default function StudentCourseDetailPage() {
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-gray-600">Overall Completion</span>
-                      <span className="text-2xl font-bold text-indigo-600">{progress}%</span>
+                      <span className="text-slate-400">Overall Completion</span>
+                      <span className="text-2xl font-bold text-yellow-400">{progress}%</span>
                     </div>
-                    <Progress value={progress} className="h-3 mb-4" />
+                    <div className="h-3 bg-slate-700 rounded-full overflow-hidden mb-4">
+                      <div 
+                        className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full transition-all"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
-                        <p className="text-2xl font-bold text-green-600">{Math.floor(lessons.length * (progress/100))}</p>
-                        <p className="text-xs text-gray-500">Completed</p>
+                        <p className="text-2xl font-bold text-emerald-400">{Math.floor(lessons.length * (progress/100))}</p>
+                        <p className="text-xs text-slate-500">Completed</p>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-amber-600">{lessons.length - Math.floor(lessons.length * (progress/100))}</p>
-                        <p className="text-xs text-gray-500">Remaining</p>
+                        <p className="text-2xl font-bold text-yellow-400">{lessons.length - Math.floor(lessons.length * (progress/100))}</p>
+                        <p className="text-xs text-slate-500">Remaining</p>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-gray-600">{lessons.length}</p>
-                        <p className="text-xs text-gray-500">Total</p>
+                        <p className="text-2xl font-bold text-slate-300">{lessons.length}</p>
+                        <p className="text-xs text-slate-500">Total</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Continue Learning */}
-                <Card className="border-0 shadow-md bg-gradient-to-r from-indigo-50 to-purple-50">
+                <Card className="bg-gradient-to-r from-teal-500/20 to-emerald-500/20 border-slate-700/50 rounded-2xl">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center">
-                          <Sparkles className="h-7 w-7 text-indigo-600" />
+                        <div className="w-14 h-14 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                          <Sparkles className="h-7 w-7 text-emerald-400" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">Continue Learning</h3>
-                          <p className="text-sm text-gray-500">
+                          <h3 className="font-semibold text-white">Continue Learning</h3>
+                          <p className="text-sm text-slate-400">
                             {lessons.length > 0 ? lessons[0].title : 'Start your first lesson'}
                           </p>
                         </div>
                       </div>
                       <Button 
-                        className="bg-indigo-600 hover:bg-indigo-700"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold"
                         onClick={() => setLocation(`/student/courses/${courseId}/lessons`)}
                       >
                         <PlayCircle className="h-4 w-4 mr-2" />
@@ -386,47 +391,47 @@ export default function StudentCourseDetailPage() {
               <div className="space-y-6">
                 {/* Pinned Announcements */}
                 {pinnedAnnouncements.length > 0 && (
-                  <Card className="border-0 shadow-md border-l-4 border-l-amber-500">
+                  <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl border-l-4 border-l-yellow-500">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2 text-amber-600">
+                      <CardTitle className="text-sm flex items-center gap-2 text-yellow-400">
                         <Megaphone className="h-4 w-4" />
                         Pinned Announcement
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <h4 className="font-medium text-gray-900 mb-1">{pinnedAnnouncements[0].title}</h4>
-                      <p className="text-sm text-gray-500 line-clamp-2">{pinnedAnnouncements[0].content}</p>
+                      <h4 className="font-medium text-white mb-1">{pinnedAnnouncements[0].title}</h4>
+                      <p className="text-sm text-slate-400 line-clamp-2">{pinnedAnnouncements[0].content}</p>
                     </CardContent>
                   </Card>
                 )}
 
                 {/* Upcoming Assignments */}
-                <Card className="border-0 shadow-md">
+                <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <ClipboardList className="h-4 w-4 text-purple-500" />
+                    <CardTitle className="text-sm flex items-center gap-2 text-white">
+                      <ClipboardList className="h-4 w-4 text-purple-400" />
                       Upcoming Assignments
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {pendingAssignments.length === 0 ? (
-                      <p className="text-sm text-gray-500 py-4 text-center">No assignments yet</p>
+                      <p className="text-sm text-slate-500 py-4 text-center">No assignments yet</p>
                     ) : (
                       <div className="space-y-3">
                         {pendingAssignments.slice(0, 3).map(assignment => (
-                          <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
-                            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                              <ClipboardList className="h-4 w-4 text-purple-600" />
+                          <div key={assignment.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-700/50 transition-colors">
+                            <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                              <ClipboardList className="h-4 w-4 text-purple-400" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{assignment.title}</p>
+                              <p className="text-sm font-medium text-white truncate">{assignment.title}</p>
                               {assignment.dueDate && (
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-slate-500">
                                   Due: {new Date(assignment.dueDate).toLocaleDateString()}
                                 </p>
                               )}
                             </div>
-                            <ChevronRight className="h-4 w-4 text-gray-400" />
+                            <ChevronRight className="h-4 w-4 text-slate-500" />
                           </div>
                         ))}
                       </div>
@@ -435,14 +440,14 @@ export default function StudentCourseDetailPage() {
                 </Card>
 
                 {/* Quick Actions */}
-                <Card className="border-0 shadow-md">
+                <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Quick Actions</CardTitle>
+                    <CardTitle className="text-sm text-white">Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <Button 
                       variant="outline" 
-                      className="w-full justify-start gap-2"
+                      className="w-full justify-start gap-2 border-slate-700 text-slate-300 hover:bg-slate-700"
                       onClick={() => setLocation(`/student/courses/${courseId}/lessons`)}
                     >
                       <FileText className="h-4 w-4" />
@@ -450,7 +455,7 @@ export default function StudentCourseDetailPage() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="w-full justify-start gap-2"
+                      className="w-full justify-start gap-2 border-slate-700 text-slate-300 hover:bg-slate-700"
                       onClick={() => setLocation(`/student/courses/${courseId}/announcements`)}
                     >
                       <Megaphone className="h-4 w-4" />
@@ -458,7 +463,7 @@ export default function StudentCourseDetailPage() {
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="w-full justify-start gap-2"
+                      className="w-full justify-start gap-2 border-slate-700 text-slate-300 hover:bg-slate-700"
                       onClick={() => setActiveTab('assignments')}
                     >
                       <ClipboardList className="h-4 w-4" />
@@ -472,10 +477,10 @@ export default function StudentCourseDetailPage() {
 
           {/* Lessons Tab */}
           <TabsContent value="lessons" className="animate-fadeIn">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Class Lessons</CardTitle>
-                <Button onClick={() => setLocation(`/student/courses/${courseId}/lessons`)}>
+                <CardTitle className="text-white">Class Lessons</CardTitle>
+                <Button onClick={() => setLocation(`/student/courses/${courseId}/lessons`)} className="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold">
                   <PlayCircle className="h-4 w-4 mr-2" />
                   Open Lesson Viewer
                 </Button>
@@ -483,8 +488,8 @@ export default function StudentCourseDetailPage() {
               <CardContent>
                 {lessons.length === 0 ? (
                   <div className="text-center py-12">
-                    <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No lessons available yet</p>
+                    <FileText className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                    <p className="text-slate-400">No lessons available yet</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -492,27 +497,27 @@ export default function StudentCourseDetailPage() {
                       <button
                         key={lesson.id}
                         onClick={() => setLocation(`/student/courses/${courseId}/lessons`)}
-                        className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors text-left group"
+                        className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-slate-700/50 transition-colors text-left group"
                       >
-                        <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                        <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center group-hover:bg-slate-600 transition-colors">
                           {getFileTypeIcon(lesson.fileType, lesson.fileName)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-medium text-gray-400">
+                            <span className="text-xs font-medium text-slate-500">
                               {String(index + 1).padStart(2, '0')}
                             </span>
-                            <h4 className="font-medium text-gray-900 truncate">
+                            <h4 className="font-medium text-white truncate">
                               {lesson.title || lesson.fileName}
                             </h4>
                           </div>
                           {lesson.createdAt && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               Added {new Date(lesson.createdAt).toLocaleDateString()}
                             </p>
                           )}
                         </div>
-                        <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                        <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-yellow-500 transition-colors" />
                       </button>
                     ))}
                   </div>
@@ -523,32 +528,32 @@ export default function StudentCourseDetailPage() {
 
           {/* Assignments Tab */}
           <TabsContent value="assignments" className="animate-fadeIn">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
               <CardHeader>
-                <CardTitle>Class Assignments</CardTitle>
+                <CardTitle className="text-white">Class Assignments</CardTitle>
               </CardHeader>
               <CardContent>
                 {assignments.length === 0 ? (
                   <div className="text-center py-12">
-                    <ClipboardList className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No assignments available yet</p>
+                    <ClipboardList className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                    <p className="text-slate-400">No assignments available yet</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {assignments.map(assignment => (
                       <div
                         key={assignment.id}
-                        className="flex items-center gap-4 p-4 rounded-xl border hover:border-indigo-200 hover:bg-indigo-50/50 transition-colors"
+                        className="flex items-center gap-4 p-4 rounded-xl border border-slate-700 hover:border-slate-600 hover:bg-slate-700/30 transition-colors"
                       >
-                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                          <ClipboardList className="h-6 w-6 text-purple-600" />
+                        <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                          <ClipboardList className="h-6 w-6 text-purple-400" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900">{assignment.title}</h4>
+                          <h4 className="font-medium text-white">{assignment.title}</h4>
                           {assignment.description && (
-                            <p className="text-sm text-gray-500 line-clamp-1">{assignment.description}</p>
+                            <p className="text-sm text-slate-400 line-clamp-1">{assignment.description}</p>
                           )}
-                          <div className="flex items-center gap-4 mt-1 text-xs text-gray-400">
+                          <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
                             {assignment.dueDate && (
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
@@ -566,6 +571,7 @@ export default function StudentCourseDetailPage() {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          className="border-slate-700 text-slate-300 hover:bg-slate-700"
                           onClick={() => setLocation('/student/assignments')}
                         >
                           View
@@ -580,15 +586,15 @@ export default function StudentCourseDetailPage() {
 
           {/* Announcements Tab */}
           <TabsContent value="announcements" className="animate-fadeIn">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
               <CardHeader>
-                <CardTitle>Class Announcements</CardTitle>
+                <CardTitle className="text-white">Class Announcements</CardTitle>
               </CardHeader>
               <CardContent>
                 {announcements.length === 0 ? (
                   <div className="text-center py-12">
-                    <Megaphone className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No announcements yet</p>
+                    <Megaphone className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                    <p className="text-slate-400">No announcements yet</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -597,29 +603,29 @@ export default function StudentCourseDetailPage() {
                         key={announcement.id}
                         className={`p-4 rounded-xl border ${
                           announcement.isPinned 
-                            ? 'border-amber-200 bg-amber-50' 
-                            : 'border-gray-100 hover:border-gray-200'
+                            ? 'border-yellow-500/50 bg-yellow-500/10' 
+                            : 'border-slate-700 hover:border-slate-600'
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            announcement.isPinned ? 'bg-amber-100' : 'bg-blue-100'
+                            announcement.isPinned ? 'bg-yellow-500/20' : 'bg-blue-500/20'
                           }`}>
                             <Megaphone className={`h-5 w-5 ${
-                              announcement.isPinned ? 'text-amber-600' : 'text-blue-600'
+                              announcement.isPinned ? 'text-yellow-400' : 'text-blue-400'
                             }`} />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium text-gray-900">{announcement.title}</h4>
+                              <h4 className="font-medium text-white">{announcement.title}</h4>
                               {announcement.isPinned && (
-                                <Badge variant="secondary" className="bg-amber-100 text-amber-700 text-xs">
+                                <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 text-xs">
                                   Pinned
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{announcement.content}</p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-sm text-slate-400 mb-2">{announcement.content}</p>
+                            <p className="text-xs text-slate-500">
                               Posted {new Date(announcement.createdAt).toLocaleDateString()}
                             </p>
                           </div>

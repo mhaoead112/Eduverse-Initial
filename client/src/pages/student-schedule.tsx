@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Calendar, Clock, MapPin, Users, Video, Bell,
   ChevronLeft, ChevronRight, Download, AlertCircle,
-  BookOpen, FileText, GraduationCap
+  BookOpen, FileText, GraduationCap, MoreHorizontal
 } from "lucide-react";
 
 interface ScheduleEvent {
@@ -36,14 +36,14 @@ interface DateRange {
   end: Date;
 }
 
-const eventTypeConfig: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
-  class: { label: 'Class', color: 'text-blue-600', bgColor: 'bg-blue-500', icon: Users },
-  exam: { label: 'Exam', color: 'text-red-600', bgColor: 'bg-red-500', icon: Bell },
-  'assignment-due': { label: 'Due', color: 'text-orange-600', bgColor: 'bg-orange-500', icon: FileText },
-  meeting: { label: 'Meeting', color: 'text-green-600', bgColor: 'bg-green-500', icon: Users },
-  event: { label: 'Event', color: 'text-purple-600', bgColor: 'bg-purple-500', icon: Calendar },
-  holiday: { label: 'Holiday', color: 'text-emerald-600', bgColor: 'bg-emerald-500', icon: GraduationCap },
-  announcement: { label: 'Announcement', color: 'text-yellow-600', bgColor: 'bg-yellow-500', icon: Bell }
+const eventTypeConfig: Record<string, { label: string; color: string; bgColor: string; icon: any; dotColor: string }> = {
+  class: { label: 'Class', color: 'text-blue-400', bgColor: 'bg-blue-500', icon: Users, dotColor: 'bg-blue-500' },
+  exam: { label: 'Exam', color: 'text-red-400', bgColor: 'bg-red-500', icon: Bell, dotColor: 'bg-red-500' },
+  'assignment-due': { label: 'Due', color: 'text-orange-400', bgColor: 'bg-orange-500', icon: FileText, dotColor: 'bg-orange-500' },
+  meeting: { label: 'Meeting', color: 'text-green-400', bgColor: 'bg-green-500', icon: Users, dotColor: 'bg-green-500' },
+  event: { label: 'Event', color: 'text-purple-400', bgColor: 'bg-purple-500', icon: Calendar, dotColor: 'bg-purple-500' },
+  holiday: { label: 'Holiday', color: 'text-emerald-400', bgColor: 'bg-emerald-500', icon: GraduationCap, dotColor: 'bg-emerald-500' },
+  announcement: { label: 'Announcement', color: 'text-yellow-400', bgColor: 'bg-yellow-500', icon: Bell, dotColor: 'bg-yellow-500' }
 };
 
 function EventCard({ event }: { event: ScheduleEvent }) {
@@ -59,32 +59,32 @@ function EventCard({ event }: { event: ScheduleEvent }) {
   const isOnline = event.isOnline || event.location?.toLowerCase().includes('online');
 
   return (
-    <Card className={`border-l-4 hover:shadow-md transition-all duration-200`} style={{ borderLeftColor: config.bgColor.replace('bg-', '#').replace('-500', '') }}>
+    <Card className="bg-slate-800/60 border-slate-700/50 rounded-xl hover:bg-slate-800/80 transition-all duration-200">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <Badge className={`${config.bgColor} text-white`}>
+              <Badge className={`${config.bgColor} text-white text-xs`}>
                 {config.label}
               </Badge>
               {event.courseName && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
                   {event.courseName}
                 </Badge>
               )}
             </div>
-            <h3 className="font-semibold text-lg">{event.title}</h3>
+            <h3 className="font-semibold text-white">{event.title}</h3>
           </div>
           <Icon className={`h-5 w-5 ${config.color}`} />
         </div>
 
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-slate-400">
             <Clock className="h-4 w-4" />
             <span>{formatTime(startTime)} - {formatTime(endTime)}</span>
           </div>
           {event.location && (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-slate-400">
               {isOnline ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
               <span>{event.location}</span>
             </div>
@@ -92,13 +92,13 @@ function EventCard({ event }: { event: ScheduleEvent }) {
         </div>
 
         {event.description && (
-          <p className="mt-3 text-sm text-gray-600 border-t pt-2">
+          <p className="mt-3 text-sm text-slate-500 border-t border-slate-700 pt-2">
             {event.description}
           </p>
         )}
 
         {isOnline && (
-          <Button size="sm" className="w-full mt-3 bg-eduverse-blue hover:bg-eduverse-blue/90">
+          <Button size="sm" className="w-full mt-3 bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold">
             <Video className="h-4 w-4 mr-2" />
             Join Online
           </Button>
@@ -117,11 +117,11 @@ function DayView({ date, events, isToday }: { date: string; events: ScheduleEven
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-xl font-bold">{dayOfWeek}</h3>
-          <p className="text-sm text-gray-600">{formattedDate}</p>
+          <h3 className="text-xl font-bold text-white">{dayOfWeek}</h3>
+          <p className="text-sm text-slate-400">{formattedDate}</p>
         </div>
         {isToday && (
-          <Badge className="bg-eduverse-blue text-white">Today</Badge>
+          <Badge className="bg-yellow-500 text-slate-900 font-semibold">Today</Badge>
         )}
       </div>
       
@@ -134,10 +134,10 @@ function DayView({ date, events, isToday }: { date: string; events: ScheduleEven
             ))}
         </div>
       ) : (
-        <Card>
+        <Card className="bg-slate-800/60 border-slate-700/50 rounded-xl">
           <CardContent className="p-8 text-center">
-            <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-600">No events scheduled</p>
+            <Calendar className="h-12 w-12 mx-auto text-slate-600 mb-2" />
+            <p className="text-slate-400">No events scheduled</p>
           </CardContent>
         </Card>
       )}
@@ -300,198 +300,276 @@ END:VCALENDAR`;
       ? `${weekOffset} Week${weekOffset > 1 ? 's' : ''} Ahead`
       : `${Math.abs(weekOffset)} Week${Math.abs(weekOffset) > 1 ? 's' : ''} Ago`;
 
+  // Get current month and year for calendar view
+  const currentMonth = new Date();
+  const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [calendarMonth, setCalendarMonth] = useState(currentMonth);
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    return { daysInMonth, startingDay };
+  };
+
+  const { daysInMonth, startingDay } = getDaysInMonth(calendarMonth);
+
+  const getEventsForDate = (day: number) => {
+    const dateStr = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return groupedSchedule[dateStr] || [];
+  };
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Schedule</h1>
-            <p className="text-gray-600 mt-1">
-              Manage your classes, exams, and events
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">My Calendar</h1>
+            <p className="text-slate-400 mt-1 text-sm">
+              Keep track of all your classes, assignments, and events.
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExport} disabled={loading || schedule.length === 0}>
+            <Button 
+              variant="outline" 
+              className="bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-700"
+              onClick={handleExport} 
+              disabled={loading || schedule.length === 0}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Users className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Classes</p>
-                  <p className="text-2xl font-bold">{stats.totalClasses}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Bell className="h-6 w-6 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Exams</p>
-                  <p className="text-2xl font-bold">{stats.upcomingExams}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Clock className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Due</p>
-                  <p className="text-2xl font-bold">{stats.assignmentsDue}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Video className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Online</p>
-                  <p className="text-2xl font-bold">{stats.onlineClasses}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* View Toggle Tabs */}
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="rounded-full h-8 px-4 text-sm bg-white text-slate-900"
+          >
+            Month
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="rounded-full h-8 px-4 text-sm bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-700"
+          >
+            Week
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="rounded-full h-8 px-4 text-sm bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-700"
+          >
+            Day
+          </Button>
         </div>
 
-        {/* Week Navigation */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Button variant="outline" size="sm" onClick={() => setWeekOffset(weekOffset - 1)}>
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous Week
-              </Button>
-              <div className="text-center">
-                <h3 className="font-semibold">{weekLabel}</h3>
-                {dateRange && (
-                  <p className="text-sm text-gray-500">
-                    {dateRange.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {dateRange.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </p>
+        {/* Event Type Legend */}
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+            <span className="text-slate-400">Classes</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+            <span className="text-slate-400">Assignments</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <span className="text-slate-400">Exams</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Calendar Grid */}
+          <div className="lg:col-span-2">
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl overflow-hidden">
+              <CardHeader className="border-b border-slate-700 pb-4">
+                <div className="flex items-center justify-between">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="text-slate-400 hover:text-white hover:bg-slate-700"
+                    onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                  <CardTitle className="text-xl font-bold text-white">
+                    {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="text-slate-400 hover:text-white hover:bg-slate-700"
+                    onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4">
+                {/* Days of Week Header */}
+                <div className="grid grid-cols-7 mb-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="text-center text-sm font-medium text-slate-500 py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Calendar Days */}
+                <div className="grid grid-cols-7 gap-1">
+                  {/* Empty cells for days before the 1st */}
+                  {Array.from({ length: startingDay }).map((_, i) => (
+                    <div key={`empty-${i}`} className="aspect-square p-1"></div>
+                  ))}
+                  
+                  {/* Days of the month */}
+                  {Array.from({ length: daysInMonth }).map((_, i) => {
+                    const day = i + 1;
+                    const dateStr = `${calendarMonth.getFullYear()}-${String(calendarMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const isToday = dateStr === todayStr;
+                    const isSelected = dateStr === selectedDate;
+                    const dayEvents = getEventsForDate(day);
+                    
+                    return (
+                      <div 
+                        key={day}
+                        className={`aspect-square p-1 cursor-pointer rounded-lg transition-all ${
+                          isSelected ? 'bg-yellow-500/20 ring-2 ring-yellow-500' :
+                          isToday ? 'bg-slate-700/50' :
+                          'hover:bg-slate-700/30'
+                        }`}
+                        onClick={() => setSelectedDate(dateStr)}
+                      >
+                        <div className="h-full flex flex-col items-center pt-1">
+                          <span className={`text-sm font-medium ${
+                            isToday ? 'text-yellow-500' : 
+                            isSelected ? 'text-yellow-400' :
+                            'text-slate-300'
+                          }`}>
+                            {day}
+                          </span>
+                          {/* Event dots */}
+                          {dayEvents.length > 0 && (
+                            <div className="flex gap-0.5 mt-1 flex-wrap justify-center max-w-full">
+                              {dayEvents.slice(0, 3).map((event, idx) => (
+                                <div 
+                                  key={idx}
+                                  className={`w-1.5 h-1.5 rounded-full ${eventTypeConfig[event.eventType]?.dotColor || 'bg-slate-500'}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Selected Date Details Sidebar */}
+          <div className="space-y-6">
+            {/* Selected Date Card */}
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-bold text-white flex items-center justify-between">
+                  {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {groupedSchedule[selectedDate]?.length > 0 ? (
+                  groupedSchedule[selectedDate]
+                    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                    .map(event => {
+                      const config = eventTypeConfig[event.eventType] || eventTypeConfig.event;
+                      const startTime = new Date(event.startTime);
+                      return (
+                        <div key={event.id} className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl">
+                          <div className={`w-1 h-full min-h-[40px] rounded-full ${config.bgColor}`}></div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-white">{event.title}</p>
+                            <p className="text-xs text-slate-400">
+                              {startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                              {event.location && ` • ${event.location}`}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <div className="text-center py-6">
+                    <Calendar className="h-10 w-10 mx-auto text-slate-600 mb-2" />
+                    <p className="text-sm text-slate-500">No events scheduled</p>
+                  </div>
                 )}
-              </div>
-              <Button variant="outline" size="sm" onClick={() => setWeekOffset(weekOffset + 1)}>
-                Next Week
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+
+            {/* Up Next Section */}
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-bold text-white">Up Next</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {schedule
+                  .filter(e => new Date(e.startTime) >= new Date())
+                  .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                  .slice(0, 3)
+                  .map(event => {
+                    const config = eventTypeConfig[event.eventType] || eventTypeConfig.event;
+                    const startTime = new Date(event.startTime);
+                    const Icon = config.icon;
+                    return (
+                      <div key={event.id} className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl">
+                        <div className={`p-2 rounded-lg ${config.bgColor}/20`}>
+                          <Icon className={`h-4 w-4 ${config.color}`} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white">{event.title}</p>
+                          <p className="text-xs text-slate-400">
+                            {startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                {schedule.filter(e => new Date(e.startTime) >= new Date()).length === 0 && (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-slate-500">No upcoming events</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Error State */}
         {error && (
-          <Card className="border-red-200 bg-red-50">
+          <Card className="border-red-500/50 bg-red-500/10 rounded-xl">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <p className="text-red-800">{error}</p>
-                <Button variant="outline" size="sm" onClick={fetchSchedule}>
+                <AlertCircle className="h-5 w-5 text-red-400" />
+                <p className="text-red-300">{error}</p>
+                <Button variant="outline" size="sm" onClick={fetchSchedule} className="border-red-500/50 text-red-300 hover:bg-red-500/20">
                   Retry
                 </Button>
               </div>
             </CardContent>
           </Card>
         )}
-
-        {/* Schedule Views */}
-        <Tabs defaultValue="week" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="week">Week View</TabsTrigger>
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="week" className="space-y-4">
-            {loading ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <div className="animate-spin h-8 w-8 border-2 border-eduverse-blue border-t-transparent rounded-full mx-auto mb-4" />
-                  <p className="text-gray-600">Loading schedule...</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {weekDays.map(date => (
-                  <DayView 
-                    key={date} 
-                    date={date} 
-                    events={groupedSchedule[date] || []} 
-                    isToday={date === todayStr}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="today" className="space-y-4">
-            <div className="max-w-2xl">
-              {loading ? (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <div className="animate-spin h-8 w-8 border-2 border-eduverse-blue border-t-transparent rounded-full mx-auto" />
-                  </CardContent>
-                </Card>
-              ) : (
-                <DayView 
-                  date={todayStr} 
-                  events={groupedSchedule[todayStr] || []} 
-                  isToday={true}
-                />
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="upcoming" className="space-y-4">
-            {loading ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <div className="animate-spin h-8 w-8 border-2 border-eduverse-blue border-t-transparent rounded-full mx-auto" />
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {schedule
-                  .filter(event => event.eventType === 'exam' || event.eventType === 'assignment-due')
-                  .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-                  .map(event => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                {schedule.filter(e => e.eventType === 'exam' || e.eventType === 'assignment-due').length === 0 && (
-                  <Card className="col-span-full">
-                    <CardContent className="p-8 text-center">
-                      <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                      <p className="text-gray-600">No upcoming exams or assignments due</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
       </div>
     </DashboardLayout>
   );

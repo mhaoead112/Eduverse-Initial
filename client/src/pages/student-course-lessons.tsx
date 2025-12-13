@@ -61,21 +61,21 @@ const getFileTypeBadge = (fileType?: string, fileName?: string) => {
   const name = fileName?.toLowerCase() || '';
   
   if (type.includes('video') || name.endsWith('.mp4') || name.endsWith('.webm')) {
-    return <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-[10px]">Video</Badge>;
+    return <Badge variant="secondary" className="bg-purple-500/20 text-purple-400 text-[10px]">Video</Badge>;
   }
   if (type.includes('image') || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-    return <Badge variant="secondary" className="bg-green-100 text-green-700 text-[10px]">Image</Badge>;
+    return <Badge variant="secondary" className="bg-green-500/20 text-green-400 text-[10px]">Image</Badge>;
   }
   if (type.includes('pdf') || name.endsWith('.pdf')) {
-    return <Badge variant="secondary" className="bg-red-100 text-red-700 text-[10px]">PDF</Badge>;
+    return <Badge variant="secondary" className="bg-red-500/20 text-red-400 text-[10px]">PDF</Badge>;
   }
   if (name.endsWith('.doc') || name.endsWith('.docx')) {
-    return <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px]">Document</Badge>;
+    return <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 text-[10px]">Document</Badge>;
   }
   if (name.endsWith('.ppt') || name.endsWith('.pptx')) {
-    return <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-[10px]">Slides</Badge>;
+    return <Badge variant="secondary" className="bg-orange-500/20 text-orange-400 text-[10px]">Slides</Badge>;
   }
-  return <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-[10px]">File</Badge>;
+  return <Badge variant="secondary" className="bg-slate-500/20 text-slate-400 text-[10px]">File</Badge>;
 };
 
 export default function StudentCourseLessonsPage() {
@@ -156,13 +156,13 @@ export default function StudentCourseLessonsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <Card className="shadow-xl border-0">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
           <CardContent className="p-8 text-center">
-            <GraduationCap className="h-12 w-12 text-indigo-500 mx-auto mb-4" />
-            <p className="text-gray-600">Please sign in to view class lessons.</p>
+            <GraduationCap className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <p className="text-slate-400">Please sign in to view class lessons.</p>
             <Link href="/login">
-              <Button className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600">
+              <Button className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold">
                 Sign In
               </Button>
             </Link>
@@ -173,24 +173,24 @@ export default function StudentCourseLessonsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10 pt-16">
+      <div className="bg-slate-900/80 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-10 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/student/dashboard">
-                <Button variant="ghost" size="sm" className="gap-2 text-gray-600 hover:text-gray-900">
+                <Button variant="ghost" size="sm" className="gap-2 text-slate-400 hover:text-white hover:bg-slate-800">
                   <ArrowLeft className="h-4 w-4" />
                   Back to Dashboard
                 </Button>
               </Link>
-              <div className="h-6 w-px bg-gray-300" />
+              <div className="h-6 w-px bg-slate-700" />
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold text-white">
                   Class Lessons
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-slate-400">
                   {lessons.length} lesson{lessons.length !== 1 ? 's' : ''} available
                 </p>
               </div>
@@ -199,21 +199,26 @@ export default function StudentCourseLessonsPage() {
             <div className="flex items-center gap-4">
               {/* Progress indicator */}
               {lessons.length > 0 && (
-                <div className="hidden sm:flex items-center gap-3 bg-white rounded-full px-4 py-2 shadow-sm border">
+                <div className="hidden sm:flex items-center gap-3 bg-slate-800/60 rounded-full px-4 py-2 border border-slate-700">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span className="text-sm font-medium text-gray-700">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <span className="text-sm font-medium text-white">
                       {viewedLessons.size}/{lessons.length}
                     </span>
                   </div>
-                  <Progress value={progressPercentage} className="w-24 h-2" />
-                  <span className="text-xs text-gray-500">{progressPercentage}%</span>
+                  <div className="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full transition-all"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-slate-400">{progressPercentage}%</span>
                 </div>
               )}
               
               {courseId && (
                 <Link href={`/student/courses/${courseId}/announcements`}>
-                  <Button variant="outline" className="gap-2 shadow-sm">
+                  <Button variant="outline" className="gap-2 border-slate-700 text-slate-300 hover:bg-slate-800">
                     <Megaphone className="h-4 w-4" />
                     <span className="hidden sm:inline">Announcements</span>
                   </Button>
@@ -229,17 +234,17 @@ export default function StudentCourseLessonsPage() {
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-indigo-500 mx-auto mb-4" />
-              <p className="text-gray-500">Loading lessons...</p>
+              <Loader2 className="h-12 w-12 animate-spin text-yellow-500 mx-auto mb-4" />
+              <p className="text-slate-400">Loading lessons...</p>
             </div>
           </div>
         ) : error ? (
-          <Card className="shadow-lg border-0 bg-red-50">
+          <Card className="bg-red-500/10 border-red-500/50 rounded-2xl">
             <CardContent className="p-8 text-center">
-              <p className="text-red-600">{error}</p>
+              <p className="text-red-400">{error}</p>
               <Button 
                 variant="outline" 
-                className="mt-4"
+                className="mt-4 border-red-500/50 text-red-300 hover:bg-red-500/20"
                 onClick={() => window.location.reload()}
               >
                 Try Again
@@ -247,24 +252,24 @@ export default function StudentCourseLessonsPage() {
             </CardContent>
           </Card>
         ) : lessons.length === 0 ? (
-          <Card className="shadow-lg border-0">
+          <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
             <CardContent className="p-12 text-center">
-              <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Lessons Yet</h3>
-              <p className="text-gray-500">This class doesn't have any lessons available yet. Check back later!</p>
+              <BookOpen className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No Lessons Yet</h3>
+              <p className="text-slate-400">This class doesn't have any lessons available yet. Check back later!</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Lessons Sidebar */}
             <div className="lg:col-span-3">
-              <Card className="shadow-lg border-0 overflow-hidden sticky top-32">
-                <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white pb-4">
+              <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl overflow-hidden sticky top-32">
+                <CardHeader className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <BookOpen className="h-5 w-5" />
                     Lesson List
                   </CardTitle>
-                  <p className="text-indigo-100 text-sm mt-1">
+                  <p className="text-emerald-100 text-sm mt-1">
                     Click to navigate between lessons
                   </p>
                 </CardHeader>
@@ -280,35 +285,35 @@ export default function StudentCourseLessonsPage() {
                           onClick={() => handleSelectLesson(lesson, index)}
                           className={`w-full text-left p-3 rounded-xl transition-all duration-200 group
                             ${isSelected 
-                              ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 shadow-md' 
-                              : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-200 hover:shadow-sm'
+                              ? 'bg-yellow-500/20 border-2 border-yellow-500/50' 
+                              : 'bg-slate-900/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600'
                             }`}
                         >
                           <div className="flex items-start gap-3">
                             {/* Status indicator */}
                             <div className="flex-shrink-0 mt-0.5">
                               {isSelected ? (
-                                <PlayCircle className="h-5 w-5 text-indigo-600" />
+                                <PlayCircle className="h-5 w-5 text-yellow-500" />
                               ) : isViewed ? (
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
                               ) : (
-                                <Circle className="h-5 w-5 text-gray-300 group-hover:text-gray-400" />
+                                <Circle className="h-5 w-5 text-slate-600 group-hover:text-slate-500" />
                               )}
                             </div>
                             
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-gray-400">
+                                <span className="text-xs font-medium text-slate-500">
                                   {String(index + 1).padStart(2, '0')}
                                 </span>
                                 {getFileTypeBadge(lesson.fileType, lesson.fileName)}
                               </div>
                               <h4 className={`font-medium text-sm leading-tight truncate
-                                ${isSelected ? 'text-indigo-700' : 'text-gray-800'}`}>
+                                ${isSelected ? 'text-yellow-400' : 'text-white'}`}>
                                 {lesson.title || lesson.fileName || 'Untitled Lesson'}
                               </h4>
                               {lesson.createdAt && (
-                                <div className="flex items-center gap-1 mt-1.5 text-xs text-gray-400">
+                                <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-500">
                                   <Clock className="h-3 w-3" />
                                   {new Date(lesson.createdAt).toLocaleDateString()}
                                 </div>
@@ -327,22 +332,22 @@ export default function StudentCourseLessonsPage() {
             <div className="lg:col-span-9 space-y-6">
               {/* Lesson Navigation */}
               {selectedLesson && (
-                <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border">
+                <div className="flex items-center justify-between bg-slate-800/60 rounded-xl p-4 border border-slate-700/50">
                   <Button
                     variant="ghost"
                     onClick={handlePreviousLesson}
                     disabled={selectedIndex === 0}
-                    className="gap-2"
+                    className="gap-2 text-slate-300 hover:text-white hover:bg-slate-700 disabled:text-slate-600"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </Button>
                   
                   <div className="text-center">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       Lesson {selectedIndex + 1} of {lessons.length}
                     </p>
-                    <h2 className="font-semibold text-gray-800 max-w-md truncate">
+                    <h2 className="font-semibold text-white max-w-md truncate">
                       {selectedLesson.title || selectedLesson.fileName}
                     </h2>
                   </div>
@@ -351,7 +356,7 @@ export default function StudentCourseLessonsPage() {
                     variant="ghost"
                     onClick={handleNextLesson}
                     disabled={selectedIndex === lessons.length - 1}
-                    className="gap-2"
+                    className="gap-2 text-slate-300 hover:text-white hover:bg-slate-700 disabled:text-slate-600"
                   >
                     Next
                     <ChevronRight className="h-4 w-4" />
@@ -363,7 +368,7 @@ export default function StudentCourseLessonsPage() {
                 {/* Lesson Viewer */}
                 <div className="xl:col-span-2">
                   {selectedLesson ? (
-                    <div className="bg-white rounded-xl shadow-lg border overflow-hidden">
+                    <div className="bg-slate-800/60 rounded-2xl border border-slate-700/50 overflow-hidden">
                       <LessonViewer 
                         key={selectedLesson.id}
                         fileUrl={selectedLesson.fileUrl} 
@@ -372,11 +377,11 @@ export default function StudentCourseLessonsPage() {
                       />
                     </div>
                   ) : (
-                    <Card className="shadow-lg border-0">
+                    <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl">
                       <CardContent className="p-12 text-center">
-                        <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">Select a Lesson</h3>
-                        <p className="text-gray-500">Choose a lesson from the sidebar to view its content.</p>
+                        <FileText className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-white mb-2">Select a Lesson</h3>
+                        <p className="text-slate-400">Choose a lesson from the sidebar to view its content.</p>
                       </CardContent>
                     </Card>
                   )}
@@ -385,8 +390,8 @@ export default function StudentCourseLessonsPage() {
                 {/* AI Study Buddy */}
                 <div className="xl:col-span-1">
                   {selectedLesson ? (
-                    <Card className="shadow-lg border-0 overflow-hidden h-[600px] flex flex-col">
-                      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 flex-shrink-0">
+                    <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl overflow-hidden h-[600px] flex flex-col">
+                      <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 flex-shrink-0">
                         <CardTitle className="flex items-center gap-2 text-base">
                           <Sparkles className="h-4 w-4" />
                           AI Study Buddy
@@ -404,16 +409,16 @@ export default function StudentCourseLessonsPage() {
                       </div>
                     </Card>
                   ) : (
-                    <Card className="shadow-lg border-0 h-full">
-                      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl h-full">
+                      <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                         <CardTitle className="flex items-center gap-2 text-lg">
                           <Sparkles className="h-5 w-5" />
                           AI Study Buddy
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-6 text-center">
-                        <Sparkles className="h-12 w-12 text-purple-200 mx-auto mb-4" />
-                        <p className="text-gray-500 text-sm">
+                        <Sparkles className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-400 text-sm">
                           Select a lesson to chat with your AI study buddy about that specific content!
                         </p>
                       </CardContent>
