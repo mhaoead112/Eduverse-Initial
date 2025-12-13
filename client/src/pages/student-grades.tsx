@@ -39,9 +39,9 @@ export default function StudentGradesPage() {
 
   // Fetch grades from API
   const { data, isLoading } = useQuery({
-    queryKey: ["/api/student/grades"],
+    queryKey: ["/api/grades/my-grades"],
     queryFn: async () => {
-      const response = await fetch(apiEndpoint("/api/student/grades"), {
+      const response = await fetch(apiEndpoint("/api/grades/my-grades"), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
