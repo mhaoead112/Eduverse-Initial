@@ -3,7 +3,8 @@ import { useLocation, Link } from "wouter";
 import { 
   BookOpen, Clock, Download, Video, Sparkles,
   FlaskConical, FileEdit, Calculator, BookOpenCheck,
-  Loader2, CheckCircle2, Circle, Megaphone, FileText, Calendar, Flame
+  Loader2, CheckCircle2, Circle, Megaphone, FileText, Calendar, Flame,
+  ChevronRight, TrendingUp, Award, BarChart3, GraduationCap, MoreHorizontal
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,28 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import VersaFloatingChat from "@/components/VersaFloatingChat";
 import { apiEndpoint, assetUrl } from '@/lib/config';
+
+// Weekly Study Time Bar Chart Component
+function WeeklyStudyChart({ data }: { data: number[] }) {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const maxVal = Math.max(...data, 1);
+  
+  return (
+    <div className="flex items-end justify-between gap-1.5 h-16 mt-2">
+      {data.map((val, i) => (
+        <div key={i} className="flex flex-col items-center flex-1">
+          <div 
+            className={`w-full rounded-t transition-all duration-300 ${
+              val > 0 ? 'bg-gradient-to-t from-yellow-500 to-yellow-400' : 'bg-slate-700'
+            }`}
+            style={{ height: `${Math.max((val / maxVal) * 100, 8)}%`, minHeight: '4px' }}
+          />
+          <span className="text-[10px] text-slate-500 mt-1">{days[i]}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface Course {
   id: string;
@@ -440,6 +463,23 @@ export default function StudentDashboard() {
   // Use the overall progress from API (calculated from total scores / total max scores)
   const displayProgress = Math.round(overallProgress.progressPercentage);
 
+  // Generate mock weekly study data based on streak info
+  const weeklyStudyData = [
+    Math.round(streakInfo.currentWeekHours * 0.12),
+    Math.round(streakInfo.currentWeekHours * 0.18),
+    Math.round(streakInfo.currentWeekHours * 0.22),
+    Math.round(streakInfo.currentWeekHours * 0.15),
+    Math.round(streakInfo.currentWeekHours * 0.20),
+    Math.round(streakInfo.currentWeekHours * 0.08),
+    Math.round(streakInfo.currentWeekHours * 0.05),
+  ];
+
+  // Mock recent grades data
+  const recentGrades = [
+    { title: 'Final Project', course: 'Art History', grade: 95, change: '+2%', color: 'text-green-400' },
+    { title: 'Midterm Exam', course: 'Physics 101', grade: 88, change: '', color: 'text-blue-400' },
+  ];
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -452,319 +492,314 @@ export default function StudentDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-5 sm:space-y-6 md:space-y-8 pb-6 sm:pb-8 md:pb-10 px-0 sm:px-0 relative">
-        {/* Welcome Header - Dark Theme */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800/80 to-slate-900/80 border border-slate-700/50 p-6 sm:p-8">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-full blur-3xl" />
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight tracking-tight">
-                Welcome back, {user?.fullName?.split(' ')[0]}!
-              </h1>
-              <p className="text-sm sm:text-base text-slate-400">
-                You have <span className="text-yellow-500 font-semibold">{assignments.filter(a => a.status === 'pending').length} assignments</span> due today. Keep up the momentum!
-              </p>
-            </div>
-            <Button 
-              className="gap-2 bg-white hover:bg-slate-100 text-slate-900 font-semibold rounded-xl px-5 py-2.5 h-auto shadow-lg border-0 w-fit"
-              onClick={() => setLocation('/student/assignments')}
-            >
-              <span>View Assignments</span>
-              <span className="ml-1">→</span>
-            </Button>
+      <div className="space-y-6 pb-8 relative">
+        {/* Welcome Header Banner */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
+          {/* Gradient Background with Wave Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-600 via-emerald-500 to-cyan-500" />
+          <div className="absolute inset-0 opacity-30">
+            <svg className="w-full h-full" viewBox="0 0 1200 200" preserveAspectRatio="none">
+              <path fill="rgba(255,255,255,0.1)" d="M0,100 C300,150 600,50 900,100 C1050,130 1150,80 1200,100 L1200,200 L0,200 Z" />
+              <path fill="rgba(255,255,255,0.05)" d="M0,120 C200,160 400,80 600,120 C800,160 1000,100 1200,140 L1200,200 L0,200 Z" />
+            </svg>
           </div>
-        </div>
-
-        {/* Stats Cards - Dark Theme */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {/* Course Completion */}
-          <Card className="bg-slate-800/50 border-slate-700/50 rounded-2xl overflow-hidden backdrop-blur-sm">
-            <CardContent className="p-5 sm:p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="text-sm text-slate-400 mb-3 font-medium">Course Completion</p>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-1">
-                    {displayProgress >= 75 ? 'Good' : displayProgress >= 50 ? 'Fair' : 'Start'}
-                  </h3>
-                  <p className="text-2xl sm:text-3xl font-bold text-white leading-tight">Progress</p>
-                </div>
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle
-                      cx="50%"
-                      cy="50%"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      className="text-slate-700"
-                    />
-                    <circle
-                      cx="50%"
-                      cy="50%"
-                      r="40"
-                      stroke="#EAB308"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeDasharray={`${(displayProgress / 100) * 251} 251`}
-                      strokeLinecap="round"
-                      className="transition-all duration-700"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg sm:text-xl font-bold text-white">{displayProgress}%</span>
-                  </div>
-                </div>
+          
+          <div className="relative px-6 sm:px-8 py-8 sm:py-10">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="space-y-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight">
+                  Welcome back, {user?.fullName?.split(' ')[0]}!
+                </h1>
+                <p className="text-base sm:text-lg text-white/90">
+                  You have <span className="text-yellow-300 font-bold">{assignments.filter(a => a.status === 'pending').length} assignments</span> due today. Keep up the momentum!
+                </p>
               </div>
-              {/* Progress Details */}
-              <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Total Score</span>
-                  <span className="font-semibold text-white">
-                    {overallProgress.totalScore.toFixed(1)} / {overallProgress.totalMaxScore}
-                  </span>
-                </div>
-                {overallProgress.totalBonusPoints > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-emerald-400 flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" />
-                      Bonus Points
-                    </span>
-                    <span className="font-semibold text-emerald-400">
-                      +{overallProgress.totalBonusPoints.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Graded Assignments</span>
-                  <span className="font-semibold text-white">
-                    {overallProgress.assignmentsCompleted} / {overallProgress.totalAssignments}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Study Streak - Dark Theme */}
-          <Card className="bg-slate-800/50 border-slate-700/50 rounded-2xl overflow-hidden backdrop-blur-sm">
-            <CardContent className="p-5 sm:p-6">
-              <p className="text-sm text-slate-400 mb-4 font-medium">Study Streak</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-baseline gap-2">
-                  <h3 className="text-5xl sm:text-6xl font-bold text-white leading-none tracking-tight">{streakInfo.currentStreak}</h3>
-                  <span className="text-lg sm:text-xl text-slate-400 font-normal pb-2">Days</span>
-                </div>
-                <div className="relative">
-                  <Flame 
-                    className="w-14 h-14 sm:w-16 sm:h-16 text-orange-500" 
-                    fill="currentColor"
-                    style={{
-                      filter: 'drop-shadow(0 0 12px rgba(249, 115, 22, 0.5))',
-                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    }}
-                  />
-                </div>
-              </div>
-              {streakInfo.longestStreak > 0 && (
-                <p className="text-xs text-slate-500 mt-3">Best: {streakInfo.longestStreak} days</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Weekly Study Goal - Dark Theme */}
-          <Card className="bg-slate-800/50 border-slate-700/50 rounded-2xl overflow-hidden backdrop-blur-sm">
-            <CardContent className="p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-slate-400 font-medium">Weekly Study Goal</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-6 text-xs text-slate-400 hover:text-white hover:bg-slate-700"
-                  onClick={() => setShowGoalDialog(true)}
-                >
-                  Edit
-                </Button>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-5xl sm:text-6xl font-bold text-white leading-none tracking-tight">
-                  {Math.round(streakInfo.currentWeekHours)}/{streakInfo.weeklyGoalHours}
-                </h3>
-                <span className="text-lg sm:text-xl text-slate-400 font-normal pb-2">Hours</span>
-              </div>
-              <div className="mt-4">
-                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 transition-all duration-700 rounded-full"
-                    style={{ width: `${Math.min(streakInfo.weeklyProgress, 100)}%` }}
-                  />
-                </div>
-                <p className="text-xs text-slate-500 mt-2">{streakInfo.weeklyProgress}% complete</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Grid - Dark Theme */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5 sm:gap-6">
-          {/* My Courses Section */}
-          <div className="space-y-4 sm:space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">My Classes</h2>
               <Button 
-                variant="ghost" 
-                className="text-blue-400 hover:text-blue-300 hover:bg-slate-800 text-sm font-medium"
-                onClick={() => setLocation('/student/courses')}
+                className="gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl px-5 py-2.5 h-auto border border-white/20 w-fit transition-all"
+                onClick={() => setLocation('/student/assignments')}
               >
-                View All
+                <span>View Assignments</span>
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-
-            {enrollments.length === 0 ? (
-              <Card className="bg-slate-800/50 border-slate-700/50 rounded-2xl">
-                <CardContent className="pt-6">
-                  <div className="text-center py-12">
-                    <BookOpen className="h-16 w-16 text-slate-600 mx-auto mb-4" />
-                    <p className="text-base text-slate-400 mb-4 px-4">
-                      No courses enrolled yet. Browse available courses to get started!
-                    </p>
-                    <Button 
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={() => setLocation('/student/courses')}
-                    >
-                      Browse Courses
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                {enrollments.slice(0, 3).map((enrollment) => {
-                  if (!enrollment.course) return null;
-                  const Icon = getIconForCourse(enrollment.course.title);
-                  const progress = courseProgress[enrollment.courseId] || 0;
-                  
-                  // Generate course code from title
-                  const courseCode = enrollment.course.title.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,3) + ' ' + Math.floor(100 + Math.random() * 200);
-                  
-                  return (
-                    <Link key={enrollment.courseId} href={`/student/courses/${enrollment.courseId}`}>
-                      <Card className="bg-slate-800/50 border-slate-700/50 rounded-2xl overflow-hidden hover:border-slate-600 transition-all duration-300 cursor-pointer group h-full">
-                        <CardContent className="p-0">
-                          {/* Course Cover */}
-                          <div className="h-[140px] relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800">
-                            {enrollment.course.imageUrl && enrollment.course.imageUrl.length > 0 ? (
-                              <img 
-                                src={enrollment.course.imageUrl.startsWith('http') ? enrollment.course.imageUrl : `/uploads/${enrollment.course.imageUrl}`}
-                                alt={enrollment.course.title}
-                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Icon className="h-12 w-12 text-slate-500" />
-                              </div>
-                            )}
-                            {/* Course Code Badge */}
-                            <div className="absolute top-3 right-3">
-                              <span className="bg-slate-900/80 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-600/50">
-                                {courseCode}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Course Info */}
-                          <div className="p-4">
-                            <h3 className="font-bold text-white text-base mb-2 group-hover:text-blue-400 transition-colors leading-tight line-clamp-1">
-                              {enrollment.course.title}
-                            </h3>
-                            
-                            {/* Progress */}
-                            <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-                              <span>{progress}% Complete</span>
-                              <span className="font-semibold">{progress >= 90 ? 'A' : progress >= 80 ? 'B+' : progress >= 70 ? 'B' : 'C+'}</span>
-                            </div>
-                            <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 transition-all duration-700 rounded-full"
-                                style={{ width: `${progress}%` }}
-                              />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
           </div>
+        </div>
 
-          {/* Upcoming Due Dates Sidebar - Dark Theme */}
-          <div className="space-y-4 sm:space-y-5">
-            <h2 className="text-xl sm:text-2xl font-bold text-white">Upcoming Due Dates</h2>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
+          {/* Left Column - Classes and Due Dates */}
+          <div className="space-y-6">
+            {/* My Classes Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-bold text-white">My Classes</h2>
+                <Button 
+                  variant="link" 
+                  className="text-blue-400 hover:text-blue-300 text-sm font-medium p-0 h-auto"
+                  onClick={() => setLocation('/student/courses')}
+                >
+                  View All
+                </Button>
+              </div>
 
-            <div className="space-y-3">
-              {assignments.length === 0 ? (
-                <Card className="bg-slate-800/50 border-slate-700/50 rounded-2xl">
-                  <CardContent className="p-5">
-                    <div className="text-center py-8">
-                      <Clock className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-                      <p className="text-sm text-slate-400">No upcoming tasks</p>
+              {enrollments.length === 0 ? (
+                <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl backdrop-blur-sm">
+                  <CardContent className="pt-6">
+                    <div className="text-center py-12">
+                      <BookOpen className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                      <p className="text-base text-slate-400 mb-4 px-4">
+                        No courses enrolled yet. Browse available courses to get started!
+                      </p>
+                      <Button 
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => setLocation('/student/courses')}
+                      >
+                        Browse Courses
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               ) : (
-                assignments.map((assignment) => {
-                  const Icon = getTaskIcon(assignment.title);
-                  const isCompleted = assignment.status === 'graded' || assignment.status === 'submitted';
-                  const dueDate = new Date(assignment.dueDate);
-                  const isToday = new Date().toDateString() === dueDate.toDateString();
-                  
-                  return (
-                    <Card 
-                      key={assignment.id}
-                      className={`bg-slate-800/50 border-slate-700/50 rounded-2xl overflow-hidden hover:border-slate-600 transition-all cursor-pointer ${
-                        isCompleted ? 'opacity-60' : ''
-                      }`}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-slate-700/50 flex items-center justify-center flex-shrink-0">
-                            <Icon className="h-5 w-5 text-slate-300" />
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <h4 className={`font-semibold text-sm mb-1 leading-tight ${
-                              isCompleted ? 'text-slate-500 line-through' : 'text-white'
-                            }`}>
-                              {assignment.title}
-                            </h4>
-                            <p className="text-xs text-slate-400">
-                              {assignment.courseName}
-                            </p>
-                            <p className={`text-xs mt-1 font-medium ${
-                              isToday ? 'text-red-400' : 'text-slate-500'
-                            }`}>
-                              {isToday ? 'Due Today, ' : ''}{dueDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                            </p>
-                          </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {enrollments.slice(0, 3).map((enrollment, index) => {
+                    if (!enrollment.course) return null;
+                    const Icon = getIconForCourse(enrollment.course.title);
+                    const progress = courseProgress[enrollment.courseId] || Math.floor(40 + Math.random() * 55);
+                    
+                    // Generate course code from title
+                    const words = enrollment.course.title.split(' ');
+                    const courseCode = words.map(w => w[0]).join('').toUpperCase().slice(0,3) + ' ' + (101 + index * 100);
+                    
+                    // Calculate letter grade
+                    const letterGrade = progress >= 90 ? 'A' : progress >= 80 ? 'B+' : progress >= 70 ? 'B' : progress >= 60 ? 'C+' : 'C';
+                    
+                    // Course images array for demo
+                    const courseImages = [
+                      'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=250&fit=crop', // Science/Chemistry
+                      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=250&fit=crop', // Art/Sculpture
+                      'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop', // Math
+                    ];
+                    
+                    return (
+                      <Link key={enrollment.courseId} href={`/student/courses/${enrollment.courseId}`}>
+                        <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl overflow-hidden hover:border-slate-600 hover:shadow-xl hover:shadow-black/20 transition-all duration-300 cursor-pointer group h-full">
+                          <CardContent className="p-0">
+                            {/* Course Cover Image */}
+                            <div className="h-32 sm:h-36 relative overflow-hidden">
+                              <img 
+                                src={enrollment.course.imageUrl 
+                                  ? (enrollment.course.imageUrl.startsWith('http') ? enrollment.course.imageUrl : `/uploads/${enrollment.course.imageUrl}`)
+                                  : courseImages[index % courseImages.length]
+                                }
+                                alt={enrollment.course.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+                              
+                              {/* Course Code Badge */}
+                              <div className="absolute top-3 left-3">
+                                <span className="bg-slate-900/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-md">
+                                  {courseCode}
+                                </span>
+                              </div>
+                            </div>
 
-                          <Button 
-                            size="sm"
-                            className={`rounded-lg text-xs h-8 px-4 ${
-                              isCompleted 
-                                ? 'bg-slate-700 text-slate-400 hover:bg-slate-600' 
-                                : 'bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold'
-                            }`}
-                          >
-                            {isCompleted ? 'Done' : 'Submit'}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })
+                            {/* Course Info */}
+                            <div className="p-4 space-y-3">
+                              <h3 className="font-bold text-white text-base group-hover:text-blue-400 transition-colors line-clamp-1">
+                                {enrollment.course.title}
+                              </h3>
+                              
+                              {/* Progress Bar */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-slate-400">{progress}% Complete</span>
+                                  <span className="text-slate-300 font-semibold">{letterGrade}</span>
+                                </div>
+                                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-700"
+                                    style={{ width: `${progress}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
+                </div>
               )}
             </div>
+
+            {/* Upcoming Due Dates Section */}
+            <div className="space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Upcoming Due Dates</h2>
+
+              <div className="space-y-3">
+                {assignments.length === 0 ? (
+                  <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl backdrop-blur-sm">
+                    <CardContent className="p-6">
+                      <div className="text-center py-8">
+                        <Clock className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+                        <p className="text-sm text-slate-400">No upcoming tasks</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  assignments.map((assignment) => {
+                    const Icon = getTaskIcon(assignment.title);
+                    const isCompleted = assignment.status === 'graded' || assignment.status === 'submitted';
+                    const dueDate = new Date(assignment.dueDate);
+                    const isToday = new Date().toDateString() === dueDate.toDateString();
+                    const isTomorrow = new Date(Date.now() + 86400000).toDateString() === dueDate.toDateString();
+                    
+                    // Icon background colors
+                    const iconColors = ['bg-amber-500/20', 'bg-blue-500/20', 'bg-purple-500/20', 'bg-pink-500/20'];
+                    const iconTextColors = ['text-amber-400', 'text-blue-400', 'text-purple-400', 'text-pink-400'];
+                    const colorIndex = Math.abs(assignment.title.charCodeAt(0)) % 4;
+                    
+                    return (
+                      <Card 
+                        key={assignment.id}
+                        className={`bg-slate-800/60 border-slate-700/50 rounded-2xl overflow-hidden hover:border-slate-600 transition-all cursor-pointer backdrop-blur-sm ${
+                          isCompleted ? 'opacity-60' : ''
+                        }`}
+                        onClick={() => setLocation('/student/assignments')}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-4">
+                            {/* Icon */}
+                            <div className={`w-12 h-12 rounded-xl ${iconColors[colorIndex]} flex items-center justify-center flex-shrink-0`}>
+                              <Icon className={`h-5 w-5 ${iconTextColors[colorIndex]}`} />
+                            </div>
+                            
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className={`font-semibold text-sm mb-0.5 ${
+                                isCompleted ? 'text-slate-500 line-through' : 'text-white'
+                              }`}>
+                                {assignment.title}
+                              </h4>
+                              <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                                <span>{assignment.courseName}</span>
+                                <span className="text-slate-600">•</span>
+                                <span className={isToday ? 'text-red-400 font-medium' : ''}>
+                                  {isToday ? 'Due Today, ' : isTomorrow ? 'Due Tomorrow' : ''}
+                                  {isToday && dueDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                                </span>
+                              </p>
+                            </div>
+
+                            {/* Action Button */}
+                            <Button 
+                              size="sm"
+                              className={`rounded-xl text-xs h-9 px-4 font-semibold ${
+                                isCompleted 
+                                  ? 'bg-slate-700 text-slate-400 hover:bg-slate-600' 
+                                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLocation('/student/assignments');
+                              }}
+                            >
+                              {isCompleted ? 'Done' : 'Submit'}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Performance Insights */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-white">Performance Insights</h2>
+
+            {/* Weekly Study Time */}
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-slate-400 font-medium">Weekly Study Time</span>
+                  <span className="text-sm font-bold text-white">
+                    {Math.round(streakInfo.currentWeekHours)}h / {streakInfo.weeklyGoalHours}h
+                  </span>
+                </div>
+                <WeeklyStudyChart data={weeklyStudyData} />
+              </CardContent>
+            </Card>
+
+            {/* Major Progress */}
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-slate-400 font-medium">Major Progress</span>
+                  <span className="text-sm font-bold text-white">{displayProgress}% Complete</span>
+                </div>
+                <div className="h-2 bg-slate-700 rounded-full overflow-hidden mb-2">
+                  <div 
+                    className="h-full bg-gradient-to-r from-yellow-500 to-amber-400 rounded-full transition-all duration-700"
+                    style={{ width: `${displayProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500">
+                  Accumulated {overallProgress.totalScore.toFixed(0)} out of {overallProgress.totalMaxScore} credits
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Day Streak */}
+            <Card className="bg-gradient-to-br from-amber-900/40 to-orange-900/30 border-amber-700/30 rounded-2xl backdrop-blur-sm">
+              <CardContent className="p-5 text-center">
+                <div className="flex items-center justify-center gap-3 mb-1">
+                  <Flame 
+                    className="w-8 h-8 text-amber-400" 
+                    fill="currentColor"
+                    style={{ filter: 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.5))' }}
+                  />
+                  <span className="text-4xl font-bold text-white">{streakInfo.currentStreak}</span>
+                </div>
+                <p className="text-sm text-amber-200/80">Day Streak!</p>
+              </CardContent>
+            </Card>
+
+            {/* Recent Grades */}
+            <Card className="bg-slate-800/60 border-slate-700/50 rounded-2xl backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-slate-400 font-medium">Recent Grades</span>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-500 hover:text-white">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  {recentGrades.map((grade, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                        grade.grade >= 90 ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {grade.grade >= 90 ? 'A' : 'B'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{grade.title}</p>
+                        <p className="text-xs text-slate-500">{grade.course}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-white">{grade.grade}%</p>
+                        {grade.change && (
+                          <p className="text-xs text-green-400">{grade.change}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
