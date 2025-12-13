@@ -43,10 +43,10 @@ export default function StudentCoursesPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const { data, isLoading, error } = useQuery<EnrollmentsResponse>({
-    queryKey: ["/api/enrollments"],
+  const { data, isLoading, error } = useQuery<Enrollment[]>({
+    queryKey: ["/api/enrollments/student"],
     queryFn: async () => {
-      const response = await fetch(apiEndpoint("/api/enrollments"), {
+      const response = await fetch(apiEndpoint("/api/enrollments/student"), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -54,12 +54,33 @@ export default function StudentCoursesPage() {
       if (!response.ok) {
         throw new Error("Failed to fetch enrollments");
       }
-      return response.json();
+      const result = await response.json();
+      // API returns array directly, map to expected format
+      return Array.isArray(result) ? result.map((e: any) => ({
+        id: e.id,
+        courseId: e.courseId,
+        studentId: e.studentId || 0,
+        enrolledAt: e.enrolledAt,
+        progress: e.progress || 0,
+        status: e.status || 'active',
+        course: {
+          id: e.course?.id || e.courseId,
+          title: e.course?.title || 'Unknown Course',
+          description: e.course?.description || '',
+          subjectId: e.course?.subjectId || 0,
+          gradeLevel: e.course?.gradeLevel || '',
+          imageUrl: e.course?.imageUrl || null,
+          teacherId: e.course?.teacherId || 0,
+          status: e.course?.status || 'active',
+          subject: e.course?.subject,
+          teacher: e.course?.teacher,
+        }
+      })) : [];
     },
     enabled: !!user,
   });
 
-  const enrollments = data?.enrollments || [];
+  const enrollments = data || [];
   
   // Get unique categories from subjects
   const categories = ["All", ...new Set(enrollments.map(e => e.course.subject?.name || "General").filter(Boolean))];

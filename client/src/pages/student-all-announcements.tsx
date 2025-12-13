@@ -48,14 +48,15 @@ export default function StudentAllAnnouncementsPage() {
       setLoading(true);
 
       // Fetch enrollments first
-      const enrollmentsRes = await fetch(apiEndpoint("/api/enrollments"), {
+      const enrollmentsRes = await fetch(apiEndpoint("/api/enrollments/student"), {
         headers: getAuthHeaders(),
       });
       
       let enrolledCourses: Enrollment[] = [];
       if (enrollmentsRes.ok) {
         const enrollmentsData = await enrollmentsRes.json();
-        enrolledCourses = enrollmentsData.enrollments || [];
+        // API returns array directly
+        enrolledCourses = Array.isArray(enrollmentsData) ? enrollmentsData : [];
         
         // Extract unique courses
         const uniqueCourses = enrolledCourses.map(e => ({

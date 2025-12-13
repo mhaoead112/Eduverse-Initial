@@ -3,14 +3,11 @@ import { useRoute, Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import LessonViewer from "@/components/LessonViewer";
 import StudyBuddyChat from "@/components/StudyBuddyChat";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Loader2, 
-  Megaphone, 
   BookOpen, 
   FileText, 
   Video, 
@@ -21,10 +18,11 @@ import {
   CheckCircle2,
   Circle,
   PlayCircle,
-  Clock,
-  ArrowLeft,
   Sparkles,
-  GraduationCap
+  MessageSquare,
+  X,
+  Maximize2,
+  Minimize2
 } from "lucide-react";
 import { apiEndpoint } from "@/lib/config";
 
@@ -44,38 +42,38 @@ const getFileTypeIcon = (fileType?: string, fileName?: string) => {
   const name = fileName?.toLowerCase() || '';
   
   if (type.includes('video') || name.endsWith('.mp4') || name.endsWith('.webm')) {
-    return <Video className="h-4 w-4 text-purple-500" />;
+    return <Video className="h-4 w-4 text-purple-400" />;
   }
   if (type.includes('image') || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-    return <Image className="h-4 w-4 text-green-500" />;
+    return <Image className="h-4 w-4 text-emerald-400" />;
   }
   if (type.includes('pdf') || name.endsWith('.pdf')) {
-    return <FileText className="h-4 w-4 text-red-500" />;
+    return <FileText className="h-4 w-4 text-red-400" />;
   }
-  return <File className="h-4 w-4 text-blue-500" />;
+  return <File className="h-4 w-4 text-blue-400" />;
 };
 
-// Get file type badge color
-const getFileTypeBadge = (fileType?: string, fileName?: string) => {
+// Get file type label
+const getFileTypeLabel = (fileType?: string, fileName?: string) => {
   const type = fileType?.toLowerCase() || '';
   const name = fileName?.toLowerCase() || '';
   
   if (type.includes('video') || name.endsWith('.mp4') || name.endsWith('.webm')) {
-    return <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-[10px]">Video</Badge>;
+    return "Video";
   }
   if (type.includes('image') || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-    return <Badge variant="secondary" className="bg-green-100 text-green-700 text-[10px]">Image</Badge>;
+    return "Image";
   }
   if (type.includes('pdf') || name.endsWith('.pdf')) {
-    return <Badge variant="secondary" className="bg-red-100 text-red-700 text-[10px]">PDF</Badge>;
+    return "PDF";
   }
   if (name.endsWith('.doc') || name.endsWith('.docx')) {
-    return <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-[10px]">Document</Badge>;
+    return "Document";
   }
   if (name.endsWith('.ppt') || name.endsWith('.pptx')) {
-    return <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-[10px]">Slides</Badge>;
+    return "Slides";
   }
-  return <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-[10px]">File</Badge>;
+  return "File";
 };
 
 export default function StudentCourseLessonsPage() {
@@ -89,6 +87,8 @@ export default function StudentCourseLessonsPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [viewedLessons, setViewedLessons] = useState<Set<string>>(new Set());
+  const [showAIChat, setShowAIChat] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -156,271 +156,287 @@ export default function StudentCourseLessonsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <Card className="shadow-xl border-0">
-          <CardContent className="p-8 text-center">
-            <GraduationCap className="h-12 w-12 text-indigo-500 mx-auto mb-4" />
-            <p className="text-gray-600">Please sign in to view class lessons.</p>
-            <Link href="/login">
-              <Button className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600">
-                Sign In
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-8 text-center border border-slate-700/50 shadow-xl">
+          <span className="material-symbols-outlined text-5xl text-amber-400 mb-4 block">school</span>
+          <p className="text-slate-300">Please sign in to view class lessons.</p>
+          <Link href="/login">
+            <Button className="mt-4 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+              Sign In
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/student/dashboard">
-                <Button variant="ghost" size="sm" className="gap-2 text-gray-600 hover:text-gray-900">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Dashboard
-                </Button>
-              </Link>
-              <div className="h-6 w-px bg-gray-300" />
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Class Lessons
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {lessons.length} lesson{lessons.length !== 1 ? 's' : ''} available
-                </p>
-              </div>
+    <div className="min-h-screen bg-slate-900 font-['Spline_Sans',_sans-serif]">
+      {/* Top Navigation Bar */}
+      <div className="fixed top-0 left-0 right-0 h-16 bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 z-50">
+        <div className="h-full px-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href={courseId ? `/student/courses/${courseId}` : "/student/dashboard"}>
+              <Button variant="ghost" className="text-slate-400 hover:text-white hover:bg-slate-700/50 gap-2">
+                <ChevronLeft className="h-4 w-4" />
+                Back to Course
+              </Button>
+            </Link>
+            <div className="h-6 w-px bg-slate-700" />
+            <div>
+              <h1 className="text-lg font-semibold text-white">Lesson Viewer</h1>
+              <p className="text-xs text-slate-400">
+                {lessons.length} lesson{lessons.length !== 1 ? 's' : ''} available
+              </p>
             </div>
-            
-            <div className="flex items-center gap-4">
-              {/* Progress indicator */}
-              {lessons.length > 0 && (
-                <div className="hidden sm:flex items-center gap-3 bg-white rounded-full px-4 py-2 shadow-sm border">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span className="text-sm font-medium text-gray-700">
-                      {viewedLessons.size}/{lessons.length}
-                    </span>
-                  </div>
-                  <Progress value={progressPercentage} className="w-24 h-2" />
-                  <span className="text-xs text-gray-500">{progressPercentage}%</span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {/* Progress indicator */}
+            {lessons.length > 0 && (
+              <div className="flex items-center gap-3 bg-slate-700/40 rounded-full px-4 py-2 border border-slate-600/50">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <span className="text-sm font-medium text-white">
+                  {viewedLessons.size}/{lessons.length}
+                </span>
+                <div className="w-24 h-2 bg-slate-600 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
                 </div>
-              )}
-              
-              {courseId && (
-                <Link href={`/student/courses/${courseId}/announcements`}>
-                  <Button variant="outline" className="gap-2 shadow-sm">
-                    <Megaphone className="h-4 w-4" />
-                    <span className="hidden sm:inline">Announcements</span>
-                  </Button>
-                </Link>
-              )}
-            </div>
+                <span className="text-xs text-slate-400">{progressPercentage}%</span>
+              </div>
+            )}
+            
+            {/* AI Study Buddy Toggle */}
+            <Button 
+              onClick={() => setShowAIChat(!showAIChat)}
+              className={`gap-2 ${showAIChat ? 'bg-purple-600 hover:bg-purple-700' : 'bg-slate-700 hover:bg-slate-600'} text-white`}
+            >
+              <Sparkles className="h-4 w-4" />
+              AI Study Buddy
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {isLoading ? (
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-indigo-500 mx-auto mb-4" />
-              <p className="text-gray-500">Loading lessons...</p>
+      {/* Main Content Area */}
+      <div className="pt-16 h-screen flex">
+        {/* Lessons Sidebar */}
+        <div className="w-80 h-full bg-slate-800/40 border-r border-slate-700/50 flex flex-col">
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-slate-700/50">
+            <div className="flex items-center gap-2 text-amber-400 mb-2">
+              <BookOpen className="h-5 w-5" />
+              <span className="font-semibold">Lessons</span>
             </div>
+            <p className="text-sm text-slate-400">Click to navigate</p>
           </div>
-        ) : error ? (
-          <Card className="shadow-lg border-0 bg-red-50">
-            <CardContent className="p-8 text-center">
-              <p className="text-red-600">{error}</p>
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => window.location.reload()}
-              >
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        ) : lessons.length === 0 ? (
-          <Card className="shadow-lg border-0">
-            <CardContent className="p-12 text-center">
-              <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Lessons Yet</h3>
-              <p className="text-gray-500">This class doesn't have any lessons available yet. Check back later!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Lessons Sidebar */}
-            <div className="lg:col-span-3">
-              <Card className="shadow-lg border-0 overflow-hidden sticky top-32">
-                <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <BookOpen className="h-5 w-5" />
-                    Lesson List
-                  </CardTitle>
-                  <p className="text-indigo-100 text-sm mt-1">
-                    Click to navigate between lessons
-                  </p>
-                </CardHeader>
-                <ScrollArea className="h-[calc(100vh-320px)] min-h-[300px]">
-                  <div className="p-3 space-y-2">
-                    {lessons.map((lesson, index) => {
-                      const isSelected = selectedLesson?.id === lesson.id;
-                      const isViewed = viewedLessons.has(lesson.id);
-                      
-                      return (
-                        <button
-                          key={lesson.id}
-                          onClick={() => handleSelectLesson(lesson, index)}
-                          className={`w-full text-left p-3 rounded-xl transition-all duration-200 group
-                            ${isSelected 
-                              ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300 shadow-md' 
-                              : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-200 hover:shadow-sm'
-                            }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            {/* Status indicator */}
-                            <div className="flex-shrink-0 mt-0.5">
-                              {isSelected ? (
-                                <PlayCircle className="h-5 w-5 text-indigo-600" />
-                              ) : isViewed ? (
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                              ) : (
-                                <Circle className="h-5 w-5 text-gray-300 group-hover:text-gray-400" />
-                              )}
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-gray-400">
-                                  {String(index + 1).padStart(2, '0')}
-                                </span>
-                                {getFileTypeBadge(lesson.fileType, lesson.fileName)}
-                              </div>
-                              <h4 className={`font-medium text-sm leading-tight truncate
-                                ${isSelected ? 'text-indigo-700' : 'text-gray-800'}`}>
-                                {lesson.title || lesson.fileName || 'Untitled Lesson'}
-                              </h4>
-                              {lesson.createdAt && (
-                                <div className="flex items-center gap-1 mt-1.5 text-xs text-gray-400">
-                                  <Clock className="h-3 w-3" />
-                                  {new Date(lesson.createdAt).toLocaleDateString()}
-                                </div>
-                              )}
-                            </div>
+          
+          {/* Lessons List */}
+          <ScrollArea className="flex-1">
+            <div className="p-3 space-y-2">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
+                </div>
+              ) : lessons.length === 0 ? (
+                <div className="text-center py-8">
+                  <BookOpen className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                  <p className="text-slate-400 text-sm">No lessons yet</p>
+                </div>
+              ) : (
+                lessons.map((lesson, index) => {
+                  const isSelected = selectedLesson?.id === lesson.id;
+                  const isViewed = viewedLessons.has(lesson.id);
+                  
+                  return (
+                    <button
+                      key={lesson.id}
+                      onClick={() => handleSelectLesson(lesson, index)}
+                      className={`w-full text-left p-3 rounded-xl transition-all duration-200 group
+                        ${isSelected 
+                          ? 'bg-amber-500/20 border border-amber-500/50 shadow-lg shadow-amber-500/10' 
+                          : 'bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/30 hover:border-slate-500/50'
+                        }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Status indicator */}
+                        <div className="flex-shrink-0 mt-0.5">
+                          {isSelected ? (
+                            <PlayCircle className="h-5 w-5 text-amber-400" />
+                          ) : isViewed ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                          ) : (
+                            <Circle className="h-5 w-5 text-slate-500 group-hover:text-slate-400" />
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-slate-500">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              getFileTypeLabel(lesson.fileType, lesson.fileName) === 'Video' 
+                                ? 'bg-purple-500/20 text-purple-300' 
+                                : getFileTypeLabel(lesson.fileType, lesson.fileName) === 'PDF'
+                                  ? 'bg-red-500/20 text-red-300'
+                                  : 'bg-blue-500/20 text-blue-300'
+                            }`}>
+                              {getFileTypeLabel(lesson.fileType, lesson.fileName)}
+                            </span>
                           </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
-              </Card>
-            </div>
-
-            {/* Main Content Area */}
-            <div className="lg:col-span-9 space-y-6">
-              {/* Lesson Navigation */}
-              {selectedLesson && (
-                <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border">
-                  <Button
-                    variant="ghost"
-                    onClick={handlePreviousLesson}
-                    disabled={selectedIndex === 0}
-                    className="gap-2"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500">
-                      Lesson {selectedIndex + 1} of {lessons.length}
-                    </p>
-                    <h2 className="font-semibold text-gray-800 max-w-md truncate">
-                      {selectedLesson.title || selectedLesson.fileName}
-                    </h2>
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    onClick={handleNextLesson}
-                    disabled={selectedIndex === lessons.length - 1}
-                    className="gap-2"
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Lesson Viewer */}
-                <div className="xl:col-span-2">
-                  {selectedLesson ? (
-                    <div className="bg-white rounded-xl shadow-lg border overflow-hidden">
-                      <LessonViewer 
-                        key={selectedLesson.id}
-                        fileUrl={selectedLesson.fileUrl} 
-                        fileType={selectedLesson.fileType} 
-                        fileName={selectedLesson.fileName} 
-                      />
-                    </div>
-                  ) : (
-                    <Card className="shadow-lg border-0">
-                      <CardContent className="p-12 text-center">
-                        <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">Select a Lesson</h3>
-                        <p className="text-gray-500">Choose a lesson from the sidebar to view its content.</p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-
-                {/* AI Study Buddy */}
-                <div className="xl:col-span-1">
-                  {selectedLesson ? (
-                    <Card className="shadow-lg border-0 overflow-hidden h-[600px] flex flex-col">
-                      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 flex-shrink-0">
-                        <CardTitle className="flex items-center gap-2 text-base">
-                          <Sparkles className="h-4 w-4" />
-                          AI Study Buddy
-                        </CardTitle>
-                        <p className="text-purple-100 text-xs mt-0.5">
-                          Ask questions about this lesson
-                        </p>
-                      </CardHeader>
-                      <div className="flex-1 overflow-hidden">
-                        <StudyBuddyChat 
-                          key={selectedLesson.id}
-                          lessonId={selectedLesson.id} 
-                          lessonTitle={selectedLesson.title || selectedLesson.fileName} 
-                        />
+                          <h4 className={`font-medium text-sm leading-tight line-clamp-2
+                            ${isSelected ? 'text-amber-300' : 'text-white'}`}>
+                            {lesson.title || lesson.fileName || 'Untitled Lesson'}
+                          </h4>
+                        </div>
                       </div>
-                    </Card>
-                  ) : (
-                    <Card className="shadow-lg border-0 h-full">
-                      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                          <Sparkles className="h-5 w-5" />
-                          AI Study Buddy
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-6 text-center">
-                        <Sparkles className="h-12 w-12 text-purple-200 mx-auto mb-4" />
-                        <p className="text-gray-500 text-sm">
-                          Select a lesson to chat with your AI study buddy about that specific content!
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Content Area */}
+        <div className={`flex-1 flex flex-col transition-all duration-300 ${showAIChat ? 'mr-96' : ''}`}>
+          {/* Lesson Navigation Bar */}
+          {selectedLesson && (
+            <div className="h-14 bg-slate-800/60 border-b border-slate-700/50 flex items-center justify-between px-6">
+              <Button
+                variant="ghost"
+                onClick={handlePreviousLesson}
+                disabled={selectedIndex === 0}
+                className="gap-2 text-slate-300 hover:text-white disabled:opacity-30"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              
+              <div className="text-center">
+                <span className="text-xs text-slate-400 block">
+                  Lesson {selectedIndex + 1} of {lessons.length}
+                </span>
+                <h2 className="font-semibold text-white text-sm max-w-md truncate">
+                  {selectedLesson.title || selectedLesson.fileName}
+                </h2>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="text-slate-300 hover:text-white p-2"
+                >
+                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={handleNextLesson}
+                  disabled={selectedIndex === lessons.length - 1}
+                  className="gap-2 text-slate-300 hover:text-white disabled:opacity-30"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Lesson Viewer */}
+          <div className="flex-1 overflow-hidden bg-slate-900/50">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <Loader2 className="h-12 w-12 animate-spin text-amber-400 mx-auto mb-4" />
+                  <p className="text-slate-400">Loading lessons...</p>
                 </div>
               </div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center max-w-md">
+                  <span className="material-symbols-outlined text-4xl text-red-400 mb-4 block">error</span>
+                  <p className="text-red-300 mb-4">{error}</p>
+                  <Button 
+                    className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30"
+                    onClick={() => window.location.reload()}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            ) : lessons.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <BookOpen className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No Lessons Yet</h3>
+                  <p className="text-slate-400">This class doesn't have any lessons available yet.</p>
+                </div>
+              </div>
+            ) : selectedLesson ? (
+              <div className="h-full p-4">
+                <div className="h-full bg-slate-800/40 rounded-xl border border-slate-700/50 overflow-hidden">
+                  <LessonViewer 
+                    key={selectedLesson.id}
+                    fileUrl={selectedLesson.fileUrl} 
+                    fileType={selectedLesson.fileType} 
+                    fileName={selectedLesson.fileName} 
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <FileText className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">Select a Lesson</h3>
+                  <p className="text-slate-400">Choose a lesson from the sidebar to view its content.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Study Buddy Panel */}
+        {showAIChat && (
+          <div className="fixed right-0 top-16 bottom-0 w-96 bg-slate-800/95 backdrop-blur-sm border-l border-slate-700/50 flex flex-col z-40 shadow-2xl">
+            {/* Chat Header */}
+            <div className="h-14 bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-between px-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-white" />
+                <span className="font-semibold text-white">AI Study Buddy</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowAIChat(false)}
+                className="text-white/80 hover:text-white hover:bg-white/10 p-1"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            {/* Chat Content */}
+            <div className="flex-1 overflow-hidden">
+              {selectedLesson ? (
+                <StudyBuddyChat 
+                  key={selectedLesson.id}
+                  lessonId={selectedLesson.id} 
+                  lessonTitle={selectedLesson.title || selectedLesson.fileName} 
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center p-6 text-center">
+                  <div>
+                    <Sparkles className="h-12 w-12 text-purple-400/50 mx-auto mb-4" />
+                    <p className="text-slate-400">
+                      Select a lesson to chat with your AI study buddy about that specific content!
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

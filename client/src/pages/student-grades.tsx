@@ -57,21 +57,23 @@ export default function StudentGradesPage() {
 
   // Use API data or fallback to calculated grades from enrollments
   const { data: enrollmentsData } = useQuery({
-    queryKey: ["/api/enrollments"],
+    queryKey: ["/api/enrollments/student"],
     queryFn: async () => {
-      const response = await fetch(apiEndpoint("/api/enrollments"), {
+      const response = await fetch(apiEndpoint("/api/enrollments/student"), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      if (!response.ok) return { enrollments: [] };
-      return response.json();
+      if (!response.ok) return [];
+      const result = await response.json();
+      return Array.isArray(result) ? result : [];
     },
     enabled: !!user,
   });
 
   // Calculate grades from enrollments if no dedicated grades API
-  const courseGrades: CourseGrade[] = data?.grades || (enrollmentsData?.enrollments?.map((e: any, idx: number) => ({
+  const enrollmentsList = enrollmentsData || [];
+  const courseGrades: CourseGrade[] = data?.grades || (enrollmentsList.map((e: any, idx: number) => ({
     id: e.id,
     courseId: e.courseId,
     courseName: e.course?.title || `Course ${e.courseId}`,
