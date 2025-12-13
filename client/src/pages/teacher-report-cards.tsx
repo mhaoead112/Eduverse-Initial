@@ -282,37 +282,37 @@ export default function TeacherReportCards() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 bg-[#0a0f1a] min-h-screen p-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <GraduationCap className="h-8 w-8 text-green-600" />
+            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+              <GraduationCap className="h-8 w-8 text-yellow-500" />
               Manage Report Cards
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-slate-400 mt-1">
               Upload and manage student report cards
             </p>
           </div>
           
           <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                 <Upload className="h-4 w-4" />
                 Upload Report Card
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] bg-slate-800/50 border border-slate-700/50">
               <DialogHeader>
-                <DialogTitle>Upload Report Card</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-white">Upload Report Card</DialogTitle>
+                <DialogDescription className="text-slate-400">
                   Select a student and upload their report card for a specific period
                 </DialogDescription>
               </DialogHeader>
               
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Student</label>
+                  <label className="text-sm font-medium text-slate-300">Student</label>
                   <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a student" />
@@ -334,7 +334,7 @@ export default function TeacherReportCards() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Academic Year</label>
+                  <label className="text-sm font-medium text-slate-300">Academic Year</label>
                   <Select value={selectedYear} onValueChange={setSelectedYear}>
                     <SelectTrigger>
                       <SelectValue />
@@ -350,7 +350,7 @@ export default function TeacherReportCards() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Period</label>
+                  <label className="text-sm font-medium text-slate-300">Period</label>
                   <Select value={selectedPeriod} onValueChange={(val) => setSelectedPeriod(val as ReportPeriod)}>
                     <SelectTrigger>
                       <SelectValue />
@@ -366,14 +366,15 @@ export default function TeacherReportCards() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Report Card File (PDF)</label>
+                  <label className="text-sm font-medium text-slate-300">Report Card File (PDF)</label>
                   <Input
                     type="file"
                     accept=".pdf"
                     onChange={handleFileChange}
+                    className="bg-slate-700/50 border-slate-600 text-slate-300"
                   />
                   {selectedFile && (
-                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                    <p className="text-sm text-slate-400 flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
                     </p>
@@ -381,9 +382,9 @@ export default function TeacherReportCards() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                    <span className="text-sm text-red-700">{error}</span>
+                  <div className="flex items-center gap-2 p-3 bg-red-900/30 border border-red-700/50 rounded-lg">
+                    <AlertCircle className="h-4 w-4 text-red-400" />
+                    <span className="text-sm text-red-300">{error}</span>
                   </div>
                 )}
 
@@ -391,12 +392,12 @@ export default function TeacherReportCards() {
                 {uploading && uploadProgress > 0 && (
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Uploading...</span>
-                      <span className="font-semibold text-blue-600">{uploadProgress}%</span>
+                      <span className="text-slate-400">Uploading...</span>
+                      <span className="font-semibold text-yellow-500">{uploadProgress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-slate-700 rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
@@ -407,6 +408,7 @@ export default function TeacherReportCards() {
               <div className="flex justify-end gap-2">
                 <Button 
                   variant="outline" 
+                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
                   onClick={() => {
                     setUploadDialogOpen(false);
                     setSelectedFile(null);
@@ -418,6 +420,7 @@ export default function TeacherReportCards() {
                 <Button 
                   onClick={handleUpload}
                   disabled={!selectedFile || !selectedStudent || uploading}
+                  className="bg-yellow-500 hover:bg-yellow-400 text-slate-900 disabled:opacity-50"
                 >
                   {uploading ? (
                     <>
@@ -437,22 +440,22 @@ export default function TeacherReportCards() {
         </div>
 
         {/* Search */}
-        <Card>
+        <Card className="bg-slate-800/50 border border-slate-700/50">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Search by student name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-10"
+                className="pl-10 pr-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
-                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                  <X className="h-4 w-4 text-slate-400 hover:text-slate-300" />
                 </button>
               )}
             </div>
@@ -461,20 +464,20 @@ export default function TeacherReportCards() {
 
         {/* Report Cards List */}
         {loading ? (
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-              <span className="ml-3 text-gray-600">Loading report cards...</span>
+              <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
+              <span className="ml-3 text-slate-400">Loading report cards...</span>
             </CardContent>
           </Card>
         ) : filteredReports.length === 0 ? (
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <FileText className="h-16 w-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              <FileText className="h-16 w-16 text-slate-600 mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">
                 No Report Cards Found
               </h3>
-              <p className="text-gray-500 text-center max-w-md">
+              <p className="text-slate-400 text-center max-w-md">
                 {searchTerm 
                   ? 'No report cards match your search criteria' 
                   : 'Upload report cards to get started'}
@@ -483,9 +486,9 @@ export default function TeacherReportCards() {
           </Card>
         ) : (
           <div className="space-y-4">
-            <Card>
+            <Card className="bg-slate-800/50 border border-slate-700/50">
               <CardHeader>
-                <CardTitle>
+                <CardTitle className="text-white">
                   All Report Cards ({filteredReports.length})
                 </CardTitle>
               </CardHeader>
@@ -494,26 +497,26 @@ export default function TeacherReportCards() {
                   {filteredReports.map((report) => (
                     <div
                       key={report.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center justify-between p-4 border border-slate-700/50 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 transition-colors"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <FileText className="h-5 w-5 text-blue-600" />
+                          <FileText className="h-5 w-5 text-yellow-500" />
                           <div>
-                            <h4 className="font-semibold">{report.studentName}</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <h4 className="font-semibold text-white">{report.studentName}</h4>
+                            <p className="text-sm text-slate-400">
                               {report.studentEmail}
                             </p>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2 text-sm">
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="border-slate-600 text-slate-300">
                             {getPeriodLabel(report.period)}
                           </Badge>
-                          <Badge variant="secondary">
+                          <Badge variant="secondary" className="bg-slate-600 text-slate-300">
                             {report.academicYear}
                           </Badge>
-                          <span className="text-gray-500">
+                          <span className="text-slate-500">
                             Uploaded: {new Date(report.uploadedAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -523,6 +526,7 @@ export default function TeacherReportCards() {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700"
                           onClick={() => handleView(report)}
                         >
                           <Eye className="h-4 w-4" />
@@ -530,7 +534,7 @@ export default function TeacherReportCards() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-red-600 hover:bg-red-50"
+                          className="text-red-400 border-red-700/50 hover:bg-red-900/30"
                           onClick={() => handleDelete(report.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -545,12 +549,12 @@ export default function TeacherReportCards() {
         )}
 
         {/* Info */}
-        <Card className="bg-green-50 dark:bg-green-900/20 border-green-200">
+        <Card className="bg-yellow-900/20 border border-yellow-700/50">
           <CardContent className="flex items-start gap-3 py-4">
-            <AlertCircle className="h-5 w-5 text-green-600 mt-0.5" />
-            <div className="text-sm text-green-800 dark:text-green-200">
+            <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+            <div className="text-sm text-yellow-200">
               <p className="font-semibold mb-1">Report Card Guidelines</p>
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-disc list-inside space-y-1 text-yellow-300/80">
                 <li>Only PDF files are accepted (max 10MB)</li>
                 <li>Students will be able to view and download their reports</li>
                 <li>You can upload multiple reports for different periods</li>

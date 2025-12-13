@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Megaphone, Pin, BookOpen, Filter, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiEndpoint } from "@/lib/config";
-import StudentLayout from "@/components/StudentLayout";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 interface Announcement {
   id: number;
@@ -33,7 +33,7 @@ export default function StudentAllAnnouncementsPage() {
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
   const [courses, setCourses] = useState<{ id: number; title: string }[]>([]);
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem("token");
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
@@ -136,7 +136,7 @@ export default function StudentAllAnnouncementsPage() {
   const pinnedCount = announcements.filter(a => a.isPinned).length;
 
   return (
-    <StudentLayout>
+    <DashboardLayout>
       <div className="space-y-6">
         {/* Page Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -311,6 +311,6 @@ export default function StudentAllAnnouncementsPage() {
           </div>
         )}
       </div>
-    </StudentLayout>
+    </DashboardLayout>
   );
 }

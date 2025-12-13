@@ -407,15 +407,15 @@ export default function TeacherCommunication() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#0a0f1a' }}>
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Communication Hub
             </h1>
-            <p className="text-gray-600">
+            <p className="text-slate-400">
               Collaborate with colleagues and manage communications
             </p>
           </div>
@@ -434,18 +434,18 @@ export default function TeacherCommunication() {
             <div className="flex justify-between items-center">
               <div className="flex gap-4 flex-1">
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                   <Input
                     placeholder="Search forum posts..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                     data-testid="input-search-forums"
                   />
                 </div>
                 
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-64" data-testid="select-forum-category">
+                  <SelectTrigger className="w-64 bg-slate-700/50 border-slate-600 text-white" data-testid="select-forum-category">
                     <SelectValue placeholder="Filter by category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -461,7 +461,7 @@ export default function TeacherCommunication() {
               
               <Dialog open={isForumPostDialogOpen} onOpenChange={setIsForumPostDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button data-testid="button-create-forum-post">
+                  <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" data-testid="button-create-forum-post">
                     <Plus className="h-4 w-4 mr-2" />
                     New Post
                   </Button>
@@ -567,24 +567,24 @@ export default function TeacherCommunication() {
             {/* Forum Posts */}
             <div className="space-y-4">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="hover:shadow-md transition-shadow" data-testid={`forum-post-${post.id}`}>
+                <Card key={post.id} className="bg-slate-800/50 border border-slate-700/50 hover:shadow-md transition-shadow" data-testid={`forum-post-${post.id}`}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-slate-700 text-white">
                             {post.authorName.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900">
+                            <h3 className="font-semibold text-white">
                               {post.title}
                             </h3>
-                            {post.isPinned && <Pin className="h-4 w-4 text-blue-600" />}
-                            {post.isResolved && <CheckCircle className="h-4 w-4 text-green-600" />}
+                            {post.isPinned && <Pin className="h-4 w-4 text-yellow-500" />}
+                            {post.isResolved && <CheckCircle className="h-4 w-4 text-green-500" />}
                           </div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-slate-400">
                             by {post.authorName} • {new Date(post.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -613,7 +613,7 @@ export default function TeacherCommunication() {
                       </DropdownMenu>
                     </div>
                     
-                    <p className="text-gray-700 mb-4">
+                    <p className="text-slate-300 mb-4">
                       {post.content}
                     </p>
                     
@@ -627,7 +627,7 @@ export default function TeacherCommunication() {
                         ))}
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 text-sm text-slate-400">
                         <div className="flex items-center gap-1">
                           <MessageSquare className="h-4 w-4" />
                           {post.replies}
@@ -648,11 +648,11 @@ export default function TeacherCommunication() {
               
               {filteredPosts.length === 0 && (
                 <div className="text-center py-8" data-testid="empty-forum-posts">
-                  <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <MessageSquare className="h-12 w-12 mx-auto text-slate-500 mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">
                     No posts found
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-slate-400">
                     Try adjusting your search or create a new post to start the discussion.
                   </p>
                 </div>
@@ -664,11 +664,11 @@ export default function TeacherCommunication() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Chat List */}
               <div className="lg:col-span-1">
-                <Card data-testid="card-group-chat-list">
+                <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-group-chat-list">
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
+                    <CardTitle className="flex items-center justify-between text-white">
                       Group Chats
-                      <Button size="sm" variant="outline" data-testid="button-create-group-chat">
+                      <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700" data-testid="button-create-group-chat">
                         <Plus className="h-4 w-4" />
                       </Button>
                     </CardTitle>
@@ -681,16 +681,16 @@ export default function TeacherCommunication() {
                             key={chat.id}
                             className={`p-3 rounded-lg cursor-pointer transition-colors ${
                               selectedChat === chat.id 
-                                ? 'bg-blue-50 border border-blue-300' 
-                                : 'bg-gray-50 hover:bg-gray-100'
+                                ? 'bg-yellow-500/20 border border-yellow-500/50' 
+                                : 'bg-slate-700/50 hover:bg-slate-700'
                             }`}
                             onClick={() => setSelectedChat(chat.id)}
                             data-testid={`group-chat-${chat.id}`}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 text-slate-300">
                                 {getChatTypeIcon(chat.type)}
-                                <h3 className="font-semibold text-sm">{chat.name}</h3>
+                                <h3 className="font-semibold text-sm text-white">{chat.name}</h3>
                               </div>
                               {chat.unreadCount > 0 && (
                                 <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
@@ -698,11 +698,11 @@ export default function TeacherCommunication() {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-gray-600 mb-1">
+                            <p className="text-xs text-slate-400 mb-1">
                               {chat.memberCount} members
                             </p>
                             {chat.lastMessage && (
-                              <p className="text-xs text-gray-500 truncate">
+                              <p className="text-xs text-slate-500 truncate">
                                 {chat.lastMessage}
                               </p>
                             )}
@@ -717,25 +717,25 @@ export default function TeacherCommunication() {
               {/* Chat Window */}
               <div className="lg:col-span-2">
                 {selectedChat ? (
-                  <Card data-testid="card-chat-window">
-                    <CardHeader className="border-b">
+                  <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="card-chat-window">
+                    <CardHeader className="border-b border-slate-700">
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-lg">
+                          <CardTitle className="text-lg text-white">
                             {mockGroupChats.find(c => c.id === selectedChat)?.name}
                           </CardTitle>
-                          <CardDescription>
+                          <CardDescription className="text-slate-400">
                             {mockGroupChats.find(c => c.id === selectedChat)?.memberCount} members
                           </CardDescription>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" data-testid="button-voice-call">
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700" data-testid="button-voice-call">
                             <Phone className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm" data-testid="button-video-call">
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700" data-testid="button-video-call">
                             <Video className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm" data-testid="button-chat-settings">
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700" data-testid="button-chat-settings">
                             <Settings className="h-4 w-4" />
                           </Button>
                         </div>
@@ -748,24 +748,24 @@ export default function TeacherCommunication() {
                           {mockMessages.map((message) => (
                             <div key={message.id} className="flex items-start gap-3" data-testid={`message-${message.id}`}>
                               <Avatar className="h-8 w-8">
-                                <AvatarFallback className="text-xs">
+                                <AvatarFallback className="text-xs bg-slate-700 text-white">
                                   {message.authorName.split(' ').map(n => n[0]).join('')}
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-sm font-semibold">{message.authorName}</span>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-sm font-semibold text-white">{message.authorName}</span>
+                                  <span className="text-xs text-slate-500">
                                     {new Date(message.timestamp).toLocaleTimeString()}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-700">
+                                <p className="text-sm text-slate-300">
                                   {message.content}
                                 </p>
                                 {message.attachments && (
                                   <div className="mt-2">
                                     {message.attachments.map((attachment, index) => (
-                                      <div key={index} className="flex items-center gap-2 text-xs text-blue-600">
+                                      <div key={index} className="flex items-center gap-2 text-xs text-yellow-500">
                                         <Paperclip className="h-3 w-3" />
                                         {attachment}
                                       </div>
@@ -778,7 +778,7 @@ export default function TeacherCommunication() {
                         </div>
                       </ScrollArea>
                       
-                      <div className="border-t p-4">
+                      <div className="border-t border-slate-700 p-4">
                         <Form {...messageForm}>
                           <form onSubmit={messageForm.handleSubmit(onMessageSubmit)} className="flex gap-2">
                             <FormField
@@ -789,17 +789,18 @@ export default function TeacherCommunication() {
                                   <FormControl>
                                     <Input 
                                       placeholder="Type a message..." 
-                                      {...field} 
+                                      {...field}
+                                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                                       data-testid="input-chat-message"
                                     />
                                   </FormControl>
                                 </FormItem>
                               )}
                             />
-                            <Button type="button" variant="outline" size="sm" data-testid="button-attach-file">
+                            <Button type="button" variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700" data-testid="button-attach-file">
                               <Paperclip className="h-4 w-4" />
                             </Button>
-                            <Button type="submit" disabled={sendMessageMutation.isPending} data-testid="button-send-message">
+                            <Button type="submit" className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" disabled={sendMessageMutation.isPending} data-testid="button-send-message">
                               <Send className="h-4 w-4" />
                             </Button>
                           </form>
@@ -808,14 +809,14 @@ export default function TeacherCommunication() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card data-testid="no-chat-selected">
+                  <Card className="bg-slate-800/50 border border-slate-700/50" data-testid="no-chat-selected">
                     <CardContent className="flex items-center justify-center h-96">
                       <div className="text-center">
-                        <MessageCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        <MessageCircle className="h-12 w-12 mx-auto text-slate-500 mb-4" />
+                        <h3 className="text-lg font-semibold text-white mb-2">
                           Select a chat
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-slate-400">
                           Choose a group chat from the list to start messaging
                         </p>
                       </div>
@@ -830,15 +831,15 @@ export default function TeacherCommunication() {
             {/* Support Header */}
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Support Tickets</h2>
-                <p className="text-sm text-gray-600">
+                <h2 className="text-xl font-semibold text-white">Support Tickets</h2>
+                <p className="text-sm text-slate-400">
                   Get help with technical issues and feature requests
                 </p>
               </div>
               
               <Dialog open={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button data-testid="button-create-support-ticket">
+                  <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900" data-testid="button-create-support-ticket">
                     <Plus className="h-4 w-4 mr-2" />
                     New Ticket
                   </Button>
@@ -954,12 +955,12 @@ export default function TeacherCommunication() {
             {/* Support Tickets */}
             <div className="space-y-4">
               {mockSupportTickets.map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-md transition-shadow" data-testid={`support-ticket-${ticket.id}`}>
+                <Card key={ticket.id} className="bg-slate-800/50 border border-slate-700/50 hover:shadow-md transition-shadow" data-testid={`support-ticket-${ticket.id}`}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-white">
                             #{ticket.id} - {ticket.subject}
                           </h3>
                           <Badge className={getStatusColor(ticket.status)}>
@@ -969,16 +970,16 @@ export default function TeacherCommunication() {
                             {ticket.priority}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-slate-400 mb-2">
                           Category: {ticket.category}
                         </p>
-                        <p className="text-gray-700">
+                        <p className="text-slate-300">
                           {ticket.description}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center justify-between text-sm text-slate-400">
                       <div className="flex items-center gap-4">
                         <span>Created: {new Date(ticket.createdAt).toLocaleDateString()}</span>
                         {ticket.updatedAt && (
@@ -989,7 +990,7 @@ export default function TeacherCommunication() {
                         )}
                       </div>
                       
-                      <Button variant="outline" size="sm" data-testid={`button-view-ticket-${ticket.id}`}>
+                      <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700" data-testid={`button-view-ticket-${ticket.id}`}>
                         View Details
                       </Button>
                     </div>
@@ -999,11 +1000,11 @@ export default function TeacherCommunication() {
               
               {mockSupportTickets.length === 0 && (
                 <div className="text-center py-8" data-testid="empty-support-tickets">
-                  <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <AlertCircle className="h-12 w-12 mx-auto text-slate-500 mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">
                     No support tickets
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-slate-400">
                     Create a new ticket if you need help or have questions.
                   </p>
                 </div>

@@ -238,8 +238,8 @@ export default function TeacherAnalytics() {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-green-600" />
-          <p className="text-gray-600 font-medium">Loading analytics data...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-yellow-500" />
+          <p className="text-slate-400 font-medium">Loading analytics data...</p>
         </div>
       </DashboardLayout>
     );
@@ -255,14 +255,14 @@ export default function TeacherAnalytics() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
               Analytics Dashboard
             </h1>
-            <p className="text-gray-600">Monitor student performance and gain insights</p>
+            <p className="text-slate-400">Monitor student performance and gain insights</p>
           </div>
           <div className="flex gap-3">
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-              <SelectTrigger className="w-[250px] border-gray-300 shadow-sm">
+              <SelectTrigger className="w-[250px] border-slate-700 bg-slate-800/50 text-white shadow-sm">
                 <SelectValue placeholder="Select course" />
               </SelectTrigger>
               <SelectContent>
@@ -274,7 +274,7 @@ export default function TeacherAnalytics() {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" className="shadow-sm" onClick={handleExportAnalytics}>
+            <Button variant="outline" className="shadow-sm border-slate-700 bg-slate-800/50 text-white hover:bg-slate-700" onClick={handleExportAnalytics}>
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
@@ -283,13 +283,13 @@ export default function TeacherAnalytics() {
 
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-blue-50 to-white">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-600 mb-1">Total Students</p>
-                  <p className="text-4xl font-bold text-gray-900">{overviewStats.totalStudents}</p>
-                  <p className="text-xs text-gray-500 mt-1">Enrolled across courses</p>
+                  <p className="text-sm font-medium text-blue-400 mb-1">Total Students</p>
+                  <p className="text-4xl font-bold text-white">{overviewStats.totalStudents}</p>
+                  <p className="text-xs text-slate-500 mt-1">Enrolled across courses</p>
                 </div>
                 <div className="h-16 w-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <Users className="h-8 w-8 text-white" />
@@ -298,15 +298,15 @@ export default function TeacherAnalytics() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-green-50 to-white">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-600 mb-1">Average Score</p>
-                  <p className="text-4xl font-bold text-gray-900">{overviewStats.averageClassScore}%</p>
+                  <p className="text-sm font-medium text-green-400 mb-1">Average Score</p>
+                  <p className="text-4xl font-bold text-white">{overviewStats.averageClassScore}%</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <TrendingUp className="h-3 w-3 text-green-600" />
-                    <p className="text-xs text-green-600">Above target</p>
+                    <TrendingUp className="h-3 w-3 text-green-400" />
+                    <p className="text-xs text-green-400">Above target</p>
                   </div>
                 </div>
                 <div className="h-16 w-16 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -316,12 +316,12 @@ export default function TeacherAnalytics() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-purple-50 to-white">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600 mb-1">Completion Rate</p>
-                  <p className="text-4xl font-bold text-gray-900">{overviewStats.averageCompletionRate}%</p>
+                  <p className="text-sm font-medium text-purple-400 mb-1">Completion Rate</p>
+                  <p className="text-4xl font-bold text-white">{overviewStats.averageCompletionRate}%</p>
                   <Progress value={overviewStats.averageCompletionRate} className="h-2 mt-2" />
                 </div>
                 <div className="h-16 w-16 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -331,13 +331,13 @@ export default function TeacherAnalytics() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-yellow-50 to-white">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-600 mb-1">Top Performers</p>
-                  <p className="text-4xl font-bold text-gray-900">{overviewStats.topPerformers}</p>
-                  <p className="text-xs text-gray-500 mt-1">Score ≥ 85%</p>
+                  <p className="text-sm font-medium text-yellow-400 mb-1">Top Performers</p>
+                  <p className="text-4xl font-bold text-white">{overviewStats.topPerformers}</p>
+                  <p className="text-xs text-slate-500 mt-1">Score ≥ 85%</p>
                 </div>
                 <div className="h-16 w-16 bg-yellow-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <Award className="h-8 w-8 text-white" />
@@ -346,13 +346,13 @@ export default function TeacherAnalytics() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-red-50 to-white">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-red-600 mb-1">Students at Risk</p>
-                  <p className="text-4xl font-bold text-gray-900">{overviewStats.studentsAtRisk}</p>
-                  <p className="text-xs text-gray-500 mt-1">Score &lt; 60%</p>
+                  <p className="text-sm font-medium text-red-400 mb-1">Students at Risk</p>
+                  <p className="text-4xl font-bold text-white">{overviewStats.studentsAtRisk}</p>
+                  <p className="text-xs text-slate-500 mt-1">Score &lt; 60%</p>
                 </div>
                 <div className="h-16 w-16 bg-red-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <AlertCircle className="h-8 w-8 text-white" />
@@ -361,13 +361,13 @@ export default function TeacherAnalytics() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-indigo-50 to-white">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-indigo-600 mb-1">Total Assignments</p>
-                  <p className="text-4xl font-bold text-gray-900">{overviewStats.totalAssignments}</p>
-                  <p className="text-xs text-gray-500 mt-1">Across all classes</p>
+                  <p className="text-sm font-medium text-indigo-400 mb-1">Total Assignments</p>
+                  <p className="text-4xl font-bold text-white">{overviewStats.totalAssignments}</p>
+                  <p className="text-xs text-slate-500 mt-1">Across all classes</p>
                 </div>
                 <div className="h-16 w-16 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <FileText className="h-8 w-8 text-white" />
@@ -380,22 +380,22 @@ export default function TeacherAnalytics() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Grade Distribution Chart */}
-          <Card className="border-0 shadow-lg rounded-2xl">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-green-600" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <BarChart3 className="h-5 w-5 text-yellow-400" />
                 Grade Distribution
               </CardTitle>
-              <CardDescription>Current grade ranges across all students</CardDescription>
+              <CardDescription className="text-slate-400">Current grade ranges across all students</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={gradeDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="range" stroke="#888" fontSize={12} />
-                  <YAxis stroke="#888" fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey="range" stroke="#94a3b8" fontSize={12} />
+                  <YAxis stroke="#94a3b8" fontSize={12} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.3)', backgroundColor: '#1e293b', color: '#fff' }}
                   />
                   <Bar dataKey="students" radius={[8, 8, 0, 0]}>
                     {gradeDistribution.map((entry, index) => (
@@ -408,13 +408,13 @@ export default function TeacherAnalytics() {
           </Card>
 
           {/* Performance Trend Pie Chart */}
-          <Card className="border-0 shadow-lg rounded-2xl">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-green-600" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Activity className="h-5 w-5 text-yellow-400" />
                 Performance Trends
               </CardTitle>
-              <CardDescription>Student progress distribution</CardDescription>
+              <CardDescription className="text-slate-400">Student progress distribution</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -434,7 +434,7 @@ export default function TeacherAnalytics() {
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.3)', backgroundColor: '#1e293b', color: '#fff' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -443,22 +443,22 @@ export default function TeacherAnalytics() {
 
           {/* Assignment Completion Chart */}
           {completionData.length > 0 && (
-            <Card className="border-0 shadow-lg rounded-2xl lg:col-span-2">
+            <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl lg:col-span-2">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <CheckCircle2 className="h-5 w-5 text-yellow-400" />
                   Assignment Completion by Student
                 </CardTitle>
-                <CardDescription>Top 10 students assignment progress</CardDescription>
+                <CardDescription className="text-slate-400">Top 10 students assignment progress</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={completionData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#888" fontSize={12} />
-                    <YAxis stroke="#888" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                    <YAxis stroke="#94a3b8" fontSize={12} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.3)', backgroundColor: '#1e293b', color: '#fff' }}
                     />
                     <Legend />
                     <Area type="monotone" dataKey="completed" stackId="1" stroke="#22c55e" fill="#22c55e" fillOpacity={0.6} />
@@ -472,69 +472,69 @@ export default function TeacherAnalytics() {
 
         {/* Course Analytics (only when "All Courses" selected) */}
         {selectedCourse === "all" && courseAnalytics.length > 0 && (
-          <Card className="border-0 shadow-lg rounded-2xl">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-green-600" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <BarChart3 className="h-5 w-5 text-yellow-400" />
                 Course Performance Overview
               </CardTitle>
-              <CardDescription>Detailed metrics for each course</CardDescription>
+              <CardDescription className="text-slate-400">Detailed metrics for each course</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 {courseAnalytics.map((course) => (
-                  <div key={course.courseId} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-all bg-gradient-to-r from-gray-50 to-white">
+                  <div key={course.courseId} className="border border-slate-700/50 rounded-xl p-5 hover:shadow-md transition-all bg-slate-900/50">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h4 className="font-bold text-lg text-gray-900">{course.courseTitle}</h4>
+                        <h4 className="font-bold text-lg text-white">{course.courseTitle}</h4>
                         <div className="flex items-center gap-3 mt-1">
-                          <Badge variant="outline" className="bg-blue-50">
+                          <Badge variant="outline" className="bg-blue-900/50 border-blue-700 text-blue-400">
                             <Users className="h-3 w-3 mr-1" />
                             {course.totalStudents} students
                           </Badge>
-                          <Badge variant="outline" className="bg-purple-50">
+                          <Badge variant="outline" className="bg-purple-900/50 border-purple-700 text-purple-400">
                             <FileText className="h-3 w-3 mr-1" />
                             {course.totalAssignments} assignments
                           </Badge>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-3xl font-bold text-green-600">{course.averageScore}%</div>
-                        <p className="text-xs text-gray-500">Average Score</p>
+                        <div className="text-3xl font-bold text-green-400">{course.averageScore}%</div>
+                        <p className="text-xs text-slate-500">Average Score</p>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-white rounded-lg p-4 border border-gray-100">
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <Target className="h-4 w-4 text-green-600" />
+                          <div className="h-8 w-8 bg-green-900/50 rounded-lg flex items-center justify-center">
+                            <Target className="h-4 w-4 text-green-400" />
                           </div>
-                          <p className="text-xs text-gray-600 font-medium">Avg Score</p>
+                          <p className="text-xs text-slate-400 font-medium">Avg Score</p>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">{course.averageScore}%</p>
+                        <p className="text-2xl font-bold text-white">{course.averageScore}%</p>
                       </div>
-                      <div className="bg-white rounded-lg p-4 border border-gray-100">
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                          <div className="h-8 w-8 bg-purple-900/50 rounded-lg flex items-center justify-center">
+                            <CheckCircle2 className="h-4 w-4 text-purple-400" />
                           </div>
-                          <p className="text-xs text-gray-600 font-medium">Completion</p>
+                          <p className="text-xs text-slate-400 font-medium">Completion</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <p className="text-2xl font-bold text-gray-900">{course.completionRate}%</p>
+                          <p className="text-2xl font-bold text-white">{course.completionRate}%</p>
                           <Progress value={course.completionRate} className="h-2 flex-1" />
                         </div>
                       </div>
-                      <div className="bg-white rounded-lg p-4 border border-gray-100">
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="h-8 w-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <FileText className="h-4 w-4 text-indigo-600" />
+                          <div className="h-8 w-8 bg-indigo-900/50 rounded-lg flex items-center justify-center">
+                            <FileText className="h-4 w-4 text-indigo-400" />
                           </div>
-                          <p className="text-xs text-gray-600 font-medium">Submissions</p>
+                          <p className="text-xs text-slate-400 font-medium">Submissions</p>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">
-                          {course.submittedAssignments}<span className="text-base text-gray-400">/{course.totalAssignments}</span>
+                        <p className="text-2xl font-bold text-white">
+                          {course.submittedAssignments}<span className="text-base text-slate-500">/{course.totalAssignments}</span>
                         </p>
                       </div>
                     </div>
@@ -546,29 +546,29 @@ export default function TeacherAnalytics() {
         )}
 
         {/* Student Performance */}
-        <Card className="border-0 shadow-lg rounded-2xl">
+        <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg rounded-2xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-green-600" />
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Users className="h-5 w-5 text-yellow-400" />
               Student Performance Details
             </CardTitle>
-            <CardDescription>Individual student analytics and progress tracking</CardDescription>
+            <CardDescription className="text-slate-400">Individual student analytics and progress tracking</CardDescription>
           </CardHeader>
           <CardContent>
             {students.length === 0 ? (
               <div className="text-center py-12">
-                <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-10 w-10 text-gray-400" />
+                <div className="h-20 w-20 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-10 w-10 text-slate-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Student Data</h3>
-                <p className="text-gray-600">No students found for the selected course</p>
+                <h3 className="text-lg font-semibold text-white mb-2">No Student Data</h3>
+                <p className="text-slate-400">No students found for the selected course</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {students.map((student) => (
-                  <div key={student.id} className="border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all duration-300 bg-white">
+                  <div key={student.id} className="border border-slate-700/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 bg-slate-900/50">
                     <div className="flex items-start gap-4">
-                      <Avatar className="h-16 w-16 ring-4 ring-gray-100 shadow-md">
+                      <Avatar className="h-16 w-16 ring-4 ring-slate-700 shadow-md">
                         <AvatarImage 
                           src={student.profilePicture ? assetUrl(student.profilePicture) : ''} 
                           alt={student.fullName} 
@@ -581,11 +581,11 @@ export default function TeacherAnalytics() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-3">
                           <div>
-                            <h4 className="font-bold text-lg text-gray-900">{student.fullName}</h4>
+                            <h4 className="font-bold text-lg text-white">{student.fullName}</h4>
                             <div className="flex items-center gap-2 mt-1">
-                              <p className="text-sm text-gray-600">@{student.username}</p>
-                              <span className="text-gray-400">•</span>
-                              <p className="text-sm text-gray-600">{student.email}</p>
+                              <p className="text-sm text-slate-400">@{student.username}</p>
+                              <span className="text-slate-600">•</span>
+                              <p className="text-sm text-slate-400">{student.email}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -623,37 +623,37 @@ export default function TeacherAnalytics() {
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-3 border border-blue-100">
-                            <p className="text-xs text-blue-600 font-semibold mb-2">Assignments</p>
+                          <div className="bg-blue-900/30 rounded-lg p-3 border border-blue-800/50">
+                            <p className="text-xs text-blue-400 font-semibold mb-2">Assignments</p>
                             <div className="flex items-center gap-2 mb-1">
                               <Progress value={(student.completedAssignments / student.totalAssignments) * 100} className="h-2 flex-1" />
                             </div>
-                            <p className="text-sm font-bold text-gray-900">
+                            <p className="text-sm font-bold text-white">
                               {student.completedAssignments}/{student.totalAssignments}
-                              <span className="text-xs text-gray-500 ml-1">
+                              <span className="text-xs text-slate-500 ml-1">
                                 ({Math.round((student.completedAssignments / student.totalAssignments) * 100)}%)
                               </span>
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-orange-50 to-white rounded-lg p-3 border border-orange-100">
-                            <p className="text-xs text-orange-600 font-semibold mb-2">Pending Tasks</p>
+                          <div className="bg-orange-900/30 rounded-lg p-3 border border-orange-800/50">
+                            <p className="text-xs text-orange-400 font-semibold mb-2">Pending Tasks</p>
                             <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-orange-500" />
-                              <p className="text-2xl font-bold text-gray-900">{student.pendingAssignments}</p>
+                              <Clock className="h-4 w-4 text-orange-400" />
+                              <p className="text-2xl font-bold text-white">{student.pendingAssignments}</p>
                             </div>
                           </div>
-                          <div className="bg-gradient-to-br from-purple-50 to-white rounded-lg p-3 border border-purple-100">
-                            <p className="text-xs text-purple-600 font-semibold mb-2">Attendance</p>
+                          <div className="bg-purple-900/30 rounded-lg p-3 border border-purple-800/50">
+                            <p className="text-xs text-purple-400 font-semibold mb-2">Attendance</p>
                             <div className="flex items-center gap-2 mb-1">
                               <Progress value={student.attendanceRate} className="h-2 flex-1" />
                             </div>
-                            <p className="text-2xl font-bold text-gray-900">{student.attendanceRate}%</p>
+                            <p className="text-2xl font-bold text-white">{student.attendanceRate}%</p>
                           </div>
-                          <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-3 border border-gray-200">
-                            <p className="text-xs text-gray-600 font-semibold mb-2">Last Activity</p>
+                          <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+                            <p className="text-xs text-slate-400 font-semibold mb-2">Last Activity</p>
                             <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-gray-500" />
-                              <p className="text-sm font-semibold text-gray-700">{student.lastActivity}</p>
+                              <Clock className="h-3 w-3 text-slate-500" />
+                              <p className="text-sm font-semibold text-slate-300">{student.lastActivity}</p>
                             </div>
                           </div>
                         </div>

@@ -175,8 +175,8 @@ export default function StudentProfilePage() {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-indigo-500 mx-auto mb-4" />
-            <p className="text-gray-500">Loading student profile...</p>
+            <Loader2 className="h-12 w-12 animate-spin text-yellow-500 mx-auto mb-4" />
+            <p className="text-slate-400">Loading student profile...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -187,12 +187,12 @@ export default function StudentProfilePage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Card className="max-w-md">
+          <Card className="max-w-md bg-slate-800/50 border border-slate-700/50">
             <CardContent className="pt-6 text-center">
-              <User className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-700 mb-2">Student Not Found</h2>
-              <p className="text-gray-500 mb-4">This student profile doesn't exist or you don't have access.</p>
-              <Button onClick={() => setLocation('/teacher/students')}>
+              <User className="h-16 w-16 text-slate-500 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-white mb-2">Student Not Found</h2>
+              <p className="text-slate-400 mb-4">This student profile doesn't exist or you don't have access.</p>
+              <Button onClick={() => setLocation('/teacher/students')} className="bg-yellow-500 hover:bg-yellow-600 text-black">
                 Back to Students
               </Button>
             </CardContent>
@@ -215,7 +215,7 @@ export default function StudentProfilePage() {
         {/* Back Button */}
         <Button
           variant="ghost"
-          className="gap-2 text-gray-600 hover:text-gray-900 -ml-2"
+          className="gap-2 text-slate-400 hover:text-white hover:bg-slate-800 -ml-2"
           onClick={() => setLocation('/teacher/students')}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -223,12 +223,12 @@ export default function StudentProfilePage() {
         </Button>
 
         {/* Profile Header */}
-        <Card className="border-0 shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-32 relative">
+        <Card className="bg-slate-800/50 border border-slate-700/50 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-yellow-500/20 via-amber-500/20 to-orange-500/20 h-32 relative">
             <div className="absolute -bottom-12 left-6">
-              <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+              <Avatar className="h-24 w-24 border-4 border-slate-700 shadow-lg">
                 <AvatarImage src={student.profilePicture ? assetUrl(student.profilePicture) : undefined} />
-                <AvatarFallback className="text-2xl bg-gradient-to-br from-indigo-400 to-purple-500 text-white">
+                <AvatarFallback className="text-2xl bg-gradient-to-br from-yellow-500 to-amber-600 text-black">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -237,124 +237,124 @@ export default function StudentProfilePage() {
           <CardContent className="pt-16 pb-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{student.fullName}</h1>
-                <p className="text-gray-500">@{student.username}</p>
+                <h1 className="text-2xl font-bold text-white">{student.fullName}</h1>
+                <p className="text-slate-400">@{student.username}</p>
                 {student.grade && (
-                  <Badge className="mt-2 bg-indigo-100 text-indigo-700">
+                  <Badge className="mt-2 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                     <GraduationCap className="h-3 w-3 mr-1" />
                     {student.grade}
                   </Badge>
                 )}
               </div>
               
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+              <div className="flex flex-wrap gap-4 text-sm text-slate-400">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                  <Mail className="h-4 w-4 text-slate-500" />
                   {student.email}
                 </div>
                 {student.phone && (
                   <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-400" />
+                    <Phone className="h-4 w-4 text-slate-500" />
                     {student.phone}
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <Calendar className="h-4 w-4 text-slate-500" />
                   Joined {new Date(student.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </div>
 
             {student.bio && (
-              <p className="mt-4 text-gray-600 border-t pt-4">{student.bio}</p>
+              <p className="mt-4 text-slate-400 border-t border-slate-700 pt-4">{student.bio}</p>
             )}
           </CardContent>
         </Card>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-indigo-50">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <BookOpen className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <BookOpen className="h-6 w-6 text-blue-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{courses.length}</p>
-              <p className="text-sm text-gray-500">Classes Enrolled</p>
+              <p className="text-2xl font-bold text-white">{courses.length}</p>
+              <p className="text-sm text-slate-400">Classes Enrolled</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <CheckCircle2 className="h-6 w-6 text-green-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-              <p className="text-sm text-gray-500">Completed</p>
+              <p className="text-2xl font-bold text-white">{stats.completed}</p>
+              <p className="text-sm text-slate-400">Completed</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-pink-50">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Trophy className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <Trophy className="h-6 w-6 text-purple-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stats.averageScore.toFixed(1)}%</p>
-              <p className="text-sm text-gray-500">Average Score</p>
+              <p className="text-2xl font-bold text-white">{stats.averageScore.toFixed(1)}%</p>
+              <p className="text-sm text-slate-400">Average Score</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-orange-50">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Award className="h-6 w-6 text-amber-600" />
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <Award className="h-6 w-6 text-yellow-400" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{getGradeLetter(stats.averageScore)}</p>
-              <p className="text-sm text-gray-500">Overall Grade</p>
+              <p className="text-2xl font-bold text-white">{getGradeLetter(stats.averageScore)}</p>
+              <p className="text-sm text-slate-400">Overall Grade</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Detailed Tabs */}
         <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm p-1 rounded-xl">
-            <TabsTrigger value="courses" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+          <TabsList className="bg-slate-800/50 border border-slate-700/50 p-1 rounded-xl">
+            <TabsTrigger value="courses" className="rounded-lg text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-black">
               Enrolled Classes
             </TabsTrigger>
-            <TabsTrigger value="grades" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <TabsTrigger value="grades" className="rounded-lg text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-black">
               Grades
             </TabsTrigger>
-            <TabsTrigger value="progress" className="rounded-lg data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+            <TabsTrigger value="progress" className="rounded-lg text-slate-400 data-[state=active]:bg-yellow-500 data-[state=active]:text-black">
               Progress
             </TabsTrigger>
           </TabsList>
 
           {/* Enrolled Courses Tab */}
           <TabsContent value="courses">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
               <CardHeader>
-                <CardTitle>Enrolled Classes</CardTitle>
+                <CardTitle className="text-white">Enrolled Classes</CardTitle>
               </CardHeader>
               <CardContent>
                 {courses.length === 0 ? (
                   <div className="text-center py-12">
-                    <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Not enrolled in any classes yet</p>
+                    <BookOpen className="h-16 w-16 text-slate-500 mx-auto mb-4" />
+                    <p className="text-slate-400">Not enrolled in any classes yet</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {courses.map((course) => (
                       <div
                         key={course.courseId}
-                        className="flex items-center gap-4 p-4 rounded-xl border hover:border-indigo-200 hover:bg-indigo-50/50 transition-colors"
+                        className="flex items-center gap-4 p-4 rounded-xl border border-slate-700/50 hover:border-yellow-500/50 hover:bg-slate-700/30 transition-colors"
                       >
-                        <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                          <BookOpen className="h-6 w-6 text-indigo-600" />
+                        <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                          <BookOpen className="h-6 w-6 text-yellow-400" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900">{course.courseTitle}</h4>
+                          <h4 className="font-medium text-white">{course.courseTitle}</h4>
                           <div className="flex items-center gap-2 mt-1">
                             <Progress value={course.progress} className="h-2 flex-1 max-w-[200px]" />
-                            <span className="text-sm text-gray-500">{course.progress}%</span>
+                            <span className="text-sm text-slate-400">{course.progress}%</span>
                           </div>
                         </div>
                         {course.grade && (
@@ -372,35 +372,35 @@ export default function StudentProfilePage() {
 
           {/* Grades Tab */}
           <TabsContent value="grades">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
               <CardHeader>
-                <CardTitle>Assignment Grades</CardTitle>
+                <CardTitle className="text-white">Assignment Grades</CardTitle>
               </CardHeader>
               <CardContent>
                 {grades.length === 0 ? (
                   <div className="text-center py-12">
-                    <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No graded assignments yet</p>
+                    <FileText className="h-16 w-16 text-slate-500 mx-auto mb-4" />
+                    <p className="text-slate-400">No graded assignments yet</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {grades.map((grade, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-4 p-4 rounded-xl border"
+                        className="flex items-center gap-4 p-4 rounded-xl border border-slate-700/50"
                       >
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getGradeColor(grade.percentage)}`}>
                           <span className="font-bold">{getGradeLetter(grade.percentage)}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900">{grade.assignmentTitle}</h4>
-                          <p className="text-sm text-gray-500">{grade.courseTitle}</p>
+                          <h4 className="font-medium text-white">{grade.assignmentTitle}</h4>
+                          <p className="text-sm text-slate-400">{grade.courseTitle}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-white">
                             {grade.score} / {grade.maxScore}
                           </p>
-                          <p className="text-sm text-gray-500">{grade.percentage.toFixed(1)}%</p>
+                          <p className="text-sm text-slate-400">{grade.percentage.toFixed(1)}%</p>
                         </div>
                       </div>
                     ))}
@@ -412,17 +412,17 @@ export default function StudentProfilePage() {
 
           {/* Progress Tab */}
           <TabsContent value="progress">
-            <Card className="border-0 shadow-md">
+            <Card className="bg-slate-800/50 border border-slate-700/50 shadow-md">
               <CardHeader>
-                <CardTitle>Learning Progress</CardTitle>
+                <CardTitle className="text-white">Learning Progress</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   {/* Overall Progress */}
-                  <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
+                  <div className="p-6 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 rounded-xl">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-gray-900">Overall Progress</h3>
-                      <span className="text-2xl font-bold text-indigo-600">
+                      <h3 className="font-semibold text-white">Overall Progress</h3>
+                      <span className="text-2xl font-bold text-yellow-400">
                         {courses.length > 0 
                           ? Math.round(courses.reduce((sum, c) => sum + c.progress, 0) / courses.length)
                           : 0
@@ -440,12 +440,12 @@ export default function StudentProfilePage() {
 
                   {/* Per-Course Progress */}
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-gray-900">Progress by Class</h3>
+                    <h3 className="font-semibold text-white">Progress by Class</h3>
                     {courses.map((course) => (
                       <div key={course.courseId} className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-700">{course.courseTitle}</span>
-                          <span className="font-medium text-gray-900">{course.progress}%</span>
+                          <span className="text-slate-300">{course.courseTitle}</span>
+                          <span className="font-medium text-white">{course.progress}%</span>
                         </div>
                         <Progress value={course.progress} className="h-2" />
                       </div>
@@ -453,19 +453,19 @@ export default function StudentProfilePage() {
                   </div>
 
                   {/* Performance Summary */}
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div className="text-center p-4 bg-green-50 rounded-xl">
-                      <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Performance</p>
-                      <p className="font-semibold text-gray-900">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700">
+                    <div className="text-center p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                      <TrendingUp className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-400">Performance</p>
+                      <p className="font-semibold text-white">
                         {stats.averageScore >= 80 ? 'Excellent' : 
                          stats.averageScore >= 60 ? 'Good' : 'Needs Improvement'}
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-blue-50 rounded-xl">
-                      <Target className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Completion Rate</p>
-                      <p className="font-semibold text-gray-900">
+                    <div className="text-center p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                      <Target className="h-8 w-8 text-blue-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-400">Completion Rate</p>
+                      <p className="font-semibold text-white">
                         {stats.total > 0 
                           ? Math.round((stats.completed / stats.total) * 100)
                           : 0

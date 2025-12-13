@@ -111,7 +111,7 @@ export default function TeacherStudents() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
         </div>
       </DashboardLayout>
     );
@@ -121,16 +121,16 @@ export default function TeacherStudents() {
     <DashboardLayout>
       <div className="space-y-6 pb-10">
         {/* Enhanced Header with Stats */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+        <div className="bg-slate-800/50 rounded-2xl p-6 shadow-lg border border-slate-700/50">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Students</h1>
-              <p className="text-gray-600">Manage and track your students' progress</p>
+              <h1 className="text-3xl font-bold text-white mb-2">My Students</h1>
+              <p className="text-slate-400">Manage and track your students' progress</p>
             </div>
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                className="gap-2"
+                className="gap-2 border-slate-600/50 text-slate-300 hover:bg-slate-700 hover:text-white"
                 onClick={() => {
                   // Export students to CSV
                   const headers = ['Name', 'Username', 'Email', 'Courses Enrolled', 'Enrolled Courses'];
@@ -166,38 +166,38 @@ export default function TeacherStudents() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Users className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Users className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Students</p>
-                  <p className="text-2xl font-bold text-gray-900">{students.length}</p>
+                  <p className="text-sm text-slate-400">Total Students</p>
+                  <p className="text-2xl font-bold text-white">{students.length}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Active</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-slate-400">Active</p>
+                  <p className="text-2xl font-bold text-white">
                     {students.filter(s => s.enrollmentCount > 0).length}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <BookOpen className="h-5 w-5 text-purple-600" />
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Avg Classes</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-slate-400">Avg Classes</p>
+                  <p className="text-2xl font-bold text-white">
                     {students.length > 0 ? 
                       (students.reduce((sum, s) => sum + s.enrollmentCount, 0) / students.length).toFixed(1) 
                       : '0'}
@@ -205,14 +205,14 @@ export default function TeacherStudents() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Award className="h-5 w-5 text-orange-600" />
+                <div className="p-2 bg-orange-500/20 rounded-lg">
+                  <Award className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Top Performer</p>
-                  <p className="text-sm font-bold text-gray-900 truncate">
+                  <p className="text-sm text-slate-400">Top Performer</p>
+                  <p className="text-sm font-bold text-white truncate">
                     {students.length > 0 ? 
                       students.reduce((prev, curr) => 
                         curr.enrollmentCount > prev.enrollmentCount ? curr : prev
@@ -226,35 +226,35 @@ export default function TeacherStudents() {
         </div>
 
         {/* Search and Filters */}
-        <Card className="bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
+        <Card className="bg-slate-800/50 border border-slate-700/50 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                 <Input
                   placeholder="Search by name, username, or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11 border-0 bg-gray-50"
+                  className="pl-10 h-11 border-slate-600 bg-slate-700/50 text-white placeholder:text-slate-400"
                 />
               </div>
               <div className="flex gap-3">
                 <Select value={filterBy} onValueChange={setFilterBy}>
-                  <SelectTrigger className="w-40 h-11">
+                  <SelectTrigger className="w-40 h-11 border-slate-600 bg-slate-700/50 text-white">
                     <Filter className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Filter by" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-800 border-slate-700">
                     <SelectItem value="all">All Students</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-40 h-11">
+                  <SelectTrigger className="w-40 h-11 border-slate-600 bg-slate-700/50 text-white">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-800 border-slate-700">
                     <SelectItem value="name">Name (A-Z)</SelectItem>
                     <SelectItem value="courses">Most Classes</SelectItem>
                   </SelectContent>
@@ -266,10 +266,10 @@ export default function TeacherStudents() {
 
         {/* Students Grid */}
         {filteredStudents.length === 0 ? (
-          <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
             <CardContent className="py-12 text-center">
-              <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">
+              <Users className="h-16 w-16 text-slate-500 mx-auto mb-4" />
+              <p className="text-slate-400">
                 {searchTerm ? "No students found matching your search" : "No students yet"}
               </p>
             </CardContent>
@@ -279,12 +279,12 @@ export default function TeacherStudents() {
             {filteredStudents.map((student) => (
               <Card 
                 key={student.id} 
-                className="group bg-white border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 overflow-hidden"
+                className="group bg-slate-800/50 border border-slate-700/50 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden"
               >
                 <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4 mb-4">
-                    <Avatar className="h-20 w-20 ring-4 ring-blue-50 group-hover:ring-blue-100 transition-all">
+                    <Avatar className="h-20 w-20 ring-4 ring-slate-700 group-hover:ring-slate-600 transition-all">
                       <AvatarImage 
                         src={student.profilePicture ? assetUrl(student.profilePicture) : ''} 
                         alt={student.fullName || student.username} 
@@ -294,18 +294,18 @@ export default function TeacherStudents() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-xl text-gray-900 mb-1 truncate group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-bold text-xl text-white mb-1 truncate group-hover:text-blue-400 transition-colors">
                         {student.fullName || student.username}
                       </h3>
-                      <p className="text-sm text-gray-500 mb-2">@{student.username}</p>
+                      <p className="text-sm text-slate-400 mb-2">@{student.username}</p>
                       <div className="flex items-center gap-2">
                         {student.grade && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300">
                             {student.grade}
                           </Badge>
                         )}
                         {student.enrollmentCount > 2 && (
-                          <Badge className="text-xs bg-green-100 text-green-700 hover:bg-green-100">
+                          <Badge className="text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30">
                             <TrendingUp className="h-3 w-3 mr-1" />
                             Active
                           </Badge>
@@ -315,28 +315,28 @@ export default function TeacherStudents() {
                   </div>
 
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-2">
-                      <Mail className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                    <div className="flex items-center gap-2 text-sm text-slate-300 bg-slate-700/50 rounded-lg p-2">
+                      <Mail className="h-4 w-4 flex-shrink-0 text-blue-400" />
                       <span className="truncate">{student.email}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-2">
-                      <BookOpen className="h-4 w-4 flex-shrink-0 text-purple-500" />
+                    <div className="flex items-center gap-2 text-sm text-slate-300 bg-slate-700/50 rounded-lg p-2">
+                      <BookOpen className="h-4 w-4 flex-shrink-0 text-purple-400" />
                       <span className="font-medium">{student.enrollmentCount} {student.enrollmentCount === 1 ? 'Class' : 'Classes'} Enrolled</span>
                     </div>
                   </div>
 
                   {student.enrolledCourses.length > 0 && (
-                    <div className="border-t border-gray-100 pt-4 mb-4">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Enrolled Classes</p>
+                    <div className="border-t border-slate-700 pt-4 mb-4">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Enrolled Classes</p>
                       <div className="space-y-2">
                         {student.enrolledCourses.slice(0, 3).map((course) => (
-                          <div key={course.enrollmentId} className="flex items-center gap-2 text-sm text-gray-700 bg-green-50 rounded-lg p-2">
-                            <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                          <div key={course.enrollmentId} className="flex items-center gap-2 text-sm text-slate-300 bg-green-500/10 rounded-lg p-2">
+                            <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
                             <span className="truncate font-medium">{course.courseTitle}</span>
                           </div>
                         ))}
                         {student.enrolledCourses.length > 3 && (
-                          <p className="text-xs text-gray-500 text-center pt-1">
+                          <p className="text-xs text-slate-500 text-center pt-1">
                             +{student.enrolledCourses.length - 3} more courses
                           </p>
                         )}
@@ -347,7 +347,7 @@ export default function TeacherStudents() {
                   <div className="flex gap-2">
                     <Button 
                       variant="default" 
-                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                       size="sm"
                       onClick={() => setLocation(`/teacher/students/${student.id}`)}
                     >
@@ -356,7 +356,7 @@ export default function TeacherStudents() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="px-3"
+                      className="px-3 border-slate-600/50 text-slate-300 hover:bg-slate-700 hover:text-white"
                       onClick={() => window.location.href = `mailto:${student.email}`}
                       title={`Send email to ${student.email}`}
                     >

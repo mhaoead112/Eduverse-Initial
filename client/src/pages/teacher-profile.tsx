@@ -315,21 +315,21 @@ export default function TeacherProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#0a0f1a' }}>
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Profile & Settings
             </h1>
-            <p className="text-gray-600">
+            <p className="text-slate-400">
               Manage your profile, preferences, and account settings
             </p>
           </div>
           
           <div className="flex gap-3">
-            <Button variant="outline" onClick={exportData} data-testid="button-export-data">
+            <Button variant="outline" onClick={exportData} data-testid="button-export-data" className="border-slate-600 text-slate-300 hover:bg-slate-700">
               <Download className="h-4 w-4 mr-2" />
               Export Data
             </Button>
@@ -338,29 +338,29 @@ export default function TeacherProfile() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="profile" data-testid="tab-profile">Profile</TabsTrigger>
-            <TabsTrigger value="security" data-testid="tab-security">Security</TabsTrigger>
-            <TabsTrigger value="notifications" data-testid="tab-notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="preferences" data-testid="tab-preferences">Preferences</TabsTrigger>
+          <TabsList className="bg-slate-800/50 border border-slate-700/50">
+            <TabsTrigger value="profile" data-testid="tab-profile" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">Profile</TabsTrigger>
+            <TabsTrigger value="security" data-testid="tab-security" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">Security</TabsTrigger>
+            <TabsTrigger value="notifications" data-testid="tab-notifications" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">Notifications</TabsTrigger>
+            <TabsTrigger value="preferences" data-testid="tab-preferences" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-slate-900">Preferences</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Overview */}
-              <Card className="lg:col-span-1" data-testid="card-profile-overview">
+              <Card className="lg:col-span-1 bg-slate-800/50 border border-slate-700/50" data-testid="card-profile-overview">
                 <CardContent className="p-6">
                   <div className="flex flex-col items-center text-center">
                     <div className="relative mb-4">
                       <Avatar className="h-24 w-24">
                         <AvatarImage src={mockProfile.avatar} />
-                        <AvatarFallback className="text-lg">
+                        <AvatarFallback className="text-lg bg-slate-700 text-white">
                           {mockProfile.firstName[0]}{mockProfile.lastName[0]}
                         </AvatarFallback>
                       </Avatar>
                       <label 
                         htmlFor="avatar-upload" 
-                        className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition-colors"
+                        className="absolute bottom-0 right-0 bg-yellow-500 text-slate-900 rounded-full p-2 cursor-pointer hover:bg-yellow-400 transition-colors"
                         data-testid="button-upload-avatar"
                       >
                         <Camera className="h-3 w-3" />
@@ -375,30 +375,30 @@ export default function TeacherProfile() {
                       />
                     </div>
                     
-                    <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                    <h2 className="text-xl font-semibold text-white mb-1">
                       {mockProfile.firstName} {mockProfile.lastName}
                     </h2>
-                    <p className="text-gray-600 mb-2">{mockProfile.title}</p>
-                    <Badge variant="secondary">{mockProfile.department}</Badge>
+                    <p className="text-slate-400 mb-2">{mockProfile.title}</p>
+                    <Badge variant="secondary" className="bg-slate-700 text-slate-300">{mockProfile.department}</Badge>
                     
                     <div className="grid grid-cols-2 gap-4 mt-6 w-full">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">{mockProfile.totalClasses}</div>
-                        <div className="text-sm text-gray-600">Classes</div>
+                        <div className="text-2xl font-bold text-blue-400">{mockProfile.totalClasses}</div>
+                        <div className="text-sm text-slate-400">Classes</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{mockProfile.totalStudents}</div>
-                        <div className="text-sm text-gray-600">Students</div>
+                        <div className="text-2xl font-bold text-green-400">{mockProfile.totalStudents}</div>
+                        <div className="text-sm text-slate-400">Students</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">{mockProfile.yearsTeaching}</div>
-                        <div className="text-sm text-gray-600">Years</div>
+                        <div className="text-2xl font-bold text-purple-400">{mockProfile.yearsTeaching}</div>
+                        <div className="text-sm text-slate-400">Years</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-orange-600">
+                        <div className="text-2xl font-bold text-orange-400">
                           {new Date(mockProfile.joinedDate).getFullYear()}
                         </div>
-                        <div className="text-sm text-gray-600">Joined</div>
+                        <div className="text-sm text-slate-400">Joined</div>
                       </div>
                     </div>
                   </div>
@@ -406,17 +406,18 @@ export default function TeacherProfile() {
               </Card>
 
               {/* Profile Form */}
-              <Card className="lg:col-span-2" data-testid="card-profile-form">
+              <Card className="lg:col-span-2 bg-slate-800/50 border border-slate-700/50" data-testid="card-profile-form">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Personal Information</CardTitle>
-                      <CardDescription>Update your profile details and contact information</CardDescription>
+                      <CardTitle className="text-white">Personal Information</CardTitle>
+                      <CardDescription className="text-slate-400">Update your profile details and contact information</CardDescription>
                     </div>
                     <Button 
                       variant={isEditing ? "outline" : "default"}
                       onClick={() => setIsEditing(!isEditing)}
                       data-testid="button-edit-profile"
+                      className={isEditing ? "border-slate-600 text-slate-300 hover:bg-slate-700" : "bg-yellow-500 hover:bg-yellow-400 text-slate-900"}
                     >
                       {isEditing ? (
                         <>
@@ -638,6 +639,7 @@ export default function TeacherProfile() {
                             variant="outline" 
                             onClick={() => setIsEditing(false)}
                             data-testid="button-cancel-profile"
+                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
                           >
                             Cancel
                           </Button>
@@ -645,6 +647,7 @@ export default function TeacherProfile() {
                             type="submit" 
                             disabled={updateProfileMutation.isPending}
                             data-testid="button-save-profile"
+                            className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                           >
                             {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                           </Button>
@@ -659,13 +662,13 @@ export default function TeacherProfile() {
 
           <TabsContent value="security" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card data-testid="card-change-password">
+              <Card data-testid="card-change-password" className="bg-slate-800/50 border border-slate-700/50">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-white">
                     <Lock className="h-5 w-5" />
                     Change Password
                   </CardTitle>
-                  <CardDescription>Update your account password for security</CardDescription>
+                  <CardDescription className="text-slate-400">Update your account password for security</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...securityForm}>
@@ -764,6 +767,7 @@ export default function TeacherProfile() {
                         type="submit" 
                         disabled={updateSecurityMutation.isPending}
                         data-testid="button-update-password"
+                        className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                       >
                         {updateSecurityMutation.isPending ? "Updating..." : "Update Password"}
                       </Button>
@@ -772,19 +776,19 @@ export default function TeacherProfile() {
                 </CardContent>
               </Card>
 
-              <Card data-testid="card-security-settings">
+              <Card data-testid="card-security-settings" className="bg-slate-800/50 border border-slate-700/50">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-white">
                     <Shield className="h-5 w-5" />
                     Security Settings
                   </CardTitle>
-                  <CardDescription>Additional security and privacy options</CardDescription>
+                  <CardDescription className="text-slate-400">Additional security and privacy options</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-sm font-medium">Two-Factor Authentication</Label>
-                      <p className="text-sm text-gray-600">
+                      <Label className="text-sm font-medium text-white">Two-Factor Authentication</Label>
+                      <p className="text-sm text-slate-400">
                         Add an extra layer of security to your account
                       </p>
                     </div>
@@ -793,48 +797,49 @@ export default function TeacherProfile() {
                       size="sm" 
                       onClick={handle2FASetup}
                       data-testid="button-setup-2fa"
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700"
                     >
                       <Key className="h-4 w-4 mr-2" />
                       Setup
                     </Button>
                   </div>
                   
-                  <Separator />
+                  <Separator className="bg-slate-700" />
                   
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-sm font-medium">Active Sessions</Label>
-                      <p className="text-sm text-gray-600">
+                      <Label className="text-sm font-medium text-white">Active Sessions</Label>
+                      <p className="text-sm text-slate-400">
                         View and manage your active login sessions
                       </p>
                     </div>
-                    <Button variant="outline" size="sm" data-testid="button-manage-sessions">
+                    <Button variant="outline" size="sm" data-testid="button-manage-sessions" className="border-slate-600 text-slate-300 hover:bg-slate-700">
                       <Smartphone className="h-4 w-4 mr-2" />
                       Manage
                     </Button>
                   </div>
                   
-                  <Separator />
+                  <Separator className="bg-slate-700" />
                   
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-sm font-medium">Login History</Label>
-                      <p className="text-sm text-gray-600">
+                      <Label className="text-sm font-medium text-white">Login History</Label>
+                      <p className="text-sm text-slate-400">
                         Review recent login activity
                       </p>
                     </div>
-                    <Button variant="outline" size="sm" data-testid="button-login-history">
+                    <Button variant="outline" size="sm" data-testid="button-login-history" className="border-slate-600 text-slate-300 hover:bg-slate-700">
                       <Clock className="h-4 w-4 mr-2" />
                       View
                     </Button>
                   </div>
                   
-                  <Separator />
+                  <Separator className="bg-slate-700" />
                   
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-sm font-medium text-red-600">Delete Account</Label>
-                      <p className="text-sm text-gray-600">
+                      <Label className="text-sm font-medium text-red-400">Delete Account</Label>
+                      <p className="text-sm text-slate-400">
                         Permanently delete your account and all data
                       </p>
                     </div>
@@ -849,20 +854,20 @@ export default function TeacherProfile() {
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
-            <Card data-testid="card-notification-settings">
+            <Card data-testid="card-notification-settings" className="bg-slate-800/50 border border-slate-700/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <Bell className="h-5 w-5" />
                   Notification Preferences
                 </CardTitle>
-                <CardDescription>Choose how you want to receive notifications</CardDescription>
+                <CardDescription className="text-slate-400">Choose how you want to receive notifications</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...notificationForm}>
                   <form onSubmit={notificationForm.handleSubmit(onNotificationSubmit)} className="space-y-6">
                     <div className="space-y-6">
                       <div>
-                        <h4 className="text-lg font-medium mb-4">Delivery Methods</h4>
+                        <h4 className="text-lg font-medium mb-4 text-white">Delivery Methods</h4>
                         <div className="space-y-4">
                           <FormField
                             control={notificationForm.control}
@@ -870,8 +875,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">Email Notifications</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">Email Notifications</Label>
+                                  <p className="text-sm text-slate-400">
                                     Receive notifications via email
                                   </p>
                                 </div>
@@ -892,8 +897,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">Push Notifications</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">Push Notifications</Label>
+                                  <p className="text-sm text-slate-400">
                                     Receive browser push notifications
                                   </p>
                                 </div>
@@ -914,8 +919,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">SMS Notifications</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">SMS Notifications</Label>
+                                  <p className="text-sm text-slate-400">
                                     Receive notifications via text message
                                   </p>
                                 </div>
@@ -932,10 +937,10 @@ export default function TeacherProfile() {
                         </div>
                       </div>
                       
-                      <Separator />
+                      <Separator className="bg-slate-700" />
                       
                       <div>
-                        <h4 className="text-lg font-medium mb-4">Notification Types</h4>
+                        <h4 className="text-lg font-medium mb-4 text-white">Notification Types</h4>
                         <div className="space-y-4">
                           <FormField
                             control={notificationForm.control}
@@ -943,8 +948,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">New Messages</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">New Messages</Label>
+                                  <p className="text-sm text-slate-400">
                                     When you receive new messages
                                   </p>
                                 </div>
@@ -965,8 +970,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">Assignment Reminders</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">Assignment Reminders</Label>
+                                  <p className="text-sm text-slate-400">
                                     Reminders for upcoming assignments and deadlines
                                   </p>
                                 </div>
@@ -987,8 +992,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">Grade Updates</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">Grade Updates</Label>
+                                  <p className="text-sm text-slate-400">
                                     When grades are submitted or updated
                                   </p>
                                 </div>
@@ -1009,8 +1014,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">System Updates</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">System Updates</Label>
+                                  <p className="text-sm text-slate-400">
                                     Platform updates and maintenance notifications
                                   </p>
                                 </div>
@@ -1031,8 +1036,8 @@ export default function TeacherProfile() {
                             render={({ field }) => (
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <Label className="text-sm font-medium">Weekly Digest</Label>
-                                  <p className="text-sm text-gray-600">
+                                  <Label className="text-sm font-medium text-white">Weekly Digest</Label>
+                                  <p className="text-sm text-slate-400">
                                     Weekly summary of activities and updates
                                   </p>
                                 </div>
@@ -1054,6 +1059,7 @@ export default function TeacherProfile() {
                       type="submit" 
                       disabled={updateNotificationsMutation.isPending}
                       data-testid="button-save-notifications"
+                      className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                     >
                       {updateNotificationsMutation.isPending ? "Saving..." : "Save Preferences"}
                     </Button>
@@ -1064,13 +1070,13 @@ export default function TeacherProfile() {
           </TabsContent>
 
           <TabsContent value="preferences" className="space-y-6">
-            <Card data-testid="card-app-preferences">
+            <Card data-testid="card-app-preferences" className="bg-slate-800/50 border border-slate-700/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-white">
                   <Settings className="h-5 w-5" />
                   Application Preferences
                 </CardTitle>
-                <CardDescription>Customize your application experience</CardDescription>
+                <CardDescription className="text-slate-400">Customize your application experience</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...preferencesForm}>
@@ -1247,6 +1253,7 @@ export default function TeacherProfile() {
                       type="submit" 
                       disabled={updatePreferencesMutation.isPending}
                       data-testid="button-save-preferences"
+                      className="bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                     >
                       {updatePreferencesMutation.isPending ? "Saving..." : "Save Preferences"}
                     </Button>
@@ -1259,13 +1266,13 @@ export default function TeacherProfile() {
         
         {/* Two-Factor Authentication Setup Modal */}
         <Dialog open={show2FAModal} onOpenChange={setShow2FAModal}>
-          <DialogContent className="sm:max-w-md" data-testid="modal-2fa">
+          <DialogContent className="sm:max-w-md bg-slate-800 border border-slate-700" data-testid="modal-2fa">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-blue-600" />
+              <DialogTitle className="flex items-center gap-2 text-white">
+                <Shield className="h-5 w-5 text-yellow-500" />
                 Setup Two-Factor Authentication
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-slate-400">
                 Scan the QR code below with your authenticator app, then enter the verification code.
               </DialogDescription>
             </DialogHeader>
@@ -1273,25 +1280,25 @@ export default function TeacherProfile() {
             <div className="space-y-6">
               {/* QR Code Section */}
               <div className="flex flex-col items-center space-y-4">
-                <div className="bg-white p-4 rounded-lg border">
+                <div className="bg-slate-700 p-4 rounded-lg border border-slate-600">
                   {/* Mock QR Code - In real app, this would be generated with the actual secret */}
                   <div 
-                    className="w-48 h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center"
+                    className="w-48 h-48 bg-slate-600 rounded border-2 border-dashed border-slate-500 flex items-center justify-center"
                     data-testid="qr-code"
                   >
                     <div className="text-center">
                       <div className="text-4xl mb-2">📱</div>
-                      <p className="text-sm text-gray-600">QR Code</p>
-                      <p className="text-xs text-gray-500">Scan with authenticator app</p>
+                      <p className="text-sm text-slate-300">QR Code</p>
+                      <p className="text-xs text-slate-400">Scan with authenticator app</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="text-center">
-                  <p className="text-sm font-medium text-gray-900 mb-1">
+                  <p className="text-sm font-medium text-white mb-1">
                     Can't scan the code?
                   </p>
-                  <p className="text-xs text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">
+                  <p className="text-xs text-slate-300 font-mono bg-slate-700 px-2 py-1 rounded">
                     JBSWY3DPEHPK3PXP
                   </p>
                 </div>
@@ -1299,17 +1306,17 @@ export default function TeacherProfile() {
               
               {/* Verification Section */}
               <div className="space-y-3">
-                <Label htmlFor="verification-code">Verification Code</Label>
+                <Label htmlFor="verification-code" className="text-white">Verification Code</Label>
                 <Input
                   id="verification-code"
                   type="text"
                   placeholder="Enter 6-digit code"
                   value={verify2FACode}
                   onChange={(e) => setVerify2FACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="text-center text-lg tracking-widest"
+                  className="text-center text-lg tracking-widest bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
                   data-testid="input-2fa-code"
                 />
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-slate-400">
                   Enter the 6-digit code from your authenticator app
                 </p>
               </div>
@@ -1318,14 +1325,14 @@ export default function TeacherProfile() {
               <div className="flex gap-3">
                 <Button 
                   variant="outline" 
-                  className="flex-1"
+                  className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
                   onClick={() => setShow2FAModal(false)}
                   data-testid="button-cancel-2fa"
                 >
                   Cancel
                 </Button>
                 <Button 
-                  className="flex-1"
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-900"
                   onClick={handle2FAVerification}
                   disabled={verify2FACode.length !== 6}
                   data-testid="button-verify-2fa"

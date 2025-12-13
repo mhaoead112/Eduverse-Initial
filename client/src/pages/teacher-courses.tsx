@@ -190,16 +190,16 @@ export default function TeacherCoursesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6 pb-10">
-        {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-blue-100">
+        {/* Enhanced Header - Dark Theme */}
+        <div className="bg-gradient-to-r from-slate-800 via-slate-800/95 to-slate-900 rounded-2xl p-6 shadow-xl border border-slate-700/50">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Classes</h1>
-              <p className="text-gray-600">Create, manage, and publish your classes</p>
+              <h1 className="text-3xl font-bold text-white mb-2">My Classes</h1>
+              <p className="text-slate-400">Create, manage, and publish your classes</p>
             </div>
             <Button 
               onClick={() => setLocation('/teacher/courses/create')}
-              className="bg-blue-600 hover:bg-blue-700 gap-2"
+              className="bg-yellow-500 hover:bg-yellow-400 text-slate-900 gap-2"
             >
               <Plus className="h-4 w-4" />
               Create Class
@@ -208,36 +208,36 @@ export default function TeacherCoursesPage() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Courses</p>
-                  <p className="text-2xl font-bold text-gray-900">{courses.length}</p>
+                  <p className="text-sm text-slate-400">Total Courses</p>
+                  <p className="text-2xl font-bold text-white">{courses.length}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Globe className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <Globe className="h-5 w-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Published</p>
-                  <p className="text-2xl font-bold text-gray-900">{courses.filter(c => c.isPublished).length}</p>
+                  <p className="text-sm text-slate-400">Published</p>
+                  <p className="text-2xl font-bold text-white">{courses.filter(c => c.isPublished).length}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600/50">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Lock className="h-5 w-5 text-orange-600" />
+                <div className="p-2 bg-orange-500/20 rounded-lg">
+                  <Lock className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Drafts</p>
-                  <p className="text-2xl font-bold text-gray-900">{courses.filter(c => !c.isPublished).length}</p>
+                  <p className="text-sm text-slate-400">Drafts</p>
+                  <p className="text-2xl font-bold text-white">{courses.filter(c => !c.isPublished).length}</p>
                 </div>
               </div>
             </div>
@@ -246,32 +246,32 @@ export default function TeacherCoursesPage() {
 
         {/* Courses List */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-64 text-gray-500">
-            <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+          <div className="flex items-center justify-center h-64 text-slate-400">
+            <Loader2 className="mr-2 h-8 w-8 animate-spin text-yellow-500" />
             <span>Loading your courses...</span>
           </div>
         ) : error ? (
-          <Card className="border-red-100 bg-red-50 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+          <Card className="bg-red-500/10 border-red-500/30 shadow-xl">
             <CardContent className="py-8 text-center">
-              <div className="flex items-center justify-center gap-2 text-red-700">
+              <div className="flex items-center justify-center gap-2 text-red-400">
                 <XCircle className="h-5 w-5" />
                 <span>{error}</span>
               </div>
             </CardContent>
           </Card>
         ) : courses.length === 0 ? (
-          <Card className="border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl">
+          <Card className="bg-slate-800/50 border border-slate-700/50 shadow-xl rounded-2xl">
             <CardContent className="py-16 text-center">
-              <BookOpen className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <BookOpen className="h-16 w-16 mx-auto text-slate-500 mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">
                 No courses yet
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-slate-400 mb-6">
                 Get started by creating your first course
               </p>
               <Button 
                 onClick={() => setLocation('/teacher/courses/create')}
-                className="bg-blue-600 hover:bg-blue-700 gap-2"
+                className="bg-yellow-500 hover:bg-yellow-400 text-slate-900 gap-2"
               >
                 <Plus className="h-4 w-4" />
                 Create Your First Course
@@ -285,11 +285,11 @@ export default function TeacherCoursesPage() {
               return (
                 <Card 
                   key={course.id} 
-                  className="group border-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-2xl hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all overflow-hidden opacity-0 animate-fade-in-up"
+                  className="group bg-slate-800/50 border border-slate-700/50 shadow-xl rounded-2xl hover:shadow-2xl hover:border-slate-600/50 transition-all overflow-hidden opacity-0 animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'forwards' }}
                 >
                   {/* Course Image */}
-                  <div className={`h-36 relative overflow-hidden ${!course.imageUrl ? courseStyle.bg : ''}`}>
+                  <div className={`h-36 relative overflow-hidden ${!course.imageUrl ? 'bg-gradient-to-br from-slate-700 to-slate-800' : ''}`}>
                     {course.imageUrl && course.imageUrl.length > 0 ? (
                       <img 
                         src={course.imageUrl.startsWith('http') ? course.imageUrl : `/uploads/${course.imageUrl}`}
@@ -298,7 +298,7 @@ export default function TeacherCoursesPage() {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 bg-white/40 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <div className="w-16 h-16 bg-slate-600/50 rounded-xl flex items-center justify-center backdrop-blur-sm">
                           <span className="text-3xl">{courseStyle.icon}</span>
                         </div>
                       </div>
@@ -327,16 +327,16 @@ export default function TeacherCoursesPage() {
                   </div>
                   
                   <CardHeader className="pb-3 pt-4">
-                    <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <CardTitle className="text-xl font-bold text-white line-clamp-2 group-hover:text-yellow-500 transition-colors">
                       {course.title}
                     </CardTitle>
-                    <CardDescription className="mt-2 line-clamp-2 text-sm">
+                    <CardDescription className="mt-2 line-clamp-2 text-sm text-slate-400">
                       {course.description || "No description provided"}
                     </CardDescription>
                   </CardHeader>
                 
                 <CardContent className="space-y-4">
-                  <div className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 rounded-lg p-2">
+                  <div className="text-xs text-slate-400 flex items-center gap-1 bg-slate-700/50 rounded-lg p-2">
                     <CheckCircle2 className="h-3 w-3" />
                     Created: {formatDate(course.createdAt)}
                   </div>
@@ -346,7 +346,7 @@ export default function TeacherCoursesPage() {
                       size="sm"
                       variant="default"
                       onClick={() => setLocation(`/teacher/courses/${course.id}`)}
-                      className="bg-blue-600 hover:bg-blue-700 w-full"
+                      className="bg-yellow-500 hover:bg-yellow-400 text-slate-900 w-full"
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Manage
@@ -357,6 +357,7 @@ export default function TeacherCoursesPage() {
                       variant="outline"
                       onClick={() => handleTogglePublish(course.id, course.isPublished)}
                       disabled={publishingId === course.id}
+                      className="border-slate-600/50 text-slate-300 hover:bg-slate-700/50 hover:text-white"
                     >
                       {publishingId === course.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -381,7 +382,7 @@ export default function TeacherCoursesPage() {
                       setCourseToDelete(course);
                     }}
                     disabled={deletingId === course.id}
-                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10"
                   >
                     {deletingId === course.id ? (
                       <>
@@ -405,15 +406,15 @@ export default function TeacherCoursesPage() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!courseToDelete} onOpenChange={(open) => !open && setCourseToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white">Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
               This will permanently delete the course "{courseToDelete?.title}" and all its associated lessons and enrollments. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteCourse}
               className="bg-red-600 hover:bg-red-700"

@@ -379,24 +379,24 @@ export default function TeacherAssignmentsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-white">
               Assignments
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-slate-400 mt-2">
               Create and manage assignments for your classes
             </p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                 <Plus className="h-4 w-4" />
                 Create Assignment
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
               <DialogHeader>
-                <DialogTitle>Create New Assignment</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-white">Create New Assignment</DialogTitle>
+                <DialogDescription className="text-slate-400">
                   Add a new assignment to one of your classes
                 </DialogDescription>
               </DialogHeader>
@@ -517,66 +517,66 @@ export default function TeacherAssignmentsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-slate-400">
                     Total Assignments
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-white">
                     {assignments.length}
                   </p>
                 </div>
-                <FileText className="h-8 w-8 text-blue-600" />
+                <FileText className="h-8 w-8 text-blue-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-slate-400">
                     Published
                   </p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-green-400">
                     {assignments.filter(a => a.isPublished).length}
                   </p>
                 </div>
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <CheckCircle2 className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-slate-400">
                     Drafts
                   </p>
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-2xl font-bold text-orange-400">
                     {assignments.filter(a => !a.isPublished).length}
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-orange-600" />
+                <Clock className="h-8 w-8 text-orange-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-slate-400">
                     Submissions
                   </p>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-2xl font-bold text-purple-400">
                     {assignments.reduce((sum, a) => sum + a.submissionCount, 0)}
                   </p>
                 </div>
-                <Users className="h-8 w-8 text-purple-600" />
+                <Users className="h-8 w-8 text-purple-400" />
               </div>
             </CardContent>
           </Card>
@@ -584,29 +584,29 @@ export default function TeacherAssignmentsPage() {
 
         {/* Assignments List */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-64 text-gray-500">
-            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+          <div className="flex items-center justify-center h-64 text-slate-400">
+            <Loader2 className="mr-2 h-6 w-6 animate-spin text-yellow-500" />
             Loading assignments...
           </div>
         ) : error ? (
-          <Card className="border-red-200 bg-red-50">
+          <Card className="bg-red-500/10 border-red-500/30">
             <CardContent className="py-6">
-              <div className="flex items-center gap-2 text-red-700">
+              <div className="flex items-center gap-2 text-red-400">
                 <span>{error}</span>
               </div>
             </CardContent>
           </Card>
         ) : assignments.length === 0 ? (
-          <Card>
+          <Card className="bg-slate-800/50 border border-slate-700/50">
             <CardContent className="py-12 text-center">
-              <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <FileText className="h-12 w-12 mx-auto text-slate-500 mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">
                 No assignments yet
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-slate-400 mb-6">
                 Create your first assignment to get started
               </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Assignment
               </Button>
@@ -617,26 +617,26 @@ export default function TeacherAssignmentsPage() {
             {assignments.map((assignment) => {
               const TypeIcon = getTypeIcon(assignment.type);
               return (
-                <Card key={assignment.id} className="flex flex-col">
+                <Card key={assignment.id} className="flex flex-col bg-slate-800/50 border border-slate-700/50">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <TypeIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                          <Badge variant="outline" className="text-xs">
+                          <TypeIcon className="h-4 w-4 text-slate-400 shrink-0" />
+                          <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
                             {getTypeLabel(assignment.type)}
                           </Badge>
                           <Badge
                             variant={assignment.isPublished ? "default" : "secondary"}
-                            className="text-xs"
+                            className={`text-xs ${assignment.isPublished ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'}`}
                           >
                             {assignment.isPublished ? "Published" : "Draft"}
                           </Badge>
                         </div>
-                        <CardTitle className="text-lg line-clamp-2">
+                        <CardTitle className="text-lg line-clamp-2 text-white">
                           {assignment.title}
                         </CardTitle>
-                        <CardDescription className="mt-1 text-xs">
+                        <CardDescription className="mt-1 text-xs text-slate-400">
                           {assignment.courseTitle}
                         </CardDescription>
                       </div>
@@ -645,26 +645,26 @@ export default function TeacherAssignmentsPage() {
 
                   <CardContent className="flex-1 flex flex-col justify-between space-y-4">
                     {assignment.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-sm text-slate-400 line-clamp-2">
                         {assignment.description}
                       </p>
                     )}
 
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Due Date:</span>
-                        <span className="font-medium">{formatDate(assignment.dueDate)}</span>
+                        <span className="text-slate-400">Due Date:</span>
+                        <span className="font-medium text-white">{formatDate(assignment.dueDate)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Max Score:</span>
-                        <span className="font-medium">{assignment.maxScore} points</span>
+                        <span className="text-slate-400">Max Score:</span>
+                        <span className="font-medium text-white">{assignment.maxScore} points</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Submissions:</span>
-                        <span className="font-medium">
+                        <span className="text-slate-400">Submissions:</span>
+                        <span className="font-medium text-white">
                           {assignment.submissionCount}
                           {assignment.gradedCount > 0 && (
-                            <span className="text-green-600 ml-1">
+                            <span className="text-green-400 ml-1">
                               ({assignment.gradedCount} graded)
                             </span>
                           )}
@@ -677,7 +677,7 @@ export default function TeacherAssignmentsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => setLocation(`/teacher/assignments/${assignment.id}/submissions`)}
-                        className="flex-1"
+                        className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
                       >
                         <ListChecks className="h-4 w-4 mr-1" />
                         View Submissions ({assignment.submissionCount})
@@ -714,7 +714,7 @@ export default function TeacherAssignmentsPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() => openEditDialog(assignment)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
                         title="Edit assignment"
                       >
                         <Edit className="h-4 w-4" />
@@ -725,7 +725,7 @@ export default function TeacherAssignmentsPage() {
                         variant="ghost"
                         onClick={() => setAssignmentToDelete(assignment)}
                         disabled={deletingId === assignment.id}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                         title="Delete assignment"
                       >
                         {deletingId === assignment.id ? (
@@ -745,15 +745,15 @@ export default function TeacherAssignmentsPage() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!assignmentToDelete} onOpenChange={(open) => !open && setAssignmentToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-white">Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
               This will permanently delete the assignment "{assignmentToDelete?.title}" and all associated submissions and grades. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAssignment}
               className="bg-red-600 hover:bg-red-700"
@@ -766,10 +766,10 @@ export default function TeacherAssignmentsPage() {
 
       {/* Edit Assignment Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
           <DialogHeader>
-            <DialogTitle>Edit Assignment</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-white">Edit Assignment</DialogTitle>
+            <DialogDescription className="text-slate-400">
               Update the assignment details
             </DialogDescription>
           </DialogHeader>

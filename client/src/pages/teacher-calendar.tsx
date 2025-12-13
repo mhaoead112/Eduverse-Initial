@@ -306,13 +306,13 @@ export default function TeacherCalendar() {
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
-      case 'class': return 'bg-blue-100 text-blue-800 border-l-4 border-l-blue-500';
-      case 'meeting': return 'bg-purple-100 text-purple-800 border-l-4 border-l-purple-500';
-      case 'exam': return 'bg-red-100 text-red-800 border-l-4 border-l-red-500';
-      case 'announcement': return 'bg-yellow-100 text-yellow-800 border-l-4 border-l-yellow-500';
-      case 'holiday': return 'bg-green-100 text-green-800 border-l-4 border-l-green-500';
-      case 'event': return 'bg-orange-100 text-orange-800 border-l-4 border-l-orange-500';
-      default: return 'bg-gray-100 text-gray-800 border-l-4 border-l-gray-500';
+      case 'class': return 'bg-blue-500/20 text-blue-400 border-l-4 border-l-blue-500';
+      case 'meeting': return 'bg-purple-500/20 text-purple-400 border-l-4 border-l-purple-500';
+      case 'exam': return 'bg-red-500/20 text-red-400 border-l-4 border-l-red-500';
+      case 'announcement': return 'bg-yellow-500/20 text-yellow-400 border-l-4 border-l-yellow-500';
+      case 'holiday': return 'bg-green-500/20 text-green-400 border-l-4 border-l-green-500';
+      case 'event': return 'bg-orange-500/20 text-orange-400 border-l-4 border-l-orange-500';
+      default: return 'bg-slate-700/50 text-slate-400 border-l-4 border-l-slate-500';
     }
   };
 
@@ -354,7 +354,7 @@ export default function TeacherCalendar() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
         </div>
       </DashboardLayout>
     );
@@ -362,113 +362,119 @@ export default function TeacherCalendar() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6" style={{ background: '#0a0f1a', minHeight: '100vh', padding: '1.5rem', margin: '-1.5rem' }}>
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Calendar</h1>
-            <p className="text-gray-600">Manage your classes, meetings, and events</p>
+            <h1 className="text-2xl font-bold text-white">My Calendar</h1>
+            <p className="text-slate-400">Manage your classes, meetings, and events</p>
           </div>
           <div className="flex gap-3">
             <Select value={viewMode} onValueChange={(v: any) => setViewMode(v)}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 bg-slate-800/50 border-slate-700/50 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="month">Month</SelectItem>
-                <SelectItem value="week">Week</SelectItem>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectItem value="month" className="text-white hover:bg-slate-700">Month</SelectItem>
+                <SelectItem value="week" className="text-white hover:bg-slate-700">Week</SelectItem>
               </SelectContent>
             </Select>
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-green-600 hover:bg-green-700">
+                <Button className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Event
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-md bg-slate-800 border-slate-700">
                 <DialogHeader>
-                  <DialogTitle>Create Event</DialogTitle>
-                  <DialogDescription>Add a new event to your calendar.</DialogDescription>
+                  <DialogTitle className="text-white">Create Event</DialogTitle>
+                  <DialogDescription className="text-slate-400">Add a new event to your calendar.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <Label htmlFor="title">Event Title</Label>
+                    <Label htmlFor="title" className="text-slate-300">Event Title</Label>
                     <Input
                       id="title"
                       value={newEvent.title}
                       onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                       placeholder="Enter event title"
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="type">Event Type</Label>
+                    <Label htmlFor="type" className="text-slate-300">Event Type</Label>
                     <Select value={newEvent.type} onValueChange={(v) => setNewEvent({ ...newEvent, type: v })}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="class">Class</SelectItem>
-                        <SelectItem value="meeting">Meeting</SelectItem>
-                        <SelectItem value="exam">Exam</SelectItem>
-                        <SelectItem value="announcement">Announcement</SelectItem>
-                        <SelectItem value="holiday">Holiday</SelectItem>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        <SelectItem value="class" className="text-white hover:bg-slate-700">Class</SelectItem>
+                        <SelectItem value="meeting" className="text-white hover:bg-slate-700">Meeting</SelectItem>
+                        <SelectItem value="exam" className="text-white hover:bg-slate-700">Exam</SelectItem>
+                        <SelectItem value="announcement" className="text-white hover:bg-slate-700">Announcement</SelectItem>
+                        <SelectItem value="holiday" className="text-white hover:bg-slate-700">Holiday</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="date">Date</Label>
+                    <Label htmlFor="date" className="text-slate-300">Date</Label>
                     <Input
                       id="date"
                       type="date"
                       value={newEvent.date}
                       onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                      className="bg-slate-700/50 border-slate-600 text-white"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="startTime">Start Time</Label>
+                      <Label htmlFor="startTime" className="text-slate-300">Start Time</Label>
                       <Input
                         id="startTime"
                         type="time"
                         value={newEvent.startTime}
                         onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                        className="bg-slate-700/50 border-slate-600 text-white"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="endTime">End Time</Label>
+                      <Label htmlFor="endTime" className="text-slate-300">End Time</Label>
                       <Input
                         id="endTime"
                         type="time"
                         value={newEvent.endTime}
                         onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                        className="bg-slate-700/50 border-slate-600 text-white"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="location">Location (Optional)</Label>
+                    <Label htmlFor="location" className="text-slate-300">Location (Optional)</Label>
                     <Input
                       id="location"
                       value={newEvent.location}
                       onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
                       placeholder="Room number or location"
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
                     <Textarea
                       id="description"
                       value={newEvent.description}
                       onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
                       placeholder="Add notes or details"
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setCreateDialogOpen(false)} className="border-slate-600 text-slate-300 hover:bg-slate-700">
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateEvent}>Create Event</Button>
+                  <Button onClick={handleCreateEvent} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">Create Event</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -477,14 +483,14 @@ export default function TeacherCalendar() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Calendar */}
-          <Card className="lg:col-span-3">
+          <Card className="lg:col-span-3 bg-slate-800/50 border-slate-700/50">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <Button variant="ghost" size="icon" onClick={() => navigateMonth(-1)}>
+                <Button variant="ghost" size="icon" onClick={() => navigateMonth(-1)} className="text-slate-300 hover:bg-slate-700/50 hover:text-white">
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
-                <CardTitle>{monthName}</CardTitle>
-                <Button variant="ghost" size="icon" onClick={() => navigateMonth(1)}>
+                <CardTitle className="text-white">{monthName}</CardTitle>
+                <Button variant="ghost" size="icon" onClick={() => navigateMonth(1)} className="text-slate-300 hover:bg-slate-700/50 hover:text-white">
                   <ChevronRight className="h-5 w-5" />
                 </Button>
               </div>
@@ -493,7 +499,7 @@ export default function TeacherCalendar() {
               {/* Weekday headers */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                  <div key={day} className="text-center text-sm font-medium text-slate-500 py-2">
                     {day}
                   </div>
                 ))}
@@ -504,14 +510,14 @@ export default function TeacherCalendar() {
                 {calendarDays.map((day, idx) => (
                   <div
                     key={idx}
-                    className={`min-h-[100px] p-2 border rounded-lg ${
-                      day.date ? 'bg-white hover:bg-gray-50 cursor-pointer' : 'bg-gray-50'
-                    } ${day.isToday ? 'ring-2 ring-green-500' : ''}`}
+                    className={`min-h-[100px] p-2 border border-slate-700/50 rounded-lg ${
+                      day.date ? (day.events.length > 0 ? 'bg-blue-500/20 hover:bg-blue-500/30' : 'bg-slate-800/30 hover:bg-slate-700/50') + ' cursor-pointer' : 'bg-slate-900/30'
+                    } ${day.isToday ? 'ring-2 ring-yellow-500' : ''}`}
                     onClick={() => day.date && setSelectedDate(day.date)}
                   >
                     {day.date && (
                       <>
-                        <div className={`text-sm font-medium ${day.isToday ? 'text-green-600' : 'text-gray-700'}`}>
+                        <div className={`text-sm font-medium ${day.isToday ? 'bg-yellow-500 text-slate-900 w-6 h-6 rounded-full flex items-center justify-center' : day.events.length > 0 ? 'text-blue-400' : 'text-slate-300'}`}>
                           {day.date.getDate()}
                         </div>
                         <div className="mt-1 space-y-1">
@@ -525,7 +531,7 @@ export default function TeacherCalendar() {
                             </div>
                           ))}
                           {day.events.length > 2 && (
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-slate-500">
                               +{day.events.length - 2} more
                             </div>
                           )}
@@ -537,26 +543,26 @@ export default function TeacherCalendar() {
               </div>
 
               {/* Legend */}
-              <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t">
+              <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-700/50">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-blue-500" />
-                  <span className="text-sm text-gray-600">Class</span>
+                  <span className="text-sm text-slate-400">Class</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-purple-500" />
-                  <span className="text-sm text-gray-600">Meeting</span>
+                  <span className="text-sm text-slate-400">Meeting</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-green-500" />
-                  <span className="text-sm text-gray-600">Office Hours</span>
+                  <span className="text-sm text-slate-400">Office Hours</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-red-500" />
-                  <span className="text-sm text-gray-600">Deadline</span>
+                  <span className="text-sm text-slate-400">Deadline</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-orange-500" />
-                  <span className="text-sm text-gray-600">Event</span>
+                  <span className="text-sm text-slate-400">Event</span>
                 </div>
               </div>
             </CardContent>
@@ -564,26 +570,26 @@ export default function TeacherCalendar() {
 
           {/* Today's Schedule */}
           <div className="space-y-4">
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700/50">
               <CardHeader>
-                <CardTitle className="text-lg">Today's Schedule</CardTitle>
+                <CardTitle className="text-lg text-white">Today's Schedule</CardTitle>
               </CardHeader>
               <CardContent>
                 {todayEvents.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No events scheduled for today</p>
+                  <p className="text-slate-500 text-center py-4">No events scheduled for today</p>
                 ) : (
                   <div className="space-y-3">
                     {todayEvents.map((event) => (
                       <div key={event.id} className={`p-3 rounded-lg ${getEventTypeColor(event.type)}`}>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h4 className="font-medium">{event.title}</h4>
-                            <div className="flex items-center gap-2 text-sm mt-1">
+                            <h4 className="font-medium text-white">{event.title}</h4>
+                            <div className="flex items-center gap-2 text-sm mt-1 text-slate-300">
                               <Clock className="h-3 w-3" />
                               {event.startTime} - {event.endTime}
                             </div>
                             {event.location && (
-                              <div className="flex items-center gap-2 text-sm">
+                              <div className="flex items-center gap-2 text-sm text-slate-300">
                                 <MapPin className="h-3 w-3" />
                                 {event.location}
                               </div>
@@ -594,21 +600,21 @@ export default function TeacherCalendar() {
                               variant="ghost"
                               size="icon"
                               onClick={() => openEditDialog(event)}
-                              className="h-8 w-8"
+                              className="h-8 w-8 hover:bg-slate-700/50"
                             >
-                              <Edit className="h-4 w-4 text-blue-500" />
+                              <Edit className="h-4 w-4 text-blue-400" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDeleteEvent(event.id)}
                               disabled={isDeleting === event.id}
-                              className="h-8 w-8"
+                              className="h-8 w-8 hover:bg-slate-700/50"
                             >
                               {isDeleting === event.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <Loader2 className="h-4 w-4 animate-spin text-yellow-500" />
                               ) : (
-                                <Trash2 className="h-4 w-4 text-red-500" />
+                                <Trash2 className="h-4 w-4 text-red-400" />
                               )}
                             </Button>
                           </div>
@@ -620,9 +626,9 @@ export default function TeacherCalendar() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800/50 border-slate-700/50">
               <CardHeader>
-                <CardTitle className="text-lg">Upcoming Exams</CardTitle>
+                <CardTitle className="text-lg text-white">Upcoming Exams</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -631,10 +637,10 @@ export default function TeacherCalendar() {
                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                     .slice(0, 3)
                     .map((event) => (
-                      <div key={event.id} className="flex items-center justify-between p-2 border rounded-lg">
+                      <div key={event.id} className="flex items-center justify-between p-2 border border-slate-700/50 rounded-lg bg-slate-700/30">
                         <div>
-                          <p className="font-medium text-sm">{event.title}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="font-medium text-sm text-white">{event.title}</p>
+                          <p className="text-xs text-slate-500">
                             {new Date(event.date).toLocaleDateString()}
                           </p>
                         </div>
@@ -643,21 +649,21 @@ export default function TeacherCalendar() {
                             variant="ghost"
                             size="icon"
                             onClick={() => openEditDialog(event)}
-                            className="h-8 w-8"
+                            className="h-8 w-8 hover:bg-slate-700/50"
                           >
-                            <Edit className="h-4 w-4 text-blue-500" />
+                            <Edit className="h-4 w-4 text-blue-400" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteEvent(event.id)}
                             disabled={isDeleting === event.id}
-                            className="h-8 w-8"
+                            className="h-8 w-8 hover:bg-slate-700/50"
                           >
                             {isDeleting === event.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-4 w-4 animate-spin text-yellow-500" />
                             ) : (
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              <Trash2 className="h-4 w-4 text-red-400" />
                             )}
                           </Button>
                         </div>
@@ -672,93 +678,99 @@ export default function TeacherCalendar() {
 
       {/* Edit Event Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-slate-800 border-slate-700">
           <DialogHeader>
-            <DialogTitle>Edit Event</DialogTitle>
-            <DialogDescription>Update the event details</DialogDescription>
+            <DialogTitle className="text-white">Edit Event</DialogTitle>
+            <DialogDescription className="text-slate-400">Update the event details</DialogDescription>
           </DialogHeader>
           {editingEvent && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-title">Title</Label>
+                <Label htmlFor="edit-title" className="text-slate-300">Title</Label>
                 <Input
                   id="edit-title"
                   value={editingEvent.title}
                   onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
                   placeholder="Event title"
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-description">Description</Label>
+                <Label htmlFor="edit-description" className="text-slate-300">Description</Label>
                 <Textarea
                   id="edit-description"
                   value={editingEvent.description || ''}
                   onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })}
                   placeholder="Event description"
                   rows={2}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-type">Event Type</Label>
+                <Label htmlFor="edit-type" className="text-slate-300">Event Type</Label>
                 <Select
                   value={editingEvent.type}
                   onValueChange={(value: any) => setEditingEvent({ ...editingEvent, type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="class">Class</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="exam">Exam</SelectItem>
-                    <SelectItem value="announcement">Announcement</SelectItem>
-                    <SelectItem value="holiday">Holiday</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectItem value="class" className="text-white hover:bg-slate-700">Class</SelectItem>
+                    <SelectItem value="meeting" className="text-white hover:bg-slate-700">Meeting</SelectItem>
+                    <SelectItem value="exam" className="text-white hover:bg-slate-700">Exam</SelectItem>
+                    <SelectItem value="announcement" className="text-white hover:bg-slate-700">Announcement</SelectItem>
+                    <SelectItem value="holiday" className="text-white hover:bg-slate-700">Holiday</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-date">Date</Label>
+                <Label htmlFor="edit-date" className="text-slate-300">Date</Label>
                 <Input
                   id="edit-date"
                   type="date"
                   value={editingEvent.date}
                   onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
+                  className="bg-slate-700/50 border-slate-600 text-white"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-start">Start Time</Label>
+                  <Label htmlFor="edit-start" className="text-slate-300">Start Time</Label>
                   <Input
                     id="edit-start"
                     type="time"
                     value={editingEvent.startTime}
                     onChange={(e) => setEditingEvent({ ...editingEvent, startTime: e.target.value })}
+                    className="bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-end">End Time</Label>
+                  <Label htmlFor="edit-end" className="text-slate-300">End Time</Label>
                   <Input
                     id="edit-end"
                     type="time"
                     value={editingEvent.endTime}
                     onChange={(e) => setEditingEvent({ ...editingEvent, endTime: e.target.value })}
+                    className="bg-slate-700/50 border-slate-600 text-white"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-location">Location</Label>
+                <Label htmlFor="edit-location" className="text-slate-300">Location</Label>
                 <Input
                   id="edit-location"
                   value={editingEvent.location || ''}
                   onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
                   placeholder="Room or location"
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
                 />
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setEditDialogOpen(false)} className="border-slate-600 text-slate-300 hover:bg-slate-700">
                   Cancel
                 </Button>
-                <Button onClick={handleEditEvent} disabled={isSaving}>
+                <Button onClick={handleEditEvent} disabled={isSaving} className="bg-yellow-500 hover:bg-yellow-400 text-slate-900">
                   {isSaving ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
