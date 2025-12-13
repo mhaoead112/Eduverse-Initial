@@ -1,16 +1,14 @@
 ﻿import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { Megaphone, Pin, Loader2, BookOpen } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Megaphone, Pin, BookOpen, Filter, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { DashboardLayout } from "@/components/DashboardLayout";
-import { apiEndpoint, assetUrl } from '@/lib/config';
+import { apiEndpoint } from "@/lib/config";
+import StudentLayout from "@/components/StudentLayout";
 
 interface Announcement {
-  id: string;
-  courseId: string;
-  teacherId: string;
+  id: number;
+  courseId: number;
+  teacherId: number;
   title: string;
   content: string;
   isPinned: boolean;
@@ -20,9 +18,9 @@ interface Announcement {
 }
 
 interface Enrollment {
-  courseId: string;
+  courseId: number;
   course: {
-    id: string;
+    id: number;
     title: string;
   };
 }
@@ -31,9 +29,12 @@ export default function StudentAllAnnouncementsPage() {
   const { toast } = useToast();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState<string>("all");
+  const [courses, setCourses] = useState<{ id: number; title: string }[]>([]);
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("auth_token") || localStorage.getItem("eduverse_token");
+    const token = localStorage.getItem("token");
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
   };
@@ -45,66 +46,57 @@ export default function StudentAllAnnouncementsPage() {
   const fetchAllAnnouncements = async () => {
     try {
       setLoading(true);
-      const authHeaders = getAuthHeaders();
 
-      // DEV MODE: Fetch all published courses instead of checking enrollments
-      const coursesRes = await fetch(apiEndpoint("/api/courses"), {
-        headers: authHeaders,
+      // Fetch enrollments first
+      const enrollmentsRes = await fetch(apiEndpoint("/api/enrollments"), {
+        headers: getAuthHeaders(),
       });
-
-      if (!coursesRes.ok) {
-        throw new Error("Failed to fetch courses");
+      
+      let enrolledCourses: Enrollment[] = [];
+      if (enrollmentsRes.ok) {
+        const enrollmentsData = await enrollmentsRes.json();
+        enrolledCourses = enrollmentsData.enrollments || [];
+        
+        // Extract unique courses
+        const uniqueCourses = enrolledCourses.map(e => ({
+          id: e.courseId,
+          title: e.course?.title || `Course ${e.courseId}`
+        }));
+        setCourses(uniqueCourses);
       }
 
-      const coursesData = await coursesRes.json();
-      const allCourses = Array.isArray(coursesData) ? coursesData : [];
-
-      if (allCourses.length === 0) {
-        setAnnouncements([]);
-        setLoading(false);
-        return;
-      }
-
-      // Fetch announcements for each course
+      // Fetch announcements for each enrolled course
       const allAnnouncements: Announcement[] = [];
       
-      for (const course of allCourses) {
+      for (const enrollment of enrolledCourses) {
         try {
-          const courseId = course.id;
-          const courseName = course.title || "Unknown Course";
-
           const announcementsRes = await fetch(
-            apiEndpoint(`/api/announcements/course/${courseId}`),
-            { headers: authHeaders }
+            apiEndpoint(`/api/courses/${enrollment.courseId}/announcements`),
+            { headers: getAuthHeaders() }
           );
-
+          
           if (announcementsRes.ok) {
             const data = await announcementsRes.json();
-            const courseAnnouncements = Array.isArray(data.announcements) ? data.announcements : [];
-            
-            // Add course name to each announcement
-            courseAnnouncements.forEach((announcement: Announcement) => {
-              allAnnouncements.push({
-                ...announcement,
-                courseName,
-              });
-            });
+            const courseAnnouncements = (data.announcements || []).map((a: Announcement) => ({
+              ...a,
+              courseName: enrollment.course?.title || `Course ${enrollment.courseId}`
+            }));
+            allAnnouncements.push(...courseAnnouncements);
           }
         } catch (error) {
-          console.error(`Failed to fetch announcements for course ${course.id}:`, error);
+          console.error(`Failed to fetch announcements for course ${enrollment.courseId}`);
         }
       }
 
-      // Sort announcements: pinned first, then by date
-      allAnnouncements.sort((a, b) => {
+      // Sort: pinned first, then by date
+      const sorted = allAnnouncements.sort((a, b) => {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
-      setAnnouncements(allAnnouncements);
+      setAnnouncements(sorted);
     } catch (error) {
-      console.error("Failed to fetch announcements:", error);
       toast({
         title: "Error",
         description: "Failed to load announcements",
@@ -115,116 +107,209 @@ export default function StudentAllAnnouncementsPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffHours < 24) {
-      if (diffHours < 1) {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes < 1 ? "Just now" : `${diffMinutes}m ago`;
-      }
-      return `${diffHours}h ago`;
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'Today';
+    } else if (diffDays === 1) {
+      return 'Yesterday';
     } else if (diffDays < 7) {
-      return `${diffDays}d ago`;
+      return `${diffDays} days ago`;
     } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-      });
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // Filter announcements
+  const filteredAnnouncements = announcements.filter(a => {
+    const matchesSearch = a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         a.content.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCourse = selectedCourse === "all" || a.courseId.toString() === selectedCourse;
+    return matchesSearch && matchesCourse;
+  });
+
+  const pinnedCount = announcements.filter(a => a.isPinned).length;
 
   return (
-    <DashboardLayout>
+    <StudentLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Recent Announcements
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Stay updated with the latest announcements from all your classes
-          </p>
+        {/* Page Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
+                <Megaphone className="h-5 w-5 text-amber-400" />
+              </div>
+              All Announcements
+            </h1>
+            <p className="text-slate-400 mt-1">Stay updated with announcements from all your courses</p>
+          </div>
+          
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search announcements..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 w-full lg:w-72"
+            />
+          </div>
         </div>
 
-        {/* Announcements List */}
-        {announcements.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Megaphone className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 text-center">
-                No announcements yet. Check back later for updates from your instructors.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {announcements.map((announcement) => (
-              <Card 
-                key={announcement.id} 
-                className={`transition-all hover:shadow-md ${
-                  announcement.isPinned ? "border-blue-500 border-2 bg-blue-50" : ""
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                <Megaphone className="h-5 w-5 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{announcements.length}</p>
+                <p className="text-xs text-slate-400">Total</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                <Pin className="h-5 w-5 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{pinnedCount}</p>
+                <p className="text-xs text-slate-400">Pinned</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{courses.length}</p>
+                <p className="text-xs text-slate-400">Courses</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Course Filter */}
+        {courses.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+            <button
+              onClick={() => setSelectedCourse("all")}
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedCourse === "all"
+                  ? "bg-amber-500 text-slate-900"
+                  : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
+              }`}
+            >
+              All Courses
+            </button>
+            {courses.map(course => (
+              <button
+                key={course.id}
+                onClick={() => setSelectedCourse(course.id.toString())}
+                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedCourse === course.id.toString()
+                    ? "bg-amber-500 text-slate-900"
+                    : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
                 }`}
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-2">
-                        <Link href={`/student/courses/${announcement.courseId}/announcements`}>
-                          <Badge 
-                            variant="secondary" 
-                            className="gap-1 cursor-pointer hover:bg-gray-300"
-                          >
-                            <BookOpen className="h-3 w-3" />
-                            {announcement.courseName}
-                          </Badge>
-                        </Link>
-                        {announcement.isPinned && (
-                          <Badge variant="default" className="gap-1">
-                            <Pin className="h-3 w-3" />
-                            Pinned
-                          </Badge>
-                        )}
-                        <span className="text-xs text-gray-500">
-                          {formatDate(announcement.createdAt)}
-                        </span>
+                {course.title}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && filteredAnnouncements.length === 0 && (
+          <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+              <Megaphone className="h-8 w-8 text-slate-500" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">No Announcements</h3>
+            <p className="text-slate-400 text-sm">
+              {searchQuery || selectedCourse !== "all"
+                ? "No announcements match your criteria"
+                : "There are no announcements from your courses yet."}
+            </p>
+          </div>
+        )}
+
+        {/* Announcements List */}
+        {!loading && filteredAnnouncements.length > 0 && (
+          <div className="space-y-4">
+            {filteredAnnouncements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className={`bg-slate-800/40 border rounded-2xl p-5 transition-all hover:bg-slate-800/60 ${
+                  announcement.isPinned 
+                    ? "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5" 
+                    : "border-slate-700/50"
+                }`}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      announcement.isPinned 
+                        ? "bg-amber-500/20" 
+                        : "bg-slate-700/50"
+                    }`}>
+                      {announcement.isPinned ? (
+                        <Pin className="h-5 w-5 text-amber-400" />
+                      ) : (
+                        <Megaphone className="h-5 w-5 text-slate-400" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">{announcement.title}</h3>
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <span className="text-blue-400">{announcement.courseName}</span>
+                        <span>•</span>
+                        <span>{formatDate(announcement.createdAt)}</span>
                       </div>
-                      <CardTitle className="text-lg">{announcement.title}</CardTitle>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 whitespace-pre-wrap line-clamp-3">
-                    {announcement.content}
-                  </p>
-                  {announcement.content.length > 200 && (
-                    <Link href={`/student/courses/${announcement.courseId}/announcements`}>
-                      <button className="text-blue-600 hover:text-blue-700 text-sm mt-2 font-medium">
-                        Read more →
-                      </button>
-                    </Link>
+                  
+                  {announcement.isPinned && (
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-400 bg-amber-500/20 border border-amber-500/30">
+                      Pinned
+                    </span>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+                
+                {/* Content */}
+                <div className="text-slate-300 text-sm leading-relaxed line-clamp-3 whitespace-pre-wrap">
+                  {announcement.content}
+                </div>
+                
+                {/* View Course Link */}
+                <Link href={`/student/course/${announcement.courseId}`}>
+                  <button className="mt-4 text-sm text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1">
+                    View Course
+                    <BookOpen className="h-4 w-4" />
+                  </button>
+                </Link>
+              </div>
             ))}
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

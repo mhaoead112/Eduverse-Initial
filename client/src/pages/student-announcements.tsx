@@ -1,16 +1,14 @@
 ﻿import { useState, useEffect } from "react";
-import { useRoute } from "wouter";
-import { ArrowLeft, Megaphone, Pin, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useRoute, Link } from "wouter";
+import { ArrowLeft, Megaphone, Pin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiEndpoint, assetUrl } from '@/lib/config';
+import { apiEndpoint } from "@/lib/config";
+import StudentLayout from "@/components/StudentLayout";
 
 interface Announcement {
-  id: string;
-  courseId: string;
-  teacherId: string;
+  id: number;
+  courseId: number;
+  teacherId: number;
   title: string;
   content: string;
   isPinned: boolean;
@@ -19,7 +17,7 @@ interface Announcement {
 }
 
 interface Course {
-  id: string;
+  id: number;
   title: string;
 }
 
@@ -33,7 +31,7 @@ export default function StudentAnnouncementsPage() {
   const [loading, setLoading] = useState(true);
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("auth_token") || localStorage.getItem("eduverse_token");
+    const token = localStorage.getItem("token");
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
   };
@@ -47,9 +45,8 @@ export default function StudentAnnouncementsPage() {
 
   const fetchCourse = async () => {
     try {
-      const authHeaders = getAuthHeaders();
       const response = await fetch(apiEndpoint(`/api/courses/${courseId}`), {
-        headers: authHeaders,
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -61,22 +58,22 @@ export default function StudentAnnouncementsPage() {
   };
 
   const fetchAnnouncements = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const authHeaders = getAuthHeaders();
-      const response = await fetch(apiEndpoint(`/api/announcements/course/${courseId}`), {
-        headers: authHeaders,
+      const response = await fetch(apiEndpoint(`/api/courses/${courseId}/announcements`), {
+        headers: getAuthHeaders(),
       });
-      
       if (response.ok) {
         const data = await response.json();
-        setAnnouncements(Array.isArray(data.announcements) ? data.announcements : []);
-      } else {
-        throw new Error("Failed to fetch announcements");
+        // Sort: pinned first, then by date
+        const sorted = (data.announcements || []).sort((a: Announcement, b: Announcement) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        setAnnouncements(sorted);
       }
     } catch (error) {
-      console.error("Failed to fetch announcements:", error);
-      setAnnouncements([]);
       toast({
         title: "Error",
         description: "Failed to load announcements",
@@ -87,81 +84,114 @@ export default function StudentAnnouncementsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'Today';
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          onClick={() => window.history.back()}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Course
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900">Announcements</h1>
-          {course && (
-            <p className="text-gray-600 mt-1">
-              {course.title}
-            </p>
-          )}
+    <StudentLayout>
+      <div className="space-y-6">
+        {/* Back Button & Header */}
+        <div className="flex items-center gap-4">
+          <Link href={`/student/course/${courseId}`}>
+            <button className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
+                <Megaphone className="h-5 w-5 text-amber-400" />
+              </div>
+              Announcements
+            </h1>
+            {course && (
+              <p className="text-slate-400 mt-1">{course.title}</p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Announcements List */}
-      {announcements.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Megaphone className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-600 text-center">
-              No announcements yet. Check back later for updates from your instructor.
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && announcements.length === 0 && (
+          <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+              <Megaphone className="h-8 w-8 text-slate-500" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">No Announcements</h3>
+            <p className="text-slate-400 text-sm">
+              There are no announcements for this course yet.
             </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {announcements.map((announcement) => (
-            <Card 
-              key={announcement.id} 
-              className={announcement.isPinned ? "border-blue-500 border-2 bg-blue-50" : ""}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-xl">{announcement.title}</CardTitle>
-                      {announcement.isPinned && (
-                        <Badge variant="default" className="gap-1">
-                          <Pin className="h-3 w-3" />
-                          Pinned
-                        </Badge>
+          </div>
+        )}
+
+        {/* Announcements List */}
+        {!loading && announcements.length > 0 && (
+          <div className="space-y-4">
+            {announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className={`bg-slate-800/40 border rounded-2xl p-5 transition-all ${
+                  announcement.isPinned 
+                    ? "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5" 
+                    : "border-slate-700/50"
+                }`}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      announcement.isPinned 
+                        ? "bg-amber-500/20" 
+                        : "bg-slate-700/50"
+                    }`}>
+                      {announcement.isPinned ? (
+                        <Pin className="h-5 w-5 text-amber-400" />
+                      ) : (
+                        <Megaphone className="h-5 w-5 text-slate-400" />
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Posted {new Date(announcement.createdAt).toLocaleString()}
-                      {announcement.updatedAt !== announcement.createdAt && " • Edited"}
-                    </p>
+                    <div>
+                      <h3 className="font-semibold text-white">{announcement.title}</h3>
+                      <p className="text-xs text-slate-500">{formatDate(announcement.createdAt)}</p>
+                    </div>
                   </div>
+                  
+                  {announcement.isPinned && (
+                    <span className="px-2.5 py-1 rounded-lg text-xs font-medium text-amber-400 bg-amber-500/20 border border-amber-500/30">
+                      Pinned
+                    </span>
+                  )}
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                
+                {/* Content */}
+                <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
                   {announcement.content}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </StudentLayout>
   );
 }

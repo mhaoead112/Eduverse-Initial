@@ -1,217 +1,365 @@
-import { useEffect, useState, useMemo } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { apiEndpoint } from "@/lib/config";
-import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, BookOpen, ArrowRight, Search, X, GraduationCap } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-
-interface Course {
-  id: string;
-  title: string;
-  description?: string | null;
-  teacherId: string;
-  isPublished: boolean;
-  imageUrl?: string | null;
-}
+import { useAuth } from "@/hooks/useAuth";
+import { apiEndpoint, assetUrl } from "@/lib/config";
+import StudentLayout from "@/components/StudentLayout";
+import { Play, Clock, BookOpen, Search, Filter, ChevronRight, Star, Users, Trophy, Target } from "lucide-react";
 
 interface Enrollment {
-  id: string;
-  courseId: string;
+  id: number;
+  courseId: number;
+  studentId: number;
   enrolledAt: string;
-  course: Course;
+  progress: number;
+  status: string;
+  course: {
+    id: number;
+    title: string;
+    description: string;
+    subjectId: number;
+    gradeLevel: string;
+    imageUrl: string | null;
+    teacherId: number;
+    status: string;
+    subject?: {
+      id: number;
+      name: string;
+    };
+    teacher?: {
+      id: number;
+      fullName: string;
+    };
+  };
+}
+
+interface EnrollmentsResponse {
+  enrollments: Enrollment[];
 }
 
 export default function StudentCoursesPage() {
-  const { user, token } = useAuth();
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  useEffect(() => {
-    const fetchEnrolledCourses = async () => {
-      if (!token) return;
-      
-      setIsLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(apiEndpoint("/api/enrollments/student"), {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!res.ok) throw new Error("Failed to load enrolled courses");
-        const data = await res.json();
-        setEnrollments(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        setError(err?.message || "Unknown error");
-      } finally {
-        setIsLoading(false);
+  const { data, isLoading, error } = useQuery<EnrollmentsResponse>({
+    queryKey: ["/api/enrollments"],
+    queryFn: async () => {
+      const response = await fetch(apiEndpoint("/api/enrollments"), {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch enrollments");
       }
-    };
+      return response.json();
+    },
+    enabled: !!user,
+  });
 
-    fetchEnrolledCourses();
-  }, [token]);
+  const enrollments = data?.enrollments || [];
+  
+  // Get unique categories from subjects
+  const categories = ["All", ...new Set(enrollments.map(e => e.course.subject?.name || "General").filter(Boolean))];
+  
+  // Filter enrollments based on search and category
+  const filteredEnrollments = enrollments.filter(enrollment => {
+    const matchesSearch = enrollment.course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         enrollment.course.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "All" || 
+                           enrollment.course.subject?.name === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  // Filter enrollments based on search query
-  const filteredEnrollments = useMemo(() => {
-    if (!searchQuery.trim()) return enrollments;
-    const query = searchQuery.toLowerCase();
-    return enrollments.filter(enrollment => 
-      enrollment.course.title.toLowerCase().includes(query) ||
-      enrollment.course.description?.toLowerCase().includes(query)
-    );
-  }, [enrollments, searchQuery]);
+  // Calculate stats
+  const totalCourses = enrollments.length;
+  const completedCourses = enrollments.filter(e => e.progress >= 100).length;
+  const inProgressCourses = enrollments.filter(e => e.progress > 0 && e.progress < 100).length;
+  const averageProgress = enrollments.length > 0 
+    ? Math.round(enrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / enrollments.length)
+    : 0;
 
-  // Get course icon based on title
-  const getCourseStyle = (title: string) => {
-    const lowerTitle = title.toLowerCase();
-    if (lowerTitle.includes('math') || lowerTitle.includes('algebra') || lowerTitle.includes('geometry')) {
-      return { bg: 'bg-gradient-to-br from-amber-200 to-amber-300', icon: '📐' };
-    }
-    if (lowerTitle.includes('science') || lowerTitle.includes('physics') || lowerTitle.includes('chemistry') || lowerTitle.includes('biology')) {
-      return { bg: 'bg-gradient-to-br from-green-200 to-green-300', icon: '🔬' };
-    }
-    if (lowerTitle.includes('english') || lowerTitle.includes('writing') || lowerTitle.includes('literature')) {
-      return { bg: 'bg-gradient-to-br from-blue-200 to-blue-300', icon: '📚' };
-    }
-    if (lowerTitle.includes('history') || lowerTitle.includes('social')) {
-      return { bg: 'bg-gradient-to-br from-orange-200 to-orange-300', icon: '🏛️' };
-    }
-    if (lowerTitle.includes('art') || lowerTitle.includes('music') || lowerTitle.includes('drama')) {
-      return { bg: 'bg-gradient-to-br from-purple-200 to-purple-300', icon: '🎨' };
-    }
-    if (lowerTitle.includes('computer') || lowerTitle.includes('programming') || lowerTitle.includes('coding')) {
-      return { bg: 'bg-gradient-to-br from-cyan-200 to-cyan-300', icon: '💻' };
-    }
-    return { bg: 'bg-gradient-to-br from-indigo-200 to-indigo-300', icon: '📖' };
+  const getProgressColor = (progress: number) => {
+    if (progress >= 80) return "bg-emerald-500";
+    if (progress >= 50) return "bg-amber-500";
+    if (progress >= 25) return "bg-orange-500";
+    return "bg-red-500";
+  };
+
+  const getStatusBadge = (progress: number) => {
+    if (progress >= 100) return { text: "Completed", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" };
+    if (progress >= 75) return { text: "Almost Done", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
+    if (progress > 0) return { text: "In Progress", color: "bg-amber-500/20 text-amber-400 border-amber-500/30" };
+    return { text: "Not Started", color: "bg-slate-500/20 text-slate-400 border-slate-500/30" };
   };
 
   return (
-    <DashboardLayout role="student" userName={user?.fullName || user?.username || "Student"}>
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <StudentLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Classes</h1>
-            <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
-              View and access your enrolled classes.
-            </p>
+            <h1 className="text-2xl font-bold text-white">My Classes</h1>
+            <p className="text-slate-400 mt-1">Manage and track your enrolled courses</p>
           </div>
           
-          {/* Search Bar */}
-          {enrollments.length > 0 && (
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search classes..."
+          {/* Search and Filter */}
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-9 h-10 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                className="pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 w-64"
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
             </div>
-          )}
+            <div className="flex items-center gap-1 bg-slate-800/50 border border-slate-700/50 rounded-xl p-1">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-amber-500 text-slate-900" : "text-slate-400 hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-lg">grid_view</span>
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-amber-500 text-slate-900" : "text-slate-400 hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-lg">view_list</span>
+              </button>
+            </div>
+          </div>
         </div>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{totalCourses}</p>
+                <p className="text-xs text-slate-400">Total Courses</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/20 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <Trophy className="h-5 w-5 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{completedCourses}</p>
+                <p className="text-xs text-slate-400">Completed</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/20 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                <Target className="h-5 w-5 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{inProgressCourses}</p>
+                <p className="text-xs text-slate-400">In Progress</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 border border-purple-500/20 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <Star className="h-5 w-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{averageProgress}%</p>
+                <p className="text-xs text-slate-400">Avg Progress</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          {categories.map(category => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === category
+                  ? "bg-amber-500 text-slate-900"
+                  : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Courses Grid/List */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-48 sm:h-64 text-gray-500">
-            <Loader2 className="mr-2 h-6 w-6 sm:h-8 sm:w-8 animate-spin" />
-            <span className="text-sm sm:text-base">Loading courses...</span>
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
           </div>
         ) : error ? (
-          <Card className="border-red-100 bg-red-50">
-            <CardContent className="py-6 sm:py-8 text-xs sm:text-sm text-red-700 text-center px-4">
-              {error}
-            </CardContent>
-          </Card>
-        ) : enrollments.length === 0 ? (
-          <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl">
-            <CardContent className="py-8 sm:py-12 text-center px-4">
-              <BookOpen className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
-              <p className="text-sm sm:text-base text-gray-600">You are not enrolled in any courses yet. Please contact your teacher to enroll.</p>
-            </CardContent>
-          </Card>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 text-center">
+            <p className="text-red-400">Failed to load courses. Please try again.</p>
+          </div>
         ) : filteredEnrollments.length === 0 ? (
-          <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.08)] rounded-xl sm:rounded-2xl">
-            <CardContent className="py-8 sm:py-12 text-center px-4">
-              <Search className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-gray-300 mb-3 sm:mb-4" />
-              <p className="text-sm sm:text-base text-gray-600">No classes match your search "{searchQuery}"</p>
-              <Button 
-                variant="outline" 
-                onClick={() => setSearchQuery("")}
-                className="mt-4"
-              >
-                Clear Search
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:gap-5 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredEnrollments.map((enrollment, index) => {
-              const courseStyle = getCourseStyle(enrollment.course.title);
+          <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="h-8 w-8 text-slate-500" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">No courses found</h3>
+            <p className="text-slate-400 text-sm max-w-md mx-auto">
+              {searchQuery || selectedCategory !== "All" 
+                ? "Try adjusting your search or filter criteria"
+                : "You haven't enrolled in any courses yet. Explore the catalog to get started!"}
+            </p>
+            {!searchQuery && selectedCategory === "All" && (
+              <Link href="/student/explore">
+                <button className="mt-6 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded-xl transition-colors">
+                  Explore Courses
+                </button>
+              </Link>
+            )}
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {filteredEnrollments.map((enrollment) => {
+              const status = getStatusBadge(enrollment.progress || 0);
               return (
-                <Link key={enrollment.id} href={`/student/courses/${enrollment.courseId}/lessons`}>
-                  <Card 
-                    className="flex flex-col h-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group opacity-0 animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'forwards' }}
-                  >
+                <Link key={enrollment.id} href={`/student/course/${enrollment.courseId}`}>
+                  <div className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl overflow-hidden hover:bg-slate-800/60 hover:border-slate-600/50 transition-all cursor-pointer">
                     {/* Course Image */}
-                    <div className={`h-40 sm:h-48 relative overflow-hidden ${!enrollment.course.imageUrl ? courseStyle.bg : ''}`}>
-                      {enrollment.course.imageUrl && enrollment.course.imageUrl.length > 0 ? (
-                        <img 
-                          src={enrollment.course.imageUrl.startsWith('http') ? enrollment.course.imageUrl : `/uploads/${enrollment.course.imageUrl}`}
-                          alt={enrollment.course.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/40 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                            <span className="text-4xl sm:text-5xl">{courseStyle.icon}</span>
-                          </div>
-                        </div>
-                      )}
-                      {/* Overlay on hover */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={enrollment.course.imageUrl ? assetUrl(enrollment.course.imageUrl) : `https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop`}
+                        alt={enrollment.course.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+                      
+                      {/* Status Badge */}
+                      <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-medium border ${status.color}`}>
+                        {status.text}
+                      </div>
+                      
+                      {/* Subject Badge */}
+                      <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-slate-900/60 backdrop-blur-sm rounded-lg text-xs text-slate-300">
+                        {enrollment.course.subject?.name || "General"}
+                      </div>
                     </div>
                     
-                    <CardHeader className="pb-2 sm:pb-3 p-4 sm:p-5">
-                      <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    {/* Course Info */}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-white group-hover:text-amber-400 transition-colors line-clamp-1">
                         {enrollment.course.title}
-                      </CardTitle>
-                      {enrollment.course.description && (
-                        <p className="mt-1 line-clamp-2 text-xs sm:text-sm text-gray-600">
-                          {enrollment.course.description}
-                        </p>
-                      )}
-                    </CardHeader>
-                    
-                    <CardContent className="pt-0 pb-4 sm:pb-5 px-4 sm:px-5 mt-auto flex items-center justify-between">
-                      <p className="text-xs text-gray-500">
-                        Enrolled: {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                      </h3>
+                      <p className="text-sm text-slate-400 mt-1 line-clamp-2">
+                        {enrollment.course.description || "No description available"}
                       </p>
-                      <div className="flex items-center text-blue-600 text-xs sm:text-sm font-medium group-hover:translate-x-1 transition-transform">
-                        View lessons
-                        <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
+                      
+                      {/* Teacher & Grade */}
+                      <div className="flex items-center gap-3 mt-3 text-xs text-slate-500">
+                        <div className="flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5" />
+                          <span>{enrollment.course.teacher?.fullName || "Unknown Teacher"}</span>
+                        </div>
+                        <span>•</span>
+                        <span>{enrollment.course.gradeLevel}</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                      
+                      {/* Progress Bar */}
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-xs mb-1.5">
+                          <span className="text-slate-400">Progress</span>
+                          <span className="text-white font-medium">{enrollment.progress || 0}%</span>
+                        </div>
+                        <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getProgressColor(enrollment.progress || 0)} rounded-full transition-all`}
+                            style={{ width: `${enrollment.progress || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Continue Button */}
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>Last accessed 2d ago</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-amber-400 text-sm font-medium group-hover:gap-2 transition-all">
+                          <Play className="h-4 w-4" />
+                          <span>Continue</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          /* List View */
+          <div className="space-y-3">
+            {filteredEnrollments.map((enrollment) => {
+              const status = getStatusBadge(enrollment.progress || 0);
+              return (
+                <Link key={enrollment.id} href={`/student/course/${enrollment.courseId}`}>
+                  <div className="group flex items-center gap-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 hover:bg-slate-800/60 hover:border-slate-600/50 transition-all cursor-pointer">
+                    {/* Course Thumbnail */}
+                    <div className="w-24 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                      <img
+                        src={enrollment.course.imageUrl ? assetUrl(enrollment.course.imageUrl) : `https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=130&fit=crop`}
+                        alt={enrollment.course.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    {/* Course Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-white group-hover:text-amber-400 transition-colors">
+                            {enrollment.course.title}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                            <span>{enrollment.course.subject?.name || "General"}</span>
+                            <span>•</span>
+                            <span>{enrollment.course.teacher?.fullName}</span>
+                          </div>
+                        </div>
+                        <div className={`px-2.5 py-1 rounded-lg text-xs font-medium border ${status.color}`}>
+                          {status.text}
+                        </div>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="flex items-center gap-3 mt-3">
+                        <div className="flex-1 h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getProgressColor(enrollment.progress || 0)} rounded-full`}
+                            style={{ width: `${enrollment.progress || 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-white font-medium">{enrollment.progress || 0}%</span>
+                      </div>
+                    </div>
+                    
+                    {/* Continue Arrow */}
+                    <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                  </div>
                 </Link>
               );
             })}
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </StudentLayout>
   );
 }
