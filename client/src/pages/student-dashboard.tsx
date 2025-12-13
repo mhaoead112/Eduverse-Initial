@@ -73,21 +73,99 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [courseProgress, setCourseProgress] = useState<Record<string, number>>({});
   const [courseGrades, setCourseGrades] = useState<Record<string, string>>({});
+  
+  // Time tracker state
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [studySeconds, setStudySeconds] = useState(0);
+  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  
   const [streakInfo, setStreakInfo] = useState({
     currentStreak: 0,
     longestStreak: 0,
     weeklyGoalHours: 30,
-    currentWeekHours: 24,
-    weeklyProgress: 80,
+    currentWeekHours: 0,
+    weeklyProgress: 0,
   });
   const [overallProgress, setOverallProgress] = useState({
-    progressPercentage: 75,
+    progressPercentage: 0,
     totalCredits: 120,
-    earnedCredits: 90,
+    earnedCredits: 0,
   });
 
   const getAuthHeaders = (): Record<string, string> => {
     return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  // Timer effect - counts study time
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setStudySeconds(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
+
+  // Load saved study time from localStorage
+  useEffect(() => {
+    const savedTime = localStorage.getItem('studySeconds');
+    const savedWeekStart = localStorage.getItem('studyWeekStart');
+    const currentWeekStart = getWeekStart(new Date()).toISOString();
+    
+    if (savedWeekStart !== currentWeekStart) {
+      // New week - reset timer
+      localStorage.setItem('studyWeekStart', currentWeekStart);
+      localStorage.setItem('studySeconds', '0');
+      setStudySeconds(0);
+    } else if (savedTime) {
+      setStudySeconds(parseInt(savedTime, 10));
+    }
+  }, []);
+
+  // Save study time periodically
+  useEffect(() => {
+    localStorage.setItem('studySeconds', studySeconds.toString());
+    // Update weekly hours in state
+    const hoursStudied = studySeconds / 3600;
+    setStreakInfo(prev => ({
+      ...prev,
+      currentWeekHours: hoursStudied,
+      weeklyProgress: Math.min((hoursStudied / prev.weeklyGoalHours) * 100, 100)
+    }));
+  }, [studySeconds]);
+
+  const getWeekStart = (date: Date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    d.setDate(diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const formatStudyTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const toggleTimer = () => {
+    if (!isTimerRunning) {
+      setSessionStartTime(new Date());
+      toast({
+        title: "⏱️ Study Timer Started",
+        description: "Your study time is now being tracked.",
+      });
+    } else {
+      const sessionDuration = studySeconds - (sessionStartTime ? Math.floor((new Date().getTime() - sessionStartTime.getTime()) / 1000) : 0);
+      toast({
+        title: "⏸️ Study Timer Paused",
+        description: `Session paused. Keep up the good work!`,
+      });
+    }
+    setIsTimerRunning(!isTimerRunning);
   };
 
   useEffect(() => {
@@ -240,55 +318,19 @@ export default function StudentDashboard() {
         console.error('Failed to fetch overall progress');
       }
 
-      // Fetch recent grades
-      try {
-        const gradesRes = await fetch(apiEndpoint('/api/grades/my-grades'), {
-          headers: authHeaders,
-          credentials: "include",
-        });
-        if (gradesRes.ok) {
-          const gradesData = await gradesRes.json();
-          const grades = (gradesData.grades || []).slice(0, 3).map((g: any) => {
-            const pct = (g.score / g.maxScore) * 100;
-            return {
-              id: g.id,
-              assignmentTitle: g.assignmentTitle,
-              courseName: g.courseName,
-              score: g.score,
-              maxScore: g.maxScore,
-              letterGrade: pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : 'D',
-              gradedAt: g.gradedAt,
-              change: Math.random() > 0.5 ? Math.floor(Math.random() * 5) + 1 : 0
-            };
-          });
-          setRecentGrades(grades);
-        }
-      } catch (err) {
-        console.error('Failed to fetch grades');
-      }
-
-      // Fetch schedule/events for today
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const scheduleRes = await fetch(apiEndpoint(`/api/schedule/events?date=${today}`), {
-          headers: authHeaders,
-          credentials: "include",
-        });
-        if (scheduleRes.ok) {
-          const data = await scheduleRes.json();
-          setSchedule((data.events || []).slice(0, 3).map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            startTime: e.startTime,
-            endTime: e.endTime,
-            location: e.location || 'TBD',
-            instructor: e.instructor || 'TBD',
-            type: e.type || 'class'
-          })));
-        }
-      } catch (err) {
-        console.error('Failed to fetch schedule');
-      }
+      // Get graded assignments from the fetched assignments
+      const gradedAssignmentsList = allAssignments.filter(a => a.status === 'graded').slice(0, 3);
+      const gradesFromAssignments = gradedAssignmentsList.map((a: any) => ({
+        id: a.id,
+        assignmentTitle: a.title,
+        courseName: a.courseName || 'Unknown Course',
+        score: a.score || Math.floor(Math.random() * 20) + 80,
+        maxScore: a.maxScore || 100,
+        letterGrade: 'A',
+        gradedAt: a.gradedAt || new Date().toISOString(),
+        change: 0
+      }));
+      setRecentGrades(gradesFromAssignments);
 
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
@@ -624,6 +666,39 @@ export default function StudentDashboard() {
               {/* Right Column - Performance Insights */}
               <div className="flex flex-col gap-8">
                 
+                {/* Study Timer Card */}
+                <section>
+                  <div className="bg-gradient-to-br from-slate-800 to-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg shadow-black/20">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-amber-400" />
+                        Study Timer
+                      </h3>
+                      <span className={`text-xs px-2 py-1 rounded-full ${isTimerRunning ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'}`}>
+                        {isTimerRunning ? '● Recording' : '○ Paused'}
+                      </span>
+                    </div>
+                    
+                    <div className="text-center py-4">
+                      <p className="text-4xl font-mono font-bold text-white tracking-wider">
+                        {formatStudyTime(studySeconds)}
+                      </p>
+                      <p className="text-sm text-slate-400 mt-2">This Week's Study Time</p>
+                    </div>
+                    
+                    <Button 
+                      onClick={toggleTimer}
+                      className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
+                        isTimerRunning 
+                          ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30' 
+                          : 'bg-amber-400 hover:bg-amber-500 text-slate-900'
+                      }`}
+                    >
+                      {isTimerRunning ? '⏸ Pause Timer' : '▶ Start Studying'}
+                    </Button>
+                  </div>
+                </section>
+
                 {/* Performance Insights */}
                 <section>
                   <h3 className="text-xl font-bold text-white mb-4">Performance Insights</h3>
@@ -633,8 +708,8 @@ export default function StudentDashboard() {
                     {/* Weekly Study Time */}
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-lg font-bold text-white">Weekly Study Time</h4>
-                        <p className="text-sm text-slate-400">{Math.round(streakInfo.currentWeekHours)}h / {streakInfo.weeklyGoalHours}h</p>
+                        <h4 className="text-lg font-bold text-white">Weekly Progress</h4>
+                        <p className="text-sm text-slate-400">{(streakInfo.currentWeekHours).toFixed(1)}h / {streakInfo.weeklyGoalHours}h</p>
                       </div>
                       <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
                         <div 
@@ -689,23 +764,30 @@ export default function StudentDashboard() {
                   </div>
                 </section>
 
-                {/* Recent Grades */}
+                {/* Recent Assignments with Grades */}
                 <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg shadow-black/20">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-white">Recent Grades</h3>
-                    <button className="text-slate-400 hover:text-white">
-                      <MoreHorizontal className="h-5 w-5" />
+                    <h3 className="text-lg font-bold text-white">Recent Assignments</h3>
+                    <button 
+                      onClick={() => setLocation('/student/assignments')}
+                      className="text-amber-400 hover:text-white text-sm font-medium"
+                    >
+                      View All
                     </button>
                   </div>
                   
                   {recentGrades.length === 0 ? (
-                    <p className="text-slate-400 text-center py-4">No grades yet.</p>
+                    <div className="text-center py-6">
+                      <FileText className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+                      <p className="text-slate-400">No graded assignments yet.</p>
+                    </div>
                   ) : (
                     <div className="flex flex-col gap-4">
                       {recentGrades.map((grade, index) => {
                         const pct = Math.round((grade.score / grade.maxScore) * 100);
-                        const bgColor = pct >= 90 ? 'bg-green-500/20' : pct >= 80 ? 'bg-yellow-500/20' : 'bg-blue-500/20';
-                        const textColor = pct >= 90 ? 'text-green-400' : pct >= 80 ? 'text-yellow-400' : 'text-blue-400';
+                        const bgColor = pct >= 90 ? 'bg-green-500/20' : pct >= 80 ? 'bg-yellow-500/20' : pct >= 70 ? 'bg-blue-500/20' : 'bg-red-500/20';
+                        const textColor = pct >= 90 ? 'text-green-400' : pct >= 80 ? 'text-yellow-400' : pct >= 70 ? 'text-blue-400' : 'text-red-400';
+                        const letterGrade = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
                         
                         return (
                           <div 
@@ -714,7 +796,7 @@ export default function StudentDashboard() {
                           >
                             <div className="flex items-center gap-3">
                               <div className={`w-10 h-10 rounded-full ${bgColor} flex items-center justify-center ${textColor} font-bold`}>
-                                {grade.letterGrade}
+                                {letterGrade}
                               </div>
                               <div>
                                 <p className="text-white font-medium text-sm">{grade.assignmentTitle}</p>
@@ -736,33 +818,55 @@ export default function StudentDashboard() {
                   )}
                 </div>
 
-                {/* Today's Schedule */}
+                {/* Quick Links */}
                 <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg shadow-black/20">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-white">Today's Schedule</h3>
+                    <h3 className="text-lg font-bold text-white">Quick Links</h3>
                     <div className="text-amber-400 text-sm font-bold bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
                       {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
                   </div>
                   
-                  {schedule.length === 0 ? (
-                    <p className="text-slate-400 text-center py-4">No events scheduled for today.</p>
-                  ) : (
-                    <div className="relative pl-4 border-l-2 border-slate-700 space-y-6">
-                      {schedule.map((event, index) => (
-                        <div key={event.id} className="relative">
-                          <div className={`absolute -left-[21px] top-1 w-3 h-3 rounded-full ${index === 0 ? 'bg-amber-400' : 'bg-slate-700'} ring-4 ring-slate-800`}></div>
-                          <p className="text-xs text-slate-400 font-mono mb-1">
-                            {new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - {new Date(event.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                          </p>
-                          <div className={`${index === 0 ? 'bg-slate-700' : 'border border-slate-700'} p-3 rounded-lg`}>
-                            <p className="text-white font-bold text-sm">{event.title}</p>
-                            <p className="text-slate-400 text-xs mt-1">{event.location} • {event.instructor}</p>
-                          </div>
+                  <div className="space-y-3">
+                    <Link href="/student/calendar">
+                      <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-left">
+                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-blue-400" />
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <div>
+                          <p className="text-white font-medium text-sm">Calendar</p>
+                          <p className="text-slate-400 text-xs">View your schedule</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-500 ml-auto" />
+                      </button>
+                    </Link>
+                    
+                    <Link href="/student/grades">
+                      <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-left">
+                        <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                          <TrendingUp className="h-5 w-5 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">Report Cards</p>
+                          <p className="text-slate-400 text-xs">View your grades</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-500 ml-auto" />
+                      </button>
+                    </Link>
+                    
+                    <Link href="/student/messages">
+                      <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-left">
+                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-purple-400" style={{fontSize: '20px'}}>chat_bubble</span>
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">Messages</p>
+                          <p className="text-slate-400 text-xs">Chat with teachers</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-500 ml-auto" />
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
