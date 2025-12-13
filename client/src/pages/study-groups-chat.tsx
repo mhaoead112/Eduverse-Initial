@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Search, Send, Smile, Paperclip, Phone, 
-  MoreVertical, Hash, Lock, Users, X, Plus, MessageCircle
+  Search, Send, Smile, Paperclip, Phone, Video,
+  MoreVertical, Hash, Lock, Users, X, Plus, MessageCircle,
+  FileText, Download, Image as ImageIcon
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -229,267 +230,276 @@ export default function StudyGroupsChatPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex h-[calc(100vh-80px)] bg-white">
+      <div className="flex h-[calc(100vh-80px)] bg-slate-900 rounded-2xl overflow-hidden border border-slate-700/50">
         {/* Left Sidebar - Conversations List */}
-        <div className="w-[270px] border-r border-gray-200 flex flex-col bg-white">
+        <div className="w-[280px] border-r border-slate-700/50 flex flex-col bg-slate-900">
           {/* Header */}
-          <div className="p-4 border-b border-gray-100">
-            <h1 className="text-xl font-bold text-gray-900 mb-3">Chat</h1>
+          <div className="p-4 border-b border-slate-700/50">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-xl font-bold text-white">Messages</h1>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800">
+                <Users className="h-5 w-5" />
+              </Button>
+            </div>
             
             {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input
-                placeholder="Search..."
+                placeholder="Search messages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-gray-50 border-gray-200"
+                className="pl-9 h-10 bg-slate-800/60 border-slate-700/50 text-white placeholder:text-slate-500 rounded-xl focus:ring-yellow-500/50"
               />
             </div>
-          </div>
 
-          {/* Tabs */}
-          <div className="flex border-b border-gray-100">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'all'
-                  ? 'text-gray-900 border-b-2 border-gray-900'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setActiveTab('direct')}
-              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'direct'
-                  ? 'text-gray-900 border-b-2 border-gray-900'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Direct
-            </button>
-            <button
-              onClick={() => setActiveTab('channels')}
-              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'channels'
-                  ? 'text-gray-900 border-b-2 border-gray-900'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Channels
-            </button>
+            {/* Compose New Button */}
+            <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-semibold rounded-xl h-10">
+              <Plus className="h-4 w-4 mr-2" />
+              Compose New
+            </Button>
           </div>
 
           {/* Conversations List */}
           <ScrollArea className="flex-1">
             <div className="p-2">
-              {/* Study Groups/Channels */}
-              {(activeTab === 'all' || activeTab === 'channels') && (
-                <div className="mb-4">
-                  {filteredGroups.map(group => (
-                    <button
-                      key={group.id}
-                      onClick={() => selectConversation(group, 'group')}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-                        selectedConversation?.id === group.id ? 'bg-gray-100' : ''
-                      }`}
-                    >
-                      <div className="relative">
-                        <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                          {group.isPrivate ? (
-                            <Lock className="h-5 w-5 text-gray-600" />
-                          ) : (
-                            <Hash className="h-5 w-5 text-gray-600" />
-                          )}
-                        </div>
-                        {group.unreadCount ? (
-                          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                            {group.unreadCount}
-                          </Badge>
-                        ) : null}
-                      </div>
-                      <div className="flex-1 text-left overflow-hidden">
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold text-sm text-gray-900 truncate">
-                            {group.name}
-                          </p>
-                          {group.lastMessageTime && (
-                            <span className="text-xs text-gray-500 ml-2">
-                              {formatTime(group.lastMessageTime)}
-                            </span>
-                          )}
-                        </div>
-                        {group.lastMessage && (
-                          <p className="text-xs text-gray-600 truncate">
-                            {group.lastMessage}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
               {/* Direct Messages */}
-              {(activeTab === 'all' || activeTab === 'direct') && (
-                <div>
-                  {filteredDMs.map(dm => (
-                    <button
-                      key={dm.id}
-                      onClick={() => selectConversation(dm, 'dm')}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-                        selectedConversation?.id === dm.id ? 'bg-gray-100' : ''
-                      }`}
-                    >
-                      <div className="relative">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage 
-                            src={dm.profilePicture ? assetUrl(dm.profilePicture) : ''} 
-                            alt={dm.fullName} 
-                          />
-                          <AvatarFallback className="bg-gray-200 text-gray-900">
-                            {dm.username.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        {dm.isOnline && (
-                          <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white" />
-                        )}
-                        {dm.unreadCount ? (
-                          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                            {dm.unreadCount}
-                          </Badge>
-                        ) : null}
-                      </div>
-                      <div className="flex-1 text-left overflow-hidden">
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold text-sm text-gray-900 truncate">
-                            {dm.fullName}
-                          </p>
-                          {dm.lastMessageTime && (
-                            <span className="text-xs text-gray-500 ml-2">
-                              {formatTime(dm.lastMessageTime)}
-                            </span>
-                          )}
-                        </div>
-                        {dm.lastMessage && (
-                          <p className="text-xs text-gray-600 truncate">
-                            {dm.lastMessage}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+              {filteredDMs.map(dm => (
+                <button
+                  key={dm.id}
+                  onClick={() => selectConversation(dm, 'dm')}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800/60 transition-colors mb-1 ${
+                    selectedConversation?.id === dm.id ? 'bg-slate-800/80 border border-slate-700/50' : ''
+                  }`}
+                >
+                  <div className="relative">
+                    <Avatar className="h-11 w-11 border-2 border-slate-700">
+                      <AvatarImage 
+                        src={dm.profilePicture ? assetUrl(dm.profilePicture) : ''} 
+                        alt={dm.fullName} 
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold">
+                        {dm.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || dm.username.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {dm.isOnline && (
+                      <div className="absolute bottom-0 right-0 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
+                    )}
+                  </div>
+                  <div className="flex-1 text-left overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-sm text-white truncate">
+                        {dm.fullName}
+                      </p>
+                      {dm.lastMessageTime && (
+                        <span className="text-xs text-slate-500 ml-2">
+                          {formatTime(dm.lastMessageTime)}
+                        </span>
+                      )}
+                    </div>
+                    {dm.lastMessage && (
+                      <p className="text-xs text-slate-400 truncate mt-0.5">
+                        {dm.lastMessage}
+                      </p>
+                    )}
+                  </div>
+                  {dm.unreadCount ? (
+                    <Badge className="h-5 min-w-[20px] p-0 flex items-center justify-center bg-blue-500 text-white text-xs rounded-full">
+                      {dm.unreadCount}
+                    </Badge>
+                  ) : null}
+                </button>
+              ))}
+
+              {/* Study Groups/Channels */}
+              {filteredGroups.map(group => (
+                <button
+                  key={group.id}
+                  onClick={() => selectConversation(group, 'group')}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800/60 transition-colors mb-1 ${
+                    selectedConversation?.id === group.id ? 'bg-slate-800/80 border border-slate-700/50' : ''
+                  }`}
+                >
+                  <div className="relative">
+                    <div className="h-11 w-11 rounded-full bg-slate-700/50 flex items-center justify-center border-2 border-slate-600">
+                      {group.isPrivate ? (
+                        <Lock className="h-5 w-5 text-slate-400" />
+                      ) : (
+                        <Hash className="h-5 w-5 text-slate-400" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-1 text-left overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-sm text-white truncate">
+                        {group.name}
+                      </p>
+                      {group.lastMessageTime && (
+                        <span className="text-xs text-slate-500 ml-2">
+                          {formatTime(group.lastMessageTime)}
+                        </span>
+                      )}
+                    </div>
+                    {group.lastMessage && (
+                      <p className="text-xs text-slate-400 truncate mt-0.5">
+                        {group.lastMessage}
+                      </p>
+                    )}
+                  </div>
+                  {group.unreadCount ? (
+                    <Badge className="h-5 min-w-[20px] p-0 flex items-center justify-center bg-blue-500 text-white text-xs rounded-full">
+                      {group.unreadCount}
+                    </Badge>
+                  ) : null}
+                </button>
+              ))}
 
               {/* Empty State */}
               {filteredGroups.length === 0 && filteredDMs.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-slate-500">
                   <MessageCircle className="h-12 w-12 mx-auto mb-2 opacity-30" />
                   <p className="text-sm">No conversations found</p>
                 </div>
               )}
             </div>
           </ScrollArea>
-
-          {/* Pinned Chat Section */}
-          <div className="p-2 border-t border-gray-100">
-            <p className="text-xs font-semibold text-gray-500 px-3 py-2">Pinned chat</p>
-            {/* Add pinned chats here if needed */}
-          </div>
         </div>
 
         {/* Main Chat Area */}
         {selectedConversation ? (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col bg-slate-900/50">
             {/* Chat Header */}
-            <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6">
+            <div className="h-16 border-b border-slate-700/50 flex items-center justify-between px-6 bg-slate-900/80 backdrop-blur-sm">
               <div className="flex items-center gap-3">
                 {conversationType === 'group' ? (
-                  <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-slate-700/50 flex items-center justify-center border border-slate-600">
                     {selectedConversation.isPrivate ? (
-                      <Lock className="h-5 w-5 text-gray-600" />
+                      <Lock className="h-5 w-5 text-slate-400" />
                     ) : (
-                      <Hash className="h-5 w-5 text-gray-600" />
+                      <Hash className="h-5 w-5 text-slate-400" />
                     )}
                   </div>
                 ) : (
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gray-200 text-gray-900">
-                      {selectedConversation.username?.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="h-10 w-10 border-2 border-slate-700">
+                      <AvatarImage 
+                        src={selectedConversation.profilePicture ? assetUrl(selectedConversation.profilePicture) : ''} 
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                        {selectedConversation.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || selectedConversation.username?.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {selectedConversation.isOnline && (
+                      <div className="absolute bottom-0 right-0 h-3 w-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+                    )}
+                  </div>
                 )}
                 <div>
-                  <h2 className="font-semibold text-gray-900">
+                  <h2 className="font-semibold text-white">
                     {conversationType === 'group' ? selectedConversation.name : selectedConversation.fullName}
                   </h2>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-slate-400">
                     {conversationType === 'group' 
-                      ? `${selectedConversation.memberCount} members • ${selectedConversation.isOnline ? '5 online' : ''}`
-                      : selectedConversation.isOnline ? 'Online' : 'Offline'
+                      ? `${selectedConversation.memberCount} members`
+                      : selectedConversation.isOnline 
+                        ? <span className="text-emerald-400">Online</span>
+                        : 'Offline'
                     }
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Phone className="h-5 w-5 text-gray-600" />
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-white hover:bg-slate-800">
+                  <Search className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Search className="h-5 w-5 text-gray-600" />
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-white hover:bg-slate-800">
+                  <Video className="h-5 w-5" />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-9 w-9"
+                  className="h-9 w-9 text-slate-400 hover:text-white hover:bg-slate-800"
                   onClick={() => setShowRightPanel(!showRightPanel)}
                 >
-                  <MoreVertical className="h-5 w-5 text-gray-600" />
+                  <MoreVertical className="h-5 w-5" />
                 </Button>
               </div>
             </div>
 
+            {/* Date Divider */}
+            <div className="flex items-center justify-center py-4">
+              <span className="text-xs text-slate-500 bg-slate-800/60 px-3 py-1 rounded-full">
+                Today, {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+              </span>
+            </div>
+
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6">
-              <div className="space-y-4">
+            <ScrollArea className="flex-1 px-6">
+              <div className="space-y-4 pb-4">
                 {messages.map((message, index) => {
                   const isOwnMessage = message.senderId === user?.id;
-                  const showAvatar = index === 0 || messages[index - 1].senderId !== message.senderId;
+                  const showAvatar = !isOwnMessage && (index === 0 || messages[index - 1].senderId !== message.senderId);
+                  const showTime = index === messages.length - 1 || messages[index + 1]?.senderId !== message.senderId;
 
                   return (
-                    <div key={message.id} className="flex gap-3">
+                    <div 
+                      key={message.id} 
+                      className={`flex gap-3 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+                    >
                       {!isOwnMessage && (
                         <Avatar className={`h-8 w-8 flex-shrink-0 ${showAvatar ? '' : 'invisible'}`}>
                           <AvatarImage 
                             src={message.senderProfilePicture ? assetUrl(message.senderProfilePicture) : ''} 
                             alt={message.senderName} 
                           />
-                          <AvatarFallback className="bg-gray-200 text-gray-600 text-xs">
-                            {message.senderUsername.substring(0, 2).toUpperCase()}
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                            {message.senderName?.split(' ').map(n => n[0]).join('').toUpperCase() || message.senderUsername.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                       )}
                       
-                      <div className="flex-1 min-w-0">
-                        {showAvatar && !isOwnMessage && (
-                          <div className="flex items-baseline gap-2 mb-1">
-                            <span className="font-semibold text-sm text-gray-900">
-                              {message.senderName}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {formatTime(message.createdAt)}
-                            </span>
-                          </div>
-                        )}
-                        
-                        <div className="text-sm text-gray-900 break-words">
-                          {message.content}
+                      <div className={`max-w-[70%] ${isOwnMessage ? 'order-first' : ''}`}>
+                        <div
+                          className={`rounded-2xl px-4 py-2.5 ${
+                            isOwnMessage
+                              ? 'bg-teal-600 text-white rounded-tr-sm'
+                              : 'bg-slate-800 text-white rounded-tl-sm'
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          
+                          {/* File attachment example (if message has file) */}
+                          {message.type === 'file' && message.fileUrl && (
+                            <div className="mt-2 bg-slate-900/50 rounded-xl p-3 flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                                <FileText className="h-5 w-5 text-red-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-white truncate">{message.fileName || 'Document'}</p>
+                                <p className="text-xs text-slate-400">PDF</p>
+                              </div>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white">
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
+                        
+                        {showTime && (
+                          <p className={`text-[10px] text-slate-500 mt-1 ${isOwnMessage ? 'text-right' : 'text-left'}`}>
+                            {formatTime(message.createdAt)}
+                          </p>
+                        )}
                       </div>
+
+                      {isOwnMessage && (
+                        <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs">
+                            {user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'ME'}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
                     </div>
                   );
                 })}
@@ -498,17 +508,26 @@ export default function StudyGroupsChatPage() {
             </ScrollArea>
 
             {/* Message Input */}
-            <div className="border-t border-gray-200 p-4">
+            <div className="border-t border-slate-700/50 p-4 bg-slate-900/80 backdrop-blur-sm">
               <form onSubmit={handleSendMessage}>
-                <div className="flex items-end gap-2 bg-white border border-gray-200 rounded-lg p-2">
+                <div className="flex items-center gap-3 bg-slate-800/60 border border-slate-700/50 rounded-xl px-4 py-2">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 flex-shrink-0"
+                    className="h-9 w-9 flex-shrink-0 text-slate-400 hover:text-white hover:bg-slate-700"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Paperclip className="h-5 w-5 text-gray-600" />
+                    <Plus className="h-5 w-5" />
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 flex-shrink-0 text-slate-400 hover:text-white hover:bg-slate-700"
+                  >
+                    <ImageIcon className="h-5 w-5" />
                   </Button>
 
                   <input
@@ -521,33 +540,32 @@ export default function StudyGroupsChatPage() {
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+                    placeholder={`Type a message to ${conversationType === 'group' ? selectedConversation.name : selectedConversation.fullName}...`}
+                    className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-white placeholder:text-slate-500"
                   />
-
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 flex-shrink-0"
-                  >
-                    <Smile className="h-5 w-5 text-gray-600" />
-                  </Button>
 
                   <Button
                     type="submit"
                     disabled={isSending || !newMessage.trim()}
-                    className="h-9 rounded-lg bg-pink-500 hover:bg-pink-600"
+                    size="icon"
+                    className="h-9 w-9 rounded-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 disabled:opacity-50"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
+                <p className="text-xs text-slate-600 text-center mt-2">Press Enter to send</p>
               </form>
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center text-gray-500">
+          <div className="flex-1 flex items-center justify-center bg-slate-900/50">
+            <div className="text-center text-slate-500">
+              <MessageCircle className="h-24 w-24 mx-auto mb-4 opacity-20" />
+              <p className="text-lg font-medium text-slate-400">Select a conversation</p>
+              <p className="text-sm">Choose from your existing conversations or start a new one</p>
+            </div>
+          </div>
+        )}
               <MessageCircle className="h-24 w-24 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium">Select a conversation</p>
               <p className="text-sm">Choose from your existing conversations or start a new one</p>
@@ -557,15 +575,15 @@ export default function StudyGroupsChatPage() {
 
         {/* Right Sidebar - Info Panel */}
         {showRightPanel && selectedConversation && (
-          <div className="w-[320px] border-l border-gray-200 bg-white">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">
+          <div className="w-[320px] border-l border-slate-700/50 bg-slate-900">
+            <div className="p-4 border-b border-slate-700/50 flex items-center justify-between">
+              <h3 className="font-semibold text-white">
                 {conversationType === 'group' ? 'Photos & Videos' : 'Details'}
               </h3>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800"
                 onClick={() => setShowRightPanel(false)}
               >
                 <X className="h-4 w-4" />
@@ -574,29 +592,29 @@ export default function StudyGroupsChatPage() {
 
             <ScrollArea className="h-[calc(100vh-160px)]">
               {conversationType === 'group' ? (
-                <div className="p-4 space-y-4">
+                <div className="p-4 space-y-6">
                   <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-3">Photos & Videos <span className="text-gray-500">23</span></p>
+                    <p className="text-sm font-semibold text-slate-300 mb-3">Photos & Videos <span className="text-slate-500">23</span></p>
                     <div className="grid grid-cols-2 gap-2">
                       {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="aspect-square bg-gray-100 rounded-lg" />
+                        <div key={i} className="aspect-square bg-slate-800 rounded-xl border border-slate-700/50" />
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-3">Shared Links <span className="text-gray-500">3</span></p>
+                    <p className="text-sm font-semibold text-slate-300 mb-3">Shared Links <span className="text-slate-500">3</span></p>
                     <div className="space-y-2">
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
-                          <div className="h-10 w-10 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
-                            <Hash className="h-5 w-5 text-blue-600" />
+                        <div key={i} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors">
+                          <div className="h-10 w-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Hash className="h-5 w-5 text-blue-400" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-gray-900 truncate">
+                            <p className="text-xs font-medium text-white truncate">
                               Figma Component Best Practices
                             </p>
-                            <p className="text-xs text-gray-500 truncate">www.figma.com</p>
+                            <p className="text-xs text-slate-500 truncate">www.figma.com</p>
                           </div>
                         </div>
                       ))}
@@ -604,22 +622,22 @@ export default function StudyGroupsChatPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-3">Members <span className="text-gray-500">24</span></p>
+                    <p className="text-sm font-semibold text-slate-300 mb-3">Members <span className="text-slate-500">24</span></p>
                     <div className="space-y-1">
-                      <p className="text-xs font-semibold text-gray-600 px-2 py-1">Online</p>
+                      <p className="text-xs font-semibold text-slate-500 px-2 py-1">Online</p>
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
+                        <div key={i} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors">
                           <div className="relative">
                             <Avatar className="h-8 w-8">
-                              <AvatarFallback className="bg-gray-200 text-gray-900 text-xs">
+                              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
                                 JC
                               </AvatarFallback>
                             </Avatar>
-                            <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white" />
+                            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">Jane Cooper</p>
-                            <Badge variant="secondary" className="text-xs">Mentor</Badge>
+                            <p className="text-sm font-medium text-white">Jane Cooper</p>
+                            <Badge variant="secondary" className="text-[10px] bg-slate-700/50 text-slate-400">Mentor</Badge>
                           </div>
                         </div>
                       ))}
@@ -629,13 +647,35 @@ export default function StudyGroupsChatPage() {
               ) : (
                 <div className="p-4">
                   <div className="text-center mb-6">
-                    <Avatar className="h-20 w-20 mx-auto mb-3">
-                      <AvatarFallback className="bg-gray-200 text-gray-900 text-2xl">
+                    <Avatar className="h-20 w-20 mx-auto mb-3 border-2 border-slate-700">
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl">
                         {selectedConversation.username?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <h3 className="font-semibold text-gray-900">{selectedConversation.fullName}</h3>
-                    <p className="text-sm text-gray-600">@{selectedConversation.username}</p>
+                    <h3 className="font-semibold text-white">{selectedConversation.fullName}</h3>
+                    <p className="text-sm text-slate-400">@{selectedConversation.username}</p>
+                    {selectedConversation.isOnline && (
+                      <Badge className="mt-2 bg-emerald-500/20 text-emerald-400 border-0">Online</Badge>
+                    )}
+                  </div>
+
+                  {/* Shared Media Section */}
+                  <div>
+                    <p className="text-sm font-semibold text-slate-300 mb-3">Shared Files</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div className="h-10 w-10 bg-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="h-5 w-5 text-red-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">Final_Rubric_Fall2023.pdf</p>
+                          <p className="text-xs text-slate-500">2.4 MB</p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
