@@ -1,13 +1,22 @@
 ﻿import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, FileText, GraduationCap, AlertCircle } from "lucide-react";
-import { apiEndpoint, assetUrl } from '@/lib/config';
+import { apiEndpoint } from "@/lib/config";
+import StudentLayout from "@/components/StudentLayout";
+import { 
+  CheckCircle2, 
+  FileText, 
+  GraduationCap, 
+  AlertCircle, 
+  TrendingUp,
+  Clock,
+  Star,
+  Target,
+  BarChart3,
+  BookOpen
+} from "lucide-react";
 
 interface StudentAssignment {
-  id: string;
+  id: number;
   title: string;
   courseTitle?: string;
   dueDate?: string | null;
@@ -15,14 +24,14 @@ interface StudentAssignment {
 }
 
 interface StudentSubmission {
-  id: string;
+  id: number;
   assignmentTitle?: string;
   submittedAt?: string | null;
   status?: string;
 }
 
 interface StudentGrade {
-  id: string;
+  id: number;
   courseTitle?: string;
   assignmentTitle?: string;
   score?: number | null;
@@ -37,10 +46,11 @@ interface MyProgressResponse {
 }
 
 export default function StudentProgressPage() {
-  const { user, getAuthHeaders } = useAuth();
+  const { user } = useAuth();
   const [data, setData] = useState<MyProgressResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'assignments' | 'submissions' | 'grades'>('overview');
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -48,7 +58,9 @@ export default function StudentProgressPage() {
       setError(null);
       try {
         const res = await fetch(apiEndpoint("/api/student/my-progress"), {
-          headers: getAuthHeaders(),
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
         if (!res.ok) throw new Error("Failed to load progress");
         const json = await res.json();
@@ -67,140 +79,347 @@ export default function StudentProgressPage() {
   const submissions = data?.submissions || [];
   const grades = data?.grades || [];
 
+  // Calculate stats
+  const pendingAssignments = assignments.filter(a => a.status === 'pending' || !a.status).length;
+  const completedAssignments = submissions.length;
+  const averageGrade = grades.length > 0 
+    ? Math.round(grades.reduce((sum, g) => sum + ((g.score || 0) / (g.maxScore || 100) * 100), 0) / grades.length)
+    : 0;
+
+  const getStatusColor = (status?: string) => {
+    switch (status?.toLowerCase()) {
+      case 'graded':
+        return 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30';
+      case 'submitted':
+        return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
+      case 'pending':
+        return 'text-amber-400 bg-amber-500/20 border-amber-500/30';
+      case 'overdue':
+        return 'text-red-400 bg-red-500/20 border-red-500/30';
+      default:
+        return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
+    }
+  };
+
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return 'No date';
+    return new Date(dateStr).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'assignments', label: 'Assignments', icon: FileText, count: assignments.length },
+    { id: 'submissions', label: 'Submissions', icon: CheckCircle2, count: submissions.length },
+    { id: 'grades', label: 'Grades', icon: GraduationCap, count: grades.length },
+  ];
+
   return (
-    <DashboardLayout role="student" userName={user?.fullName || user?.username || "Student"}>
-      <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
+    <StudentLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Progress</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            View your assignments, submissions, and grades in one place.
-          </p>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-amber-400" />
+            </div>
+            My Progress
+          </h1>
+          <p className="text-slate-400 mt-1">Track your academic journey across all courses</p>
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center h-40 text-slate-500">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Loading your progress...
-          </div>
-        ) : error ? (
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="py-6 text-sm text-red-700 flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              {error}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* Assignments */}
-            <Card className="md:col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <FileText className="h-4 w-4 text-blue-600" />
-                  Upcoming Assignments
-                  <Badge variant="secondary" className="ml-auto text-xs">
-                    {assignments.length}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                {assignments.length === 0 ? (
-                  <p className="text-slate-500 text-xs">No assignments found.</p>
-                ) : (
-                  assignments.map((a) => (
-                    <div key={a.id} className="rounded-md border border-slate-100 p-3">
-                      <div className="font-medium text-slate-900">{a.title}</div>
-                      {a.courseTitle && (
-                        <div className="text-xs text-slate-500 mt-0.5">{a.courseTitle}</div>
-                      )}
-                      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                        {a.dueDate && <span>Due {new Date(a.dueDate).toLocaleString()}</span>}
-                        {a.status && (
-                          <Badge variant="outline" className="text-[10px] uppercase">
-                            {a.status}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))
+        {/* Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-amber-500 text-slate-900"
+                    : "bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700/50"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{tab.label}</span>
+                {tab.count !== undefined && (
+                  <span className={`text-xs px-1.5 py-0.5 rounded-md ${
+                    activeTab === tab.id
+                      ? "bg-slate-900/30"
+                      : "bg-slate-700/50"
+                  }`}>
+                    {tab.count}
+                  </span>
                 )}
-              </CardContent>
-            </Card>
+              </button>
+            );
+          })}
+        </div>
 
-            {/* Submissions */}
-            <Card className="md:col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Recent Submissions
-                  <Badge variant="secondary" className="ml-auto text-xs">
-                    {submissions.length}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                {submissions.length === 0 ? (
-                  <p className="text-slate-500 text-xs">No submissions yet.</p>
-                ) : (
-                  submissions.map((s) => (
-                    <div key={s.id} className="rounded-md border border-slate-100 p-3">
-                      <div className="font-medium text-slate-900">
-                        {s.assignmentTitle || "Assignment"}
-                      </div>
-                      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                        {s.submittedAt && <span>Submitted {new Date(s.submittedAt).toLocaleString()}</span>}
-                        {s.status && (
-                          <Badge variant="outline" className="text-[10px] uppercase">
-                            {s.status}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Grades */}
-            <Card className="md:col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <GraduationCap className="h-4 w-4 text-indigo-600" />
-                  Grades
-                  <Badge variant="secondary" className="ml-auto text-xs">
-                    {grades.length}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                {grades.length === 0 ? (
-                  <p className="text-slate-500 text-xs">No grades posted yet.</p>
-                ) : (
-                  grades.map((g) => (
-                    <div key={g.id} className="rounded-md border border-slate-100 p-3">
-                      <div className="font-medium text-slate-900 flex justify-between items-center">
-                        <span>{g.assignmentTitle || g.courseTitle || "Assessment"}</span>
-                        {g.letterGrade && (
-                          <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 rounded-full px-2 py-0.5">
-                            {g.letterGrade}
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500 flex justify-between">
-                        {g.courseTitle && <span>{g.courseTitle}</span>}
-                        {g.score != null && g.maxScore != null && (
-                          <span>
-                            {g.score}/{g.maxScore}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500 border-t-transparent"></div>
           </div>
         )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-400" />
+            <span className="text-red-400">{error}</span>
+          </div>
+        )}
+
+        {/* Content */}
+        {!isLoading && !error && (
+          <>
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 rounded-2xl p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                        <Clock className="h-6 w-6 text-amber-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-bold text-white">{pendingAssignments}</p>
+                        <p className="text-sm text-slate-400">Pending</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/10 border border-emerald-500/20 rounded-2xl p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-bold text-white">{completedAssignments}</p>
+                        <p className="text-sm text-slate-400">Submitted</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/20 rounded-2xl p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                        <GraduationCap className="h-6 w-6 text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-bold text-white">{grades.length}</p>
+                        <p className="text-sm text-slate-400">Graded</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/10 border border-purple-500/20 rounded-2xl p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                        <Star className="h-6 w-6 text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="text-3xl font-bold text-white">{averageGrade}%</p>
+                        <p className="text-sm text-slate-400">Avg Grade</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {/* Recent Submissions */}
+                  <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                      Recent Submissions
+                    </h3>
+                    {submissions.length === 0 ? (
+                      <p className="text-slate-400 text-sm text-center py-8">No submissions yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {submissions.slice(0, 5).map((sub) => (
+                          <div key={sub.id} className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-xl">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                              <FileText className="h-5 w-5 text-emerald-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white font-medium truncate">{sub.assignmentTitle}</p>
+                              <p className="text-xs text-slate-500">{formatDate(sub.submittedAt)}</p>
+                            </div>
+                            <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${getStatusColor(sub.status)}`}>
+                              {sub.status || 'Submitted'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Recent Grades */}
+                  <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <GraduationCap className="h-5 w-5 text-blue-400" />
+                      Recent Grades
+                    </h3>
+                    {grades.length === 0 ? (
+                      <p className="text-slate-400 text-sm text-center py-8">No grades yet</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {grades.slice(0, 5).map((grade) => {
+                          const percentage = grade.maxScore ? Math.round((grade.score || 0) / grade.maxScore * 100) : 0;
+                          return (
+                            <div key={grade.id} className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-xl">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                percentage >= 90 ? 'bg-emerald-500/20' :
+                                percentage >= 80 ? 'bg-blue-500/20' :
+                                percentage >= 70 ? 'bg-amber-500/20' :
+                                'bg-red-500/20'
+                              }`}>
+                                <span className={`font-bold ${
+                                  percentage >= 90 ? 'text-emerald-400' :
+                                  percentage >= 80 ? 'text-blue-400' :
+                                  percentage >= 70 ? 'text-amber-400' :
+                                  'text-red-400'
+                                }`}>
+                                  {grade.letterGrade || `${percentage}%`}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white font-medium truncate">{grade.assignmentTitle}</p>
+                                <p className="text-xs text-slate-500">{grade.courseTitle}</p>
+                              </div>
+                              <span className="text-sm text-slate-400">
+                                {grade.score}/{grade.maxScore}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Assignments Tab */}
+            {activeTab === 'assignments' && (
+              <div className="space-y-3">
+                {assignments.length === 0 ? (
+                  <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+                      <FileText className="h-8 w-8 text-slate-500" />
+                    </div>
+                    <h3 className="text-lg font-medium text-white mb-2">No Assignments</h3>
+                    <p className="text-slate-400 text-sm">You don't have any assignments yet</p>
+                  </div>
+                ) : (
+                  assignments.map((assignment) => (
+                    <div key={assignment.id} className="flex items-center gap-4 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                        <FileText className="h-6 w-6 text-amber-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-white">{assignment.title}</h4>
+                        <p className="text-sm text-slate-500">{assignment.courseTitle}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-slate-400">Due: {formatDate(assignment.dueDate)}</p>
+                        <span className={`inline-flex px-2 py-1 rounded-lg text-xs font-medium border ${getStatusColor(assignment.status)}`}>
+                          {assignment.status || 'Pending'}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Submissions Tab */}
+            {activeTab === 'submissions' && (
+              <div className="space-y-3">
+                {submissions.length === 0 ? (
+                  <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-slate-500" />
+                    </div>
+                    <h3 className="text-lg font-medium text-white mb-2">No Submissions</h3>
+                    <p className="text-slate-400 text-sm">You haven't submitted any assignments yet</p>
+                  </div>
+                ) : (
+                  submissions.map((sub) => (
+                    <div key={sub.id} className="flex items-center gap-4 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-white">{sub.assignmentTitle}</h4>
+                        <p className="text-sm text-slate-500">Submitted on {formatDate(sub.submittedAt)}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${getStatusColor(sub.status)}`}>
+                        {sub.status || 'Submitted'}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Grades Tab */}
+            {activeTab === 'grades' && (
+              <div className="space-y-3">
+                {grades.length === 0 ? (
+                  <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
+                      <GraduationCap className="h-8 w-8 text-slate-500" />
+                    </div>
+                    <h3 className="text-lg font-medium text-white mb-2">No Grades</h3>
+                    <p className="text-slate-400 text-sm">Your graded assignments will appear here</p>
+                  </div>
+                ) : (
+                  grades.map((grade) => {
+                    const percentage = grade.maxScore ? Math.round((grade.score || 0) / grade.maxScore * 100) : 0;
+                    return (
+                      <div key={grade.id} className="flex items-center gap-4 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
+                        <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${
+                          percentage >= 90 ? 'bg-emerald-500/20' :
+                          percentage >= 80 ? 'bg-blue-500/20' :
+                          percentage >= 70 ? 'bg-amber-500/20' :
+                          'bg-red-500/20'
+                        }`}>
+                          <span className={`text-lg font-bold ${
+                            percentage >= 90 ? 'text-emerald-400' :
+                            percentage >= 80 ? 'text-blue-400' :
+                            percentage >= 70 ? 'text-amber-400' :
+                            'text-red-400'
+                          }`}>
+                            {grade.letterGrade || `${percentage}%`}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-white">{grade.assignmentTitle}</h4>
+                          <p className="text-sm text-slate-500">{grade.courseTitle}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-white">{grade.score}/{grade.maxScore}</p>
+                          <p className="text-xs text-slate-500">{percentage}%</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </DashboardLayout>
+    </StudentLayout>
   );
 }
