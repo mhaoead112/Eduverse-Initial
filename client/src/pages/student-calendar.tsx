@@ -30,12 +30,14 @@ export default function StudentCalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week">("month");
 
-  // Fetch calendar events
-  const { data: events = [], isLoading } = useQuery<CalendarEvent[]>({
-    queryKey: ["/api/calendar/events", currentDate.getMonth(), currentDate.getFullYear()],
+  // Fetch calendar events using schedule API
+  const { data: scheduleData, isLoading } = useQuery({
+    queryKey: ["/api/schedule/me", currentDate.getMonth(), currentDate.getFullYear()],
     queryFn: async () => {
+      const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
       const response = await fetch(
-        apiEndpoint(`/api/calendar/events?month=${currentDate.getMonth() + 1}&year=${currentDate.getFullYear()}`),
+        apiEndpoint(`/api/schedule/me?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`),
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -43,13 +45,27 @@ export default function StudentCalendarPage() {
         }
       );
       if (!response.ok) {
-        // Return empty array if endpoint doesn't exist yet
-        return [];
+        // Return empty data if endpoint fails
+        return { schedule: [] };
       }
       return response.json();
     },
     enabled: !!user,
   });
+  
+  // Transform schedule data to calendar events format
+  const events: CalendarEvent[] = (scheduleData?.schedule || []).map((e: any) => ({
+    id: e.id,
+    title: e.title,
+    description: e.description,
+    type: e.eventType === 'assignment-due' ? 'assignment' : (e.eventType || 'class'),
+    date: e.startTime,
+    time: e.startTime ? new Date(e.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : undefined,
+    endTime: e.endTime ? new Date(e.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : undefined,
+    location: e.location,
+    courseId: e.courseId,
+    courseName: e.courseName,
+  }));
 
   // Fetch assignments as calendar events
   const { data: assignments = [] } = useQuery({

@@ -83,6 +83,80 @@ router.get('/student/:studentId', isAuthenticated, async (req, res) => {
 });
 
 /**
+ * PROTECTED (STUDENT)
+ * GET /api/grades/my-grades
+ * Get all grades for the currently logged-in student
+ */
+router.get('/my-grades', isAuthenticated, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const studentId = user.id;
+
+    // Get all submissions for this student with grades
+    const studentSubmissions = await db
+      .select({
+        submissionId: submissions.id,
+        assignmentId: submissions.assignmentId,
+        submittedAt: submissions.submittedAt,
+        status: submissions.status,
+        gradeId: grades.id,
+        score: grades.score,
+        maxScore: grades.maxScore,
+        feedback: grades.feedback,
+        gradedAt: grades.gradedAt,
+        assignmentTitle: assignments.title,
+        assignmentDescription: assignments.description,
+        courseId: assignments.courseId,
+      })
+      .from(submissions)
+      .leftJoin(grades, eq(grades.submissionId, submissions.id))
+      .leftJoin(assignments, eq(assignments.id, submissions.assignmentId))
+      .where(eq(submissions.studentId, studentId))
+      .orderBy(desc(grades.gradedAt));
+
+    // Get course info for each grade
+    const courseIds = [...new Set(studentSubmissions.map(s => s.courseId).filter(Boolean))];
+    const coursesData = courseIds.length > 0 ? await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+      })
+      .from(courses)
+      .where(inArray(courses.id, courseIds as string[])) : [];
+
+    const courseMap = new Map(coursesData.map(c => [c.id, c.title]));
+
+    // Format grades response
+    const gradesData = studentSubmissions
+      .filter(s => s.gradeId) // Only include graded submissions
+      .map(s => ({
+        id: s.gradeId,
+        submissionId: s.submissionId,
+        assignmentId: s.assignmentId,
+        assignmentTitle: s.assignmentTitle,
+        courseName: s.courseId ? courseMap.get(s.courseId) || 'Unknown Course' : 'Unknown Course',
+        score: s.score,
+        maxScore: s.maxScore,
+        feedback: s.feedback,
+        gradedAt: s.gradedAt,
+        submittedAt: s.submittedAt,
+      }));
+
+    res.json({ grades: gradesData });
+  } catch (error) {
+    console.error('Error fetching my grades:', error);
+    res.status(500).json({
+      message: 'Failed to fetch grades',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * PROTECTED (TEACHER)
  * GET /api/grades/course/:courseId
  * Get all grades for a specific course
